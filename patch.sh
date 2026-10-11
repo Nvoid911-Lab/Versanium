@@ -117,7 +117,8 @@ sed -i '/[[:space:]]mWindowAndroid,/!b;n;s|[[:space:]]buttonView,|buttonView != 
 
 # f11: toggle browser controls with a hardware keyboard
 sed -i '/import org.chromium.chrome.browser.tab.BrowserControlsVisibilityDelegate;/i import org.chromium.cc.input.BrowserControlsState;' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-sed -i '/private boolean mUIWithNativeInitialized;/i\\    private final BrowserControlsVisibilityDelegate mF11BrowserControlsVisibilityDelegate = new BrowserControlsVisibilityDelegate(BrowserControlsState.BOTH);\\n    private boolean mF11ToolbarHidden;' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+sed -i '/private boolean mUIWithNativeInitialized;/i\\    private boolean mF11ToolbarHidden;' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+sed -i '/private boolean mF11ToolbarHidden;/i\\    private final BrowserControlsVisibilityDelegate mF11BrowserControlsVisibilityDelegate = new BrowserControlsVisibilityDelegate(BrowserControlsState.BOTH);' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 sed -i 's|getFullscreenManager().getBrowserVisibilityDelegate());|getFullscreenManager().getBrowserVisibilityDelegate(), mF11BrowserControlsVisibilityDelegate);|' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 sed -i '/public boolean onKeyDown(int keyCode, KeyEvent event) {/a\\        if (mUIWithNativeInitialized \&\& keyCode == KeyEvent.KEYCODE_F11 \&\& event.getAction() == KeyEvent.ACTION_DOWN \&\& event.getRepeatCount() == 0) { mF11ToolbarHidden = !mF11ToolbarHidden; mF11BrowserControlsVisibilityDelegate.set(mF11ToolbarHidden ? BrowserControlsState.HIDDEN : BrowserControlsState.BOTH); return true; }' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 
