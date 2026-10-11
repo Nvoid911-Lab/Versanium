@@ -35,19 +35,32 @@ gclient runhooks
 
 source $SCRIPT_DIR/patch.sh
 cp $SCRIPT_DIR/args.gn out/Default/args.gn
+if [ "$F11_TEST_BUILD" = "1" ]; then
+    sed -i 's/target_cpu = "arm"/target_cpu = "arm64"/' out/Default/args.gn
+fi
 gn gen out/Default # gn args out/Default; echo 'treat_warnings_as_errors = false' >> out/Default/args.gn
 mkdir -p out/tmp out/release
 
-autoninja -C out/Default chrome_public_apk
-mv $(find out/Default/apks -name 'Chrome*.apk') out/tmp/$VERSION-armeabi-v7a.apk
-sed -i 's/target_cpu = "arm"/target_cpu = "arm64"/' out/Default/args.gn
-autoninja -C out/Default chrome_public_apk chrome_public_bundle
-mv $(find out/Default/apks -name 'Chrome*.apk') out/tmp/$VERSION-arm64-v8a.apk
-mv $(find out/Default/apks -name 'Chrome*.aab') out/tmp/$VERSION-arm64-v8a.aab
+if [ "$F11_TEST_BUILD" = "1" ]; then
+    # Build only the arm64 APK for the F11 feature test.
+    autoninja -C out/Default chrome_public_apk
+    mv $(find out/Default/apks -name 'Chrome*.apk') out/tmp/$VERSION-arm64-v8a.apk
+else
+    autoninja -C out/Default chrome_public_apk
+    mv $(find out/Default/apks -name 'Chrome*.apk') out/tmp/$VERSION-armeabi-v7a.apk
+    sed -i 's/target_cpu = "arm"/target_cpu = "arm64"/' out/Default/args.gn
+    autoninja -C out/Default chrome_public_apk chrome_public_bundle
+    mv $(find out/Default/apks -name 'Chrome*.apk') out/tmp/$VERSION-arm64-v8a.apk
+    mv $(find out/Default/apks -name 'Chrome*.aab') out/tmp/$VERSION-arm64-v8a.aab
+fi
 
 export PATH=$PWD/third_party/jdk/current/bin/:$PATH
 export ANDROID_HOME=$PWD/third_party/android_sdk/public
-sign_apk out/tmp/$VERSION-armeabi-v7a.apk out/release/$VERSION-armeabi-v7a.apk
-sign_apk out/tmp/$VERSION-arm64-v8a.apk out/release/$VERSION-arm64-v8a.apk
-sign_aab out/tmp/$VERSION-arm64-v8a.aab out/release/$VERSION-arm64-v8a.aab
+if [ "$F11_TEST_BUILD" = "1" ]; then
+    sign_apk out/tmp/$VERSION-arm64-v8a.apk out/release/$VERSION-arm64-v8a.apk
+else
+    sign_apk out/tmp/$VERSION-armeabi-v7a.apk out/release/$VERSION-armeabi-v7a.apk
+    sign_apk out/tmp/$VERSION-arm64-v8a.apk out/release/$VERSION-arm64-v8a.apk
+    sign_aab out/tmp/$VERSION-arm64-v8a.aab out/release/$VERSION-arm64-v8a.aab
+fi
 rm -rf $SCRIPT_DIR/keys
