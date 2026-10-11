@@ -38,13 +38,15 @@ cp $SCRIPT_DIR/args.gn out/Default/args.gn
 if [ "$F11_TEST_BUILD" = "1" ]; then
     sed -i 's/target_cpu = "arm"/target_cpu = "arm64"/' out/Default/args.gn
 fi
-gn gen out/Default # gn args out/Default; echo 'treat_warnings_as_errors = false' >> out/Default/args.gn
+gn gen out/Default || { echo "ERROR: gn gen failed; stopping before compilation/signing."; exit 1; }
 mkdir -p out/tmp out/release
 
 if [ "$F11_TEST_BUILD" = "1" ]; then
     # Build only the arm64 APK for the F11 feature test.
-    autoninja -C out/Default chrome_public_apk
-    mv $(find out/Default/apks -name 'Chrome*.apk') out/tmp/$VERSION-arm64-v8a.apk
+    autoninja -C out/Default chrome_public_apk || { echo "ERROR: Chromium APK build failed; stopping before signing."; exit 1; }
+    APK=$(find out/Default/apks -name 'Chrome*.apk' -print -quit)
+    if [ -z "$APK" ]; then echo "ERROR: Chromium APK was not generated."; exit 1; fi
+    mv "$APK" out/tmp/$VERSION-arm64-v8a.apk
 else
     autoninja -C out/Default chrome_public_apk
     mv $(find out/Default/apks -name 'Chrome*.apk') out/tmp/$VERSION-armeabi-v7a.apk
