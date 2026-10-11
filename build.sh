@@ -11,6 +11,10 @@ sudo dpkg --add-architecture i386; sudo apt-get update; sudo apt-get install -y 
 git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
 export PATH="$PWD/depot_tools:$PATH"
 mkdir -p chromium/src/out/Default; cd chromium/src
+# Chromium and Vanadium hooks create commits while applying patches.
+# Set an identity before any git am invocation, including gclient hooks.
+git config --global user.name "GitHub Actions"
+git config --global user.email "github-actions[bot]@users.noreply.github.com"
 git init
 git remote add origin $CHROMIUM_SOURCE
 git fetch --depth 1 $CHROMIUM_SOURCE +refs/tags/$VERSION:chromium_$VERSION
