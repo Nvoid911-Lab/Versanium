@@ -38,6 +38,7 @@ cp $SCRIPT_DIR/args.gn out/Default/args.gn
 if [ "$F11_TEST_BUILD" = "1" ]; then
     sed -i 's/target_cpu = "arm"/target_cpu = "arm64"/' out/Default/args.gn
 fi
+python3 build/util/lastchange.py -o build/util/LASTCHANGE || { echo "ERROR: failed to generate Chromium LASTCHANGE metadata."; exit 1; }
 gn gen out/Default || { echo "ERROR: gn gen failed; stopping before compilation/signing."; exit 1; }
 mkdir -p out/tmp out/release
 
