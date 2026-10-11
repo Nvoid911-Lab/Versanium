@@ -30,6 +30,9 @@ replace "$SCRIPT_DIR/vanadium/patches" "vanadium" "titanium"
 git am --whitespace=nowarn --keep-non-patch $SCRIPT_DIR/vanadium/patches/*.patch
 
 gclient sync -D --no-history --nohooks
+# The filter-list hook writes into this Titanium-specific directory.
+# Chromium checkout does not guarantee that the parent directory exists.
+mkdir -p titanium/android_config/filter_lists
 gclient runhooks
 ./build/install-build-deps.sh --no-prompt
 
