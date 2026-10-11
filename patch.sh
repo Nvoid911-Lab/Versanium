@@ -114,6 +114,13 @@ sed -i 's|buttonView.setIsPressed(true);|if (buttonView != null) buttonView.setI
 sed -i '/[[:space:]]mWindowAndroid,/!b;n;s|[[:space:]]buttonView,|buttonView != null ? buttonView : mRecyclerViewDelegate.getContainerView(),|' chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/extensions/ExtensionActionListMediator.java # set popup anchor
 
 # ext: fullscreen
+
+# f11: toggle browser controls with a hardware keyboard
+sed -i '/import org.chromium.chrome.browser.tab.BrowserControlsVisibilityDelegate;/i import org.chromium.cc.input.BrowserControlsState;' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+sed -i '/private boolean mUIWithNativeInitialized;/i\\    private final BrowserControlsVisibilityDelegate mF11BrowserControlsVisibilityDelegate = new BrowserControlsVisibilityDelegate(BrowserControlsState.BOTH);\\n    private boolean mF11ToolbarHidden;' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+sed -i 's|getFullscreenManager().getBrowserVisibilityDelegate());|getFullscreenManager().getBrowserVisibilityDelegate(), mF11BrowserControlsVisibilityDelegate);|' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+sed -i '/public boolean onKeyDown(int keyCode, KeyEvent event) {/a\\        if (mUIWithNativeInitialized \&\& keyCode == KeyEvent.KEYCODE_F11 \&\& event.getAction() == KeyEvent.ACTION_DOWN \&\& event.getRepeatCount() == 0) { mF11ToolbarHidden = !mF11ToolbarHidden; mF11BrowserControlsVisibilityDelegate.set(mF11ToolbarHidden ? BrowserControlsState.HIDDEN : BrowserControlsState.BOTH); return true; }' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+
 sed -i 's|#include "base/android/jni_string.h"|&\n#include "ui/base/device_form_factor.h"|' chrome/browser/ui/android/extensions/extension_action_popup_contents.cc
 sed -i 's|render_frame_host->GetView()->EnableAutoResize(kMinSize, kMaxSize);|if (ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_PHONE) return;\n&|' chrome/browser/ui/android/extensions/extension_action_popup_contents.cc
 sed -i '/^void ExtensionActionPopupContents::OnLoaded() {$/,/^}$/ s|^}$|if (ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_PHONE) Java_ExtensionActionPopupContents_resizeDueToAutoResize(AttachCurrentThread(), java_object_, 100000, 100000);\n}|' chrome/browser/ui/android/extensions/extension_action_popup_contents.cc
