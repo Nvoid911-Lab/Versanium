@@ -1,0 +1,42 @@
+name: Build F11 test APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - name: Set environment
+        run: |
+          chmod +x *.sh
+          echo "unix_time=$(date +%s)" >> "$GITHUB_ENV"
+          echo "VERSION=$(grep -m1 -o '[0-9]\+\(\.[0-9]\+\)\{3\}' vanadium/args.gn)" >> "$GITHUB_ENV"
+
+      - name: Build arm64 test APK
+        env:
+          DEBIAN_FRONTEND: noninteractive
+          LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
+          STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
+          F11_TEST_BUILD: "1"
+        run: ./build.sh
+
+      - name: Prepare APK
+        run: |
+          mv "chromium/src/out/release/${{ env.VERSION }}-arm64-v8a.apk" "${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a-f11-test.apk"
+
+      - name: Upload test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: titanium-f11-arm64-test
+          path: ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a-f11-test.apk
+          if-no-files-found: error
+          retention-days: 7
