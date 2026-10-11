@@ -60,11 +60,11 @@ jobs:
       - name: Set
         run: |
           if [ "${{ inputs.f11_test_build }}" = "true" ]; then
-            export VERSION=$(grep -m1 -o '[0-9]\\+\\(\\.[0-9]\\+\\)\\{3\\}' vanadium/args.gn)
+            export VERSION=$(grep -m1 -o '[0-9]\+\(\.[0-9]\+\)\{3\}' vanadium/args.gn)
             echo "VERSION=$VERSION" >> $GITHUB_ENV
             mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a-f11-test.apk
           else
-            export VERSION=$(find chromium/src/out/release -name '*arm64-v8a.apk' | sed 's/.*\\///;s/\\-arm64-v8a.apk$//')
+            export VERSION=$(find chromium/src/out/release -name '*arm64-v8a.apk' | sed 's/.*\///;s/\-arm64-v8a.apk$//')
             echo "VERSION=$VERSION" >> $GITHUB_ENV
             mv $(find chromium/src/out/release -name '*arm64-v8a.aab') $VERSION-${{ env.unix_time }}-arm64-v8a.aab
             mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
