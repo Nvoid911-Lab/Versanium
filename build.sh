@@ -33,7 +33,26 @@ gclient sync -D --no-history --nohooks
 # The filter-list hook writes into this Titanium-specific directory.
 # Chromium checkout does not guarantee that the parent directory exists.
 mkdir -p titanium/android_config/filter_lists
-gclient runhooks
+# Surface the actual git-am failure from Vanadium's subproject patch hook.
+python3 - <<'PY'
+from pathlib import Path
+p = Path("../vanadium/tools/common/apply_subprojects_patches.py")
+s = p.read_text()
+old = """            git_am_stdout_lines = git_am_stdout_str.splitlines()
+            git_am_patch_msg = git_am_stdout_lines[0].replace('Applying: ', '')
+"""
+new = """            git_am_stdout_lines = git_am_stdout_str.splitlines()
+            if not git_am_stdout_lines:
+                print(f"Subproject patch failed: {patches_path}", file=sys.stderr)
+                print(git_am_completed_proc.stderr.decode('utf-8', errors='replace'), file=sys.stderr)
+                git_am_completed_proc.check_returncode()
+            git_am_patch_msg = git_am_stdout_lines[0].replace('Applying: ', '')
+"""
+if old not in s:
+    raise SystemExit("Could not safely patch Vanadium subproject hook")
+p.write_text(s.replace(old, new))
+PY
+gclient runhooks || { echo "ERROR: gclient runhooks failed; stopping before patch.sh."; exit 1; }
 ./build/install-build-deps.sh --no-prompt
 
 source $SCRIPT_DIR/patch.sh
