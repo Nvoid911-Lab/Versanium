@@ -31,7 +31,11 @@ rm -rf $SCRIPT_DIR/vanadium/patches/*{pdf,PDF,for-content-public,toolbar-button,
 replace "$SCRIPT_DIR/vanadium/patches" "VANADIUM" "TITANIUM"
 replace "$SCRIPT_DIR/vanadium/patches" "Vanadium" "Titanium"
 replace "$SCRIPT_DIR/vanadium/patches" "vanadium" "titanium"
-git am --whitespace=nowarn --keep-non-patch $SCRIPT_DIR/vanadium/patches/*.patch
+git am --whitespace=nowarn --keep-non-patch "$SCRIPT_DIR"/vanadium/patches/*.patch || {
+    echo "ERROR: failed to apply Vanadium patches to Chromium." >&2
+    echo "Check the first git am error above; do not continue with an incomplete source tree." >&2
+    exit 1
+}
 
 gclient sync -D --no-history --nohooks
 # The filter-list hook writes into this Titanium-specific directory.
