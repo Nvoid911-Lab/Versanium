@@ -8,6 +8,11 @@ on:
         required: true
         type: string
         default: 'self-hosted' # ubuntu-latest
+      f11_test_build:
+        description: 'Build only the arm64 F11 test APK'
+        required: true
+        type: boolean
+        default: false
   schedule:
     - cron: '0 0 */16 * *'
 
@@ -48,18 +53,26 @@ jobs:
             DEBIAN_FRONTEND: noninteractive
             LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
             STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
+            F11_TEST_BUILD: ${{ inputs.f11_test_build && '1' || '0' }}
         run: |
           ./build.sh
 
       - name: Set
         run: |
-          export VERSION=$(find chromium/src/out/release -name '*arm64-v8a.apk' | sed 's/.*\///;s/\-arm64-v8a.apk$//')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          mv $(find chromium/src/out/release -name '*arm64-v8a.aab') $VERSION-${{ env.unix_time }}-arm64-v8a.aab
-          mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
-          mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-armeabi-v7a.apk
+          if [ "${{ inputs.f11_test_build }}" = "true" ]; then
+            export VERSION=$(grep -m1 -o '[0-9]\+\(\.[0-9]\+\)\{3\}' vanadium/args.gn)
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a-f11-test.apk
+          else
+            export VERSION=$(find chromium/src/out/release -name '*arm64-v8a.apk' | sed 's/.*\///;s/\-arm64-v8a.apk$//')
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            mv $(find chromium/src/out/release -name '*arm64-v8a.aab') $VERSION-${{ env.unix_time }}-arm64-v8a.aab
+            mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
+            mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-armeabi-v7a.apk
+          fi
 
       - name: Publish
+        if: ${{ !inputs.f11_test_build }}
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -71,9 +84,18 @@ jobs:
             ${{ env.VERSION }}-${{ env.unix_time }}-armeabi-v7a.apk
 
       - name: Attest
+        if: ${{ !inputs.f11_test_build }}
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a.aab
             ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a.apk
             ${{ env.VERSION }}-${{ env.unix_time }}-armeabi-v7a.apk
+      - name: Upload F11 test APK
+        if: ${{ inputs.f11_test_build }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: titanium-f11-arm64-test
+          path: ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a-f11-test.apk
+          if-no-files-found: error
+          retention-days: 7
