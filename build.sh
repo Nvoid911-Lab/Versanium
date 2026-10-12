@@ -42,9 +42,10 @@ gclient sync -D --no-history --nohooks
 # Chromium checkout does not guarantee that the parent directory exists.
 mkdir -p titanium/android_config/filter_lists
 # Surface the actual git-am failure from Vanadium's subproject patch hook.
-python3 - <<'PY'
+python3 - <<'PY' || { echo "ERROR: failed to patch Vanadium subproject hook." >&2; exit 1; }
+import os
 from pathlib import Path
-p = Path("../vanadium/tools/common/apply_subprojects_patches.py")
+p = Path(os.environ["SCRIPT_DIR"]) / "vanadium/tools/common/apply_subprojects_patches.py"
 s = p.read_text()
 old = """            git_am_stdout_lines = git_am_stdout_str.splitlines()
             git_am_patch_msg = git_am_stdout_lines[0].replace('Applying: ', '')
