@@ -7,7 +7,7 @@ on:
         description: 'Runner'
         required: true
         type: string
-        default: 'self-hosted' # ubuntu-latest
+        default: 'sengi-standard-8-ubuntu-2404'
       f11_test_build:
         description: 'Build only the arm64 F11 test APK'
         required: true
@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.runner || 'self-hosted' }}
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.runner || 'sengi-standard-8-ubuntu-2404' }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -80,6 +80,7 @@ jobs:
             echo "VERSION=$VERSION" >> $GITHUB_ENV
             mv $(find chromium/src/out/release -name '*arm64-v8a.aab') $VERSION-${{ env.unix_time }}-arm64-v8a.aab
             mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
+            mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
             mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-armeabi-v7a.apk
           fi
 
