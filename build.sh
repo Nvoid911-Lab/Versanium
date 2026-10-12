@@ -66,12 +66,7 @@ gclient runhooks || { echo "ERROR: gclient runhooks failed; stopping before patc
 source $SCRIPT_DIR/patch.sh
 cp $SCRIPT_DIR/args.gn out/Default/args.gn
 if [ "$F11_TEST_BUILD" = "1" ]; then
-    # F11 behavior testing needs an arm64 APK, not production debugging symbols.
-    # Keep official/release optimization, but omit symbols and linker maps to
-    # reduce compile time, disk usage, and memory pressure on hosted runners.
     sed -i 's/target_cpu = "arm"/target_cpu = "arm64"/' out/Default/args.gn
-    sed -i 's/^symbol_level = .*/symbol_level = 0/' out/Default/args.gn
-    printf '\\nblink_symbol_level = 0\\nv8_symbol_level = 0\\ngenerate_linker_map = false\\n' >> out/Default/args.gn
 fi
 python3 build/util/lastchange.py -o build/util/LASTCHANGE || { echo "ERROR: failed to generate Chromium LASTCHANGE metadata."; exit 1; }
 gn gen out/Default || { echo "ERROR: gn gen failed; stopping before compilation/signing."; exit 1; }
