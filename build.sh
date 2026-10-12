@@ -73,6 +73,8 @@ gn gen out/Default || { echo "ERROR: gn gen failed; stopping before compilation/
 mkdir -p out/tmp out/release
 
 if [ "$F11_TEST_BUILD" = "1" ]; then
+    # Check the patched activity before spending time compiling the full APK.
+    autoninja -C out/Default chrome_java || { echo "ERROR: Chromium Java compilation failed; stopping before APK compilation/signing."; exit 1; }
     # Build only the arm64 APK for the F11 feature test.
     autoninja -C out/Default chrome_public_apk || { echo "ERROR: Chromium APK build failed; stopping before signing."; exit 1; }
     APK=$(find out/Default/apks -name 'Chrome*.apk' -print -quit)

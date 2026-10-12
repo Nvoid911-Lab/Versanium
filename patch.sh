@@ -123,12 +123,65 @@ sed -i '/[[:space:]]mWindowAndroid,/!b;n;s|[[:space:]]buttonView,|buttonView != 
 
 # ext: fullscreen
 
-# f11: toggle browser controls with a hardware keyboard
-sed -i '/import org.chromium.chrome.browser.tab.BrowserControlsVisibilityDelegate;/i import org.chromium.cc.input.BrowserControlsState;' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-sed -i '/private boolean mUIWithNativeInitialized;/i\    private boolean mF11ToolbarHidden;' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-sed -i '/private boolean mF11ToolbarHidden;/i\    private final BrowserControlsVisibilityDelegate mF11BrowserControlsVisibilityDelegate = new BrowserControlsVisibilityDelegate(BrowserControlsState.BOTH);' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-sed -i 's|getFullscreenManager().getBrowserVisibilityDelegate());|getFullscreenManager().getBrowserVisibilityDelegate(), mF11BrowserControlsVisibilityDelegate);|' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-sed -i '/public boolean onKeyDown(int keyCode, KeyEvent event) {/a\        if (mUIWithNativeInitialized \&\& keyCode == KeyEvent.KEYCODE_F11 \&\& event.getAction() == KeyEvent.ACTION_DOWN \&\& event.getRepeatCount() == 0) { mF11ToolbarHidden = !mF11ToolbarHidden; mF11BrowserControlsVisibilityDelegate.set(mF11ToolbarHidden ? BrowserControlsState.HIDDEN : BrowserControlsState.SHOWN); return true; }' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+# f11: toggle browser controls with a hardware keyboard.
+# Validate every anchor before writing; sed silently ignored obsolete anchors.
+python3 - <<'PY_F11' || exit 1
+from pathlib import Path
+
+path = Path("chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java")
+source = path.read_text()
+required = (
+    "import org.chromium.cc.input.BrowserControlsState;",
+    "import org.chromium.components.browser_ui.util.BrowserControlsVisibilityDelegate;",
+    "private boolean mUiWithNativeInitialized;",
+    "private ComposedBrowserControlsVisibilityDelegate getAppBrowserControlsVisibilityDelegate()",
+)
+for anchor in required:
+    if source.count(anchor) != 1:
+        raise SystemExit(f"ERROR: F11 patch requires exactly one anchor: {anchor}")
+if "mF11BrowserControlsVisibilityDelegate" in source:
+    raise SystemExit("ERROR: F11 patch has already been applied")
+
+replacements = (
+    (
+        "    private boolean mUiWithNativeInitialized;",
+        """    private boolean mUiWithNativeInitialized;
+    private boolean mF11ToolbarHidden;
+    private @Nullable BrowserControlsVisibilityDelegate mF11BrowserControlsVisibilityDelegate;""",
+    ),
+    (
+        "    public boolean dispatchKeyEvent(KeyEvent event) {",
+        """    public boolean dispatchKeyEvent(KeyEvent event) {
+        // Intercept before Chromium, extension shortcuts, and the focused web page.
+        if (mUiWithNativeInitialized
+                && event.getKeyCode() == KeyEvent.KEYCODE_F11
+                && !event.isCtrlPressed()
+                && !event.isAltPressed()
+                && !event.isShiftPressed()
+                && !event.isMetaPressed()) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                if (mF11BrowserControlsVisibilityDelegate == null) {
+                    mF11BrowserControlsVisibilityDelegate = new BrowserControlsVisibilityDelegate();
+                    getAppBrowserControlsVisibilityDelegate()
+                            .addDelegate(mF11BrowserControlsVisibilityDelegate);
+                }
+                mF11ToolbarHidden = !mF11ToolbarHidden;
+                mF11BrowserControlsVisibilityDelegate.set(
+                        mF11ToolbarHidden
+                                ? BrowserControlsState.HIDDEN
+                                : BrowserControlsState.SHOWN);
+            }
+            // Consume repeats and key-up too, without toggling a second time.
+            return true;
+        }""",
+    ),
+)
+for old, new in replacements:
+    if source.count(old) != 1:
+        raise SystemExit(f"ERROR: F11 patch requires exactly one replacement anchor: {old}")
+    source = source.replace(old, new, 1)
+path.write_text(source)
+PY_F11
 
 sed -i 's|#include "base/android/jni_string.h"|&\n#include "ui/base/device_form_factor.h"|' chrome/browser/ui/android/extensions/extension_action_popup_contents.cc
 sed -i 's|render_frame_host->GetView()->EnableAutoResize(kMinSize, kMaxSize);|if (ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_PHONE) return;\n&|' chrome/browser/ui/android/extensions/extension_action_popup_contents.cc
