@@ -30,7 +30,6 @@ jobs:
           submodules: true
       
       - name: Update
-        if: ${{ !inputs.f11_test_build }}
         run: |
           cd vanadium
           git fetch --tags
@@ -43,17 +42,6 @@ jobs:
             git commit -am "update"
             git push
           fi
-
-      - name: Check runner resources
-        run: |
-          echo "=== CPU ==="
-          nproc
-          echo "=== MEMORY ==="
-          free -h
-          echo "=== DISK ==="
-          df -h
-          echo "=== VANADIUM VERSION ==="
-          git -C vanadium describe --tags --always
 
       - name: Set ENV
         run: | 
@@ -80,7 +68,6 @@ jobs:
             echo "VERSION=$VERSION" >> $GITHUB_ENV
             mv $(find chromium/src/out/release -name '*arm64-v8a.aab') $VERSION-${{ env.unix_time }}-arm64-v8a.aab
             mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
-            mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
             mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-armeabi-v7a.apk
           fi
 
