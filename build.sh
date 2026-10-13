@@ -68,6 +68,10 @@ source $SCRIPT_DIR/patch.sh
 cp $SCRIPT_DIR/args.gn out/Default/args.gn
 if [ "$F11_TEST_BUILD" = "1" ]; then
     sed -i 's/target_cpu = "arm"/target_cpu = "arm64"/' out/Default/args.gn
+    python3 "$SCRIPT_DIR/tools/configure_f11_identity.py" || {
+        echo "ERROR: failed to configure the isolated F11 test app." >&2
+        exit 1
+    }
 fi
 python3 build/util/lastchange.py -o build/util/LASTCHANGE || { echo "ERROR: failed to generate Chromium LASTCHANGE metadata."; exit 1; }
 gn gen out/Default || { echo "ERROR: gn gen failed; stopping before compilation/signing."; exit 1; }
