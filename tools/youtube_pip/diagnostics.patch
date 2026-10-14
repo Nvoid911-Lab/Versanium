@@ -1,0 +1,137 @@
+--- a/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
+@@ -253,6 +253,35 @@
+         return true;
+     }
+ 
++    // Opt-in diagnosis only. Do not log URLs, titles, config, or private tabs.
++    private String mLastTitaniumPipDiagnostic = "";
++
++    private void reportTitaniumYoutubePip(String stage) {
++        if (!org.chromium.base.CommandLine.isInitialized()
++                || !org.chromium.base.CommandLine.getInstance().hasSwitch(
++                        "titanium-youtube-pip-diagnostics")
++                || !LibraryLoader.getInstance().isInitialized()) return;
++        Tab tab = mActivityTabProvider.get();
++        WebContents contents = getWebContents();
++        if (tab == null || tab.isOffTheRecord() || contents == null || contents.isDestroyed()) return;
++        org.chromium.url.GURL url = contents.getLastCommittedUrl();
++        String host = url.getHost();
++        if (!"https".equals(url.getScheme()) || !("youtube.com".equals(host)
++                || "www.youtube.com".equals(host) || "m.youtube.com".equals(host))) return;
++        String record = stage
++                + " full=" + contents.hasActiveEffectivelyFullscreenVideo()
++                + " videoAllows=" + contents.isPictureInPictureAllowedForFullscreenVideo()
++                + " devicePip=" + mActivity.getPackageManager().hasSystemFeature(
++                        PackageManager.FEATURE_PICTURE_IN_PICTURE)
++                + " inPip=" + mActivity.isInPictureInPictureMode()
++                + " changing=" + mActivity.isChangingConfigurations()
++                + " finishing=" + mActivity.isFinishing();
++        if (!record.equals(mLastTitaniumPipDiagnostic)) {
++            mLastTitaniumPipDiagnostic = record;
++            Log.i("TitaniumPiP", "%s", record);
++        }
++    }
++
+     private boolean canStartPipBasedOnRecentTasks() {
+         return AndroidTaskUtils.getRecentAppTasksMatchingComponentNames(
+                         mActivity, sNoPipComponentNames, /* matchTopAndBaseActivities= */ true)
+@@ -314,6 +343,7 @@
+     public void attemptPictureInPicture() {
+         // If there are already callbacks registered, then do nothing.
+         final boolean allowed = canDoPictureInPicture();
++        reportTitaniumYoutubePip(allowed ? "attempt_allowed" : "attempt_blocked");
+         Log.i(
+                 TAG,
+                 "Attempted picture-in-picture with result: " + (allowed ? "success" : "failure"));
+@@ -333,8 +363,13 @@
+         }
+ 
+         try {
+-            if (!mActivity.enterPictureInPictureMode(builder.build())) return;
++            if (!mActivity.enterPictureInPictureMode(builder.build())) {
++                reportTitaniumYoutubePip("api_false");
++                return;
++            }
++            reportTitaniumYoutubePip("api_true");
+         } catch (IllegalStateException | IllegalArgumentException e) {
++            reportTitaniumYoutubePip("api_exception");
+             Log.e(TAG, "Error entering PiP with bounds %s", bounds, e);
+         }
+     }
+@@ -397,6 +432,7 @@
+      * {@link #attemptPictureInPicture()} or because we auto-entered Picture in Picture.
+      */
+     public void onEnteredPictureInPictureMode() {
++        reportTitaniumYoutubePip("framework_entered");
+         Log.i(TAG, "Entered Picture-in-picture.");
+ 
+         mLastOnEnteredTimeMillis = SystemClock.elapsedRealtime();
+@@ -459,6 +495,7 @@
+     // on large form factors (see IsBackgroundMediaSuspendEnabled), so suspend it here.
+     public void onStop() {
+         if (mShouldSuspendMediaOnStop) {
++            reportTitaniumYoutubePip("stop_suspend");
+             mShouldSuspendMediaOnStop = false;
+ 
+             final MediaSession mediaSession = getMediaSession();
+@@ -469,6 +506,7 @@
+     }
+ 
+     public void onResume() {
++        reportTitaniumYoutubePip("resume");
+         // Pip was restored rather than closed, so media should keep playing.
+         mShouldSuspendMediaOnStop = false;
+         // Unconditionally dismiss pip, because the activity has been resumed.  This can happen if
+@@ -518,6 +556,7 @@
+      * required. It's okay to call this even when we don't believe that we're in PiP mode.
+      */
+     public void onFrameworkExitedPictureInPicture() {
++        reportTitaniumYoutubePip("framework_exited");
+         Log.i(TAG, "Framework exited picture in picture");
+         onExitedPictureInPicture(MetricsEndReason.RESUME);
+     }
+@@ -619,6 +658,7 @@
+         // Do not check if we're in PiP mode or not, since we're called during transitions into and
+         // out of it.  The framework won't try to auto-enter if we're already there anyway.
+         final boolean allowed = canDoPictureInPicture(false);
++        reportTitaniumYoutubePip(allowed ? "auto_allowed" : "auto_blocked");
+         if (!allowed && !mIsAutoEnterAllowed) {
+             // Don't notify the framework if we were not and continue to be not allowed.  In the
+             // case where we're allowed, the bounds for the source rect can change even if we were
+@@ -667,6 +707,7 @@
+      * This will also update our auto-PiP preference with the framework, if it's changed.
+      */
+     private void dismissActivityIfNeeded(Activity activity, @MetricsEndReason int reason) {
++        reportTitaniumYoutubePip("dismiss_" + reason);
+         // Something interesting happened -- make sure we've updated our preference for auto-PiP
+         // with the framework, if applicable.
+         Log.i(TAG, "Dismiss activity with reason " + reason);
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -5042,6 +5042,11 @@
+ // //tools/flags/generate_unexpire_flags.py.
+ #include "build/chromeos_buildflags.h"
+ #include "chrome/browser/unexpire_flags_gen.inc"
++#if BUILDFLAG(IS_ANDROID)
++    {"titanium-youtube-pip-diagnostics", "Titanium YouTube PiP diagnostics",
++     "Log only PiP decision booleans for normal YouTube tabs. Does not change playback. Disable after testing.",
++     kOsAndroid, SINGLE_VALUE_TYPE("titanium-youtube-pip-diagnostics")},
++#endif
+     {switches::kEnableBenchmarking, flag_descriptions::kEnableBenchmarkingName,
+      flag_descriptions::kEnableBenchmarkingDescription, kOsAll,
+      MULTI_VALUE_TYPE(kEnableBenchmarkingChoices)},
+--- a/chrome/browser/flag-metadata.json
++++ b/chrome/browser/flag-metadata.json
+@@ -28,6 +28,11 @@
+ 
+ [
+   {
++    "name": "titanium-youtube-pip-diagnostics",
++    "owners": ["//chrome/android/OWNERS"],
++    "expiry_milestone": 156
++  },
++  {
+     "name": "aaudio-per-stream-device-selection",
+     "owners": [ "mjel@google.com", "lt-web-apps-team@google.com" ],
+     "expiry_milestone": 155

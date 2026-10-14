@@ -263,4 +263,7 @@ python3 "$SCRIPT_DIR/tools/apply_environment_zoom.py" || {
     exit 1
 }
 
+# Separate PiP branch: reviewed, opt-in diagnostics; no playback workaround.
+python3 "$SCRIPT_DIR/tools/apply_youtube_pip_diagnostics.py" || exit 1
+
 export PATCHED=1
