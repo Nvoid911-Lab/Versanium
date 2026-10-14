@@ -17,8 +17,18 @@ git config --global user.name "GitHub Actions"
 git config --global user.email "github-actions[bot]@users.noreply.github.com"
 git init
 git remote add origin $CHROMIUM_SOURCE
-git fetch --depth 1 $CHROMIUM_SOURCE +refs/tags/$VERSION:chromium_$VERSION
-git checkout $VERSION
+if [ "$F11_TEST_BUILD" = "1" ]; then
+    ZOOM_CHROMIUM_COMMIT=$(python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); from check_environment_zoom_revision import CHROMIUM; print(CHROMIUM)' "$SCRIPT_DIR/tools") || exit 1
+    git fetch --depth 1 "$CHROMIUM_SOURCE" "$ZOOM_CHROMIUM_COMMIT:refs/heads/chromium_$VERSION" || exit 1
+    # git am must not advance the reference used to verify the upstream input.
+    git checkout --detach "chromium_$VERSION" || exit 1
+else
+    git fetch --depth 1 $CHROMIUM_SOURCE +refs/tags/$VERSION:chromium_$VERSION
+    git checkout $VERSION
+fi
+# Fail before gclient / Android dependency downloads if the reviewed inputs changed.
+python3 "$SCRIPT_DIR/tools/check_environment_zoom_revision.py" \
+    --repository "$SCRIPT_DIR" --chromium-root "$PWD" || exit 1
 cp $SCRIPT_DIR/.gclient ../.gclient
 
 # https://grapheneos.org/build#browser-and-webview

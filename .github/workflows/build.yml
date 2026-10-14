@@ -27,6 +27,10 @@ jobs:
         with:
           submodules: true
       
+      - name: Verify reviewed F11 source inputs
+        if: ${{ inputs.f11_test_build }}
+        run: python3 tools/check_environment_zoom_revision.py --repository "$PWD"
+
       - name: Update
         # F11 feature patches are validated against the committed Vanadium revision.
         # Keep the regular build's update behavior; do not advance test sources mid-build.

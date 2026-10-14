@@ -31,4 +31,7 @@ def apply(root, bundle):
 
 
 if __name__ == '__main__':
-    apply(Path.cwd(), Path(os.environ['SCRIPT_DIR']) / 'tools/environment_zoom')
+    from check_environment_zoom_revision import validate
+    repository = Path(os.environ['SCRIPT_DIR'])
+    validate(Path.cwd(), repository)
+    apply(Path.cwd(), repository / 'tools/environment_zoom')
