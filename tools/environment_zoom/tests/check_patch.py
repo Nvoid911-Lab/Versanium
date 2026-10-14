@@ -22,7 +22,7 @@ removed = ['*trichrome-apk-build-targets.patch','*trichrome-browser-apk-targets.
  '*config-app-parsing*.patch','*new-tab-card*.patch','*predictive-back*.patch']
 
 
-def run(source,vanadium):
+def run(source,vanadium,output=None):
     paths = [line[len('--- a/'):] for line in (bundle/'chromium.patch').read_text().splitlines()
              if line.startswith('--- a/')]
     spec=importlib.util.spec_from_file_location('apply_environment_zoom',repo/'tools/apply_environment_zoom.py')
@@ -55,6 +55,8 @@ def run(source,vanadium):
         assert (root/'components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/EnvironmentZoomSettings.java').exists()
         result=subprocess.run(['git','apply','--reverse','--check',str(bundle/'chromium.patch')],cwd=root)
         assert result.returncode==0
+        if output is not None:
+            shutil.copytree(root, output)  # Refuse an existing destination; preserve review evidence.
         print('Vanadium-selected patch + environment overlay + XML + changed-anchor rejection PASS')
         print('Native/JNI/GN compilation and real Android behavior remain UNVERIFIED')
 
@@ -63,4 +65,5 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-tree',required=True,type=Path)
     parser.add_argument('--vanadium-patches',required=True,type=Path)
-    args=parser.parse_args();run(args.source_tree,args.vanadium_patches)
+    parser.add_argument('--output-dir',type=Path,help='Keep the selectively patched files for source/resource review; destination must not exist')
+    args=parser.parse_args();run(args.source_tree,args.vanadium_patches,args.output_dir)

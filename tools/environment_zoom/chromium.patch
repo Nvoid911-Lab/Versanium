@@ -486,14 +486,16 @@
    deps = [
 --- a/components/browser_ui/accessibility/android/java/res/xml/accessibility_preferences.xml
 +++ b/components/browser_ui/accessibility/android/java/res/xml/accessibility_preferences.xml
-@@ -59,4 +59,17 @@
+@@ -59,4 +59,19 @@
          android:summary="@string/touchpad_overscroll_history_navigation_summary"
          android:title="@string/touchpad_overscroll_history_navigation_title" />
  
 +    <androidx.preference.SeekBarPreference
++        android:layout="@layout/preference_widget_seekbar_material"
 +        android:key="titanium_zoom_mobile" android:title="@string/titanium_zoom_mobile"
 +        android:order="-4" android:persistent="false" />
 +    <androidx.preference.SeekBarPreference
++        android:layout="@layout/preference_widget_seekbar_material"
 +        android:key="titanium_zoom_dex" android:title="@string/titanium_zoom_dex"
 +        android:order="-3" android:persistent="false" />
 +    <androidx.preference.ListPreference
