@@ -39,7 +39,7 @@ public class Preferences implements SharedPreferences {
 'android/app/Activity.java': '''package android.app;import java.util.*;import android.content.*;
 public class Activity extends Context {
  final List<ComponentCallbacks> callbacks=new ArrayList<>();
- public Activity(int id){displayId=id;} public void registerComponentCallbacks(ComponentCallbacks c){callbacks.add(c);}
+ public Activity(int id){displayId=id;} public boolean isDestroyed(){return false;} public boolean isFinishing(){return false;} public void registerComponentCallbacks(ComponentCallbacks c){callbacks.add(c);}
  public void moveTo(int id){displayId=id;for(ComponentCallbacks c:callbacks)c.onConfigurationChanged(getResources().getConfiguration());}
 }''',
 'android/view/Display.java': 'package android.view;public class Display {public static final int DEFAULT_DISPLAY=0;}',
@@ -48,7 +48,21 @@ public class Activity extends Context {
  public void registerDisplayListener(DisplayListener listener,android.os.Handler h){}
 }''',
 'android/os/Looper.java': 'package android.os;public class Looper {public static Looper getMainLooper(){return new Looper();}}',
-'android/os/Handler.java': 'package android.os;public class Handler {public Handler(Looper l){}public boolean post(Runnable r){r.run();return true;}}',
+'android/os/Handler.java': """package android.os;import java.util.*;import java.util.concurrent.*;
+public class Handler {
+ static final Queue<Runnable> MAIN=new ConcurrentLinkedQueue<>();
+ static final Map<Runnable,Integer> DELAYED=new LinkedHashMap<>();
+ public Handler(Looper l){} public boolean post(Runnable r){MAIN.add(r);return true;}
+ public boolean postDelayed(Runnable r,long delay){DELAYED.put(r,(int)delay);return true;}
+ public void removeCallbacks(Runnable r){DELAYED.remove(r);MAIN.remove(r);}
+ public static void drain(){Runnable r;while((r=MAIN.poll())!=null)r.run();}
+}
+""",
+'org/chromium/base/StrictModeContext.java': 'package org.chromium.base;public class StrictModeContext implements AutoCloseable {public static StrictModeContext allowDiskReads(){return new StrictModeContext();}public void close(){}}',
+'org/chromium/base/ThreadUtils.java': 'package org.chromium.base;public class ThreadUtils {static final Thread MAIN=Thread.currentThread();public static void assertOnUiThread(){if(Thread.currentThread()!=MAIN)throw new AssertionError("Not UI thread");}}',
+'org/chromium/base/Log.java': 'package org.chromium.base;public class Log {public static void e(String tag,String msg){}}',
+'android/widget/Toast.java': 'package android.widget;public class Toast {public static final int LENGTH_LONG=1;public static Toast makeText(android.content.Context c,CharSequence s,int duration){return new Toast();}public void show(){}}',
+
 'org/chromium/base/ContextUtils.java': '''package org.chromium.base;public class ContextUtils {
  static final android.content.Context APP=new android.content.Context();
  public static android.content.Context getApplicationContext(){return APP;}
@@ -60,7 +74,7 @@ public class WindowAndroid {public android.app.Activity activity;public WindowAn
  int id;DisplayAndroid(int i){id=i;}public int getDisplayId(){return id;}
  public static DisplayAndroid getNonMultiDisplay(android.content.Context c){return new DisplayAndroid(c.displayId);}}''',
 'org/chromium/content_public/browser/BrowserContextHandle.java': '''package org.chromium.content_public.browser;
-public class BrowserContextHandle {public boolean privateProfile;public String key="Default";}''',
+public class BrowserContextHandle {public boolean privateProfile;public String key="Default";public long getNativeBrowserContextPointer(){return 1;}}''',
 'org/chromium/content_public/browser/WebContents.java': '''package org.chromium.content_public.browser;
 public class WebContents {public String host="example.test";public boolean destroyed;public double rendered;
  public org.chromium.ui.base.WindowAndroid window;
@@ -90,7 +104,7 @@ def run(ecj=None):
         sources += list((bundle/'tests').glob('*Test.java'))
         command = ['java', '-jar', str(ecj), '-21'] if ecj else ['javac', '--release', '21']
         subprocess.run(command+['-d',str(root/'classes')]+[str(s) for s in sources],check=True)
-        for test in ['EnvironmentZoomPolicyTest','EnvironmentZoomBridgeTest']:
+        for test in ['EnvironmentZoomPolicyTest','EnvironmentZoomBridgeTest','EnvironmentZoomPersistenceTest']:
             subprocess.run(['java','-cp',str(root/'classes'),test],check=True)
         print('Renderer / JNI / Android lifecycle are MOCKED in bridge test; APK verification is still required.')
 

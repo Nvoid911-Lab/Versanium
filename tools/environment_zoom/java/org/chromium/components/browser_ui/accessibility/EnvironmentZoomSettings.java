@@ -24,6 +24,7 @@ import java.util.Map;
 final class EnvironmentZoomSettings {
     private EnvironmentZoomSettings() {}
     static void add(PreferenceFragmentCompat fragment, BrowserContextHandle context) {
+        if (context.getNativeBrowserContextPointer() == 0) return;
         PrefService prefs = UserPrefs.get(context);
         EnvironmentZoom.registerLegacyDefaultPresence(context, prefs == null
                 || !prefs.isDefaultValuePreference("partition.default_zoom_level.android"));
@@ -37,6 +38,8 @@ final class EnvironmentZoomSettings {
             pref.setMax(300);
             pref.setSeekBarIncrement(1);
             pref.setShowSeekBarValue(true);
+            // Preference commits the default at the end of tracking, not for every thumb movement.
+            pref.setUpdatesContinuously(false);
             pref.setValue(EnvironmentZoomPolicy.percent(policy.defaultFactor(env)));
             pref.setSummary(activity.getString(R.string.titanium_zoom_default_summary));
             pref.setOnPreferenceChangeListener((p, value) -> {

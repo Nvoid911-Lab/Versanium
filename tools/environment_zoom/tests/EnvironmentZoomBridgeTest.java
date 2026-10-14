@@ -15,27 +15,50 @@ public final class EnvironmentZoomBridgeTest {
     static WebContents tab(Activity activity,BrowserContextHandle profile){
         WebContents c=new WebContents();c.window=new WindowAndroid(activity);EnvironmentZoom.attach(c,profile);return c;
     }
-    public static void main(String[] args){
+    static void settle() throws Exception {
+        EnvironmentZoom.flushPendingWrites();
+        long limit=System.nanoTime()+5_000_000_000L;
+        do {
+            android.os.Handler.drain();
+            if(!EnvironmentZoom.hasPendingWrites())return;
+            Thread.sleep(5);
+        }while(System.nanoTime()<limit);
+        throw new AssertionError("Persistence did not complete");
+    }
+    public static void main(String[] args) throws Exception {
         BrowserContextHandle normal=new BrowserContextHandle();
         Activity phone=new Activity(0),dex=new Activity(2);
         WebContents m=tab(phone,normal),d=tab(dex,normal);
         pct(m.rendered,100);pct(d.rendered,67);
         EnvironmentZoom.save(m,m.host,EnvironmentZoomPolicy.factor(100));
         EnvironmentZoom.save(d,d.host,EnvironmentZoomPolicy.factor(80));
+        android.os.Handler.drain();
         pct(m.rendered,100);pct(d.rendered,80);
         EnvironmentZoom.store(normal).setDefault(EnvironmentZoomPolicy.Environment.DEX,EnvironmentZoomPolicy.factor(80));
         EnvironmentZoom.refreshAll();
         EnvironmentZoom.store(normal).setDefault(EnvironmentZoomPolicy.Environment.DEX,EnvironmentZoomPolicy.factor(67));
         EnvironmentZoom.refreshAll();pct(d.rendered,80);
         // Move only this Activity, including back to a display that was already connected.
-        phone.moveTo(2);pct(m.rendered,80);pct(d.rendered,80);
-        phone.moveTo(0);pct(m.rendered,100);pct(d.rendered,80);
-        EnvironmentZoom.reset(d);pct(d.rendered,67);pct(m.rendered,100);
+        phone.moveTo(2);android.os.Handler.drain();pct(m.rendered,80);pct(d.rendered,80);
+        phone.moveTo(0);android.os.Handler.drain();pct(m.rendered,100);pct(d.rendered,80);
+        EnvironmentZoom.reset(d);android.os.Handler.drain();pct(d.rendered,67);pct(m.rendered,100);
+        m.window=null;
+        pct(EnvironmentZoom.rendered(m,m.host),100);
+        check(EnvironmentZoom.save(m,m.host,EnvironmentZoomPolicy.factor(90)));
+        pct(EnvironmentZoom.resolve(m,m.host),90);
+        m.window=new WindowAndroid(phone);
+        EnvironmentZoom.save(m,m.host,EnvironmentZoomPolicy.factor(100));
+        android.os.Handler.drain();
         // Destroy/recreate the activity; binding reuses persisted profile maps, not a last-display global.
-        m.destroyed=true;WebContents replacement=tab(new Activity(0),normal);pct(replacement.rendered,100);
+        m.destroyed=true;
+        check(Double.isNaN(EnvironmentZoom.resolve(m,m.host)));
+        WebContents replacement=tab(new Activity(0),normal);pct(replacement.rendered,100);
         d.host="other.test";EnvironmentZoom.refreshAll();pct(d.rendered,67);
+        EnvironmentZoom.store(normal).setSite(EnvironmentZoomPolicy.Environment.MOBILE,"pending-private-inherit.test",EnvironmentZoomPolicy.factor(85));
         BrowserContextHandle privateProfile=new BrowserContextHandle();privateProfile.privateProfile=true;
         WebContents secret=tab(new Activity(2),privateProfile);
+        check(EnvironmentZoom.store(privateProfile).hasSite(EnvironmentZoomPolicy.Environment.MOBILE,"pending-private-inherit.test"));
+        settle();
         Preferences file=Preferences.get("titanium_environment_zoom_Default");
         Map<String,?> disk=file.getAll();int writes=file.writes;
         EnvironmentZoom.save(secret,"private.test",EnvironmentZoomPolicy.factor(90));
@@ -51,10 +74,14 @@ public final class EnvironmentZoomBridgeTest {
         pct(EnvironmentZoom.rendered(replacement,"pending.test"),75);pct(replacement.rendered,100);
         EnvironmentZoom.setDisplayMode(dex,"mobile");pct(d.rendered,100);
         EnvironmentZoom.setDisplayMode(dex,"auto");pct(d.rendered,67);
+        settle();
         EnvironmentZoom.forgetContext(normal);
         BrowserContextHandle restarted=new BrowserContextHandle();
         WebContents afterRestart=tab(new Activity(0),restarted);pct(afterRestart.rendered,100);
         check(EnvironmentZoom.store(restarted).hasSite(EnvironmentZoomPolicy.Environment.MOBILE,"pending.test"));
+        settle();
+        check(EnvironmentZoom.save(secret,"retired.test",EnvironmentZoomPolicy.factor(90)));
+        check(!EnvironmentZoom.store(restarted).hasSite(EnvironmentZoomPolicy.Environment.DEX,"retired.test"));
         System.out.println("EnvironmentZoomBridge: "+checks+" assertions passed with MOCK Android/JNI renderer");
     }
 }

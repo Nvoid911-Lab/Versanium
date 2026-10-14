@@ -38,12 +38,12 @@
 +        HostZoomMapImplJni.get().refreshEnvironmentZoom(contents);
 +    }
 +    @CalledByNative
-+    private static double getEnvironmentZoomLevel(WebContents contents,
++    public static double getEnvironmentZoomLevel(WebContents contents,
 +            @JniType("std::string") String host) {
 +        return EnvironmentZoom.rendered(contents, host);
 +    }
 +    @CalledByNative
-+    private static boolean saveEnvironmentZoomLevel(WebContents contents,
++    public static boolean saveEnvironmentZoomLevel(WebContents contents,
 +            @JniType("std::string") String host, double factor) {
 +        return EnvironmentZoom.save(contents, host, factor);
 +    }
@@ -149,38 +149,39 @@
 +static std::string JNI_HostZoomMapImpl_GetEnvironmentHost(
 +    JNIEnv* env, const base::android::JavaRef<jobject>& j_contents) {
 +  auto* contents = WebContents::FromJavaWebContents(j_contents);
++  if (!contents || contents->IsBeingDestroyed()) return {};
 +  return net::GetHostOrSpecFromURL(HostZoomMap::GetURLForWebContents(contents));
 +}
 +
 +static std::string JNI_HostZoomMapImpl_GetEnvironmentProfileKey(
 +    JNIEnv* env, const base::android::JavaRef<jobject>& j_context) {
 +  auto* context = BrowserContextFromJavaHandle(j_context);
-+  CHECK(context);
++  if (!context) return {};
 +  return base::HexEncode(context->GetPath().AsUTF8Unsafe());
 +}
 +
 +static bool JNI_HostZoomMapImpl_IsEnvironmentPrivate(
 +    JNIEnv* env, const base::android::JavaRef<jobject>& j_context) {
 +  auto* context = BrowserContextFromJavaHandle(j_context);
-+  CHECK(context);
-+  return context->IsOffTheRecord();
++  return !context || context->IsOffTheRecord();
 +}
 +
 +static void JNI_HostZoomMapImpl_RefreshEnvironmentZoom(
 +    JNIEnv* env, const base::android::JavaRef<jobject>& j_contents) {
 +  auto* contents = static_cast<WebContentsImpl*>(WebContents::FromJavaWebContents(j_contents));
-+  if (contents) contents->UpdateZoom();
++  if (contents && !contents->IsBeingDestroyed()) contents->UpdateZoom();
  }
  
  static void JNI_HostZoomMapImpl_SetZoomLevelForHost(
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -400,6 +400,8 @@
+@@ -400,6 +400,9 @@
      "java/src/org/chromium/content_public/browser/GestureStateListener.java",
      "java/src/org/chromium/content_public/browser/GlobalRenderFrameHostId.java",
      "java/src/org/chromium/content_public/browser/HostZoomMap.java",
 +    "java/src/org/chromium/content_public/browser/EnvironmentZoom.java",
 +    "java/src/org/chromium/content_public/browser/EnvironmentZoomPolicy.java",
++    "java/src/org/chromium/content_public/browser/EnvironmentZoomPersistence.java",
      "java/src/org/chromium/content_public/browser/ImageDownloadCallback.java",
      "java/src/org/chromium/content_public/browser/ImeAdapter.java",
      "java/src/org/chromium/content_public/browser/ImeEventObserver.java",
@@ -203,22 +204,24 @@
              for (TabObserver observer : mObservers) observer.onShown(this, type);
  
              // Updating the timestamp has to happen after the showInternal() call since subclasses
-@@ -1795,6 +1798,10 @@
+@@ -1795,6 +1798,12 @@
          if (webContents != null) {
              assert mWindowAndroid != null;
              webContents.setTopLevelNativeWindow(mWindowAndroid);
-+            @Nullable PrefService environmentPrefs = UserPrefs.get(getProfile());
-+            EnvironmentZoom.registerLegacyDefaultPresence(getProfile(), environmentPrefs == null
-+                    || !environmentPrefs.isDefaultValuePreference("partition.default_zoom_level.android"));
-+            EnvironmentZoom.attach(webContents, getProfile());
++            if (!getProfile().shutdownStarted()) {
++                @Nullable PrefService environmentPrefs = UserPrefs.get(getProfile());
++                EnvironmentZoom.registerLegacyDefaultPresence(getProfile(), environmentPrefs == null
++                        || !environmentPrefs.isDefaultValuePreference("partition.default_zoom_level.android"));
++                EnvironmentZoom.attach(webContents, getProfile());
++            }
          }
  
          if (windowAndroid != null) {
-@@ -2207,6 +2214,12 @@
+@@ -2207,6 +2216,12 @@
  
      /** Calls onContentChanged on all TabObservers and updates accessibility visibility. */
      void notifyContentChanged() {
-+        if (getWebContents() != null) {
++        if (getWebContents() != null && !getProfile().shutdownStarted()) {
 +            @Nullable PrefService environmentPrefs = UserPrefs.get(getProfile());
 +            EnvironmentZoom.registerLegacyDefaultPresence(getProfile(), environmentPrefs == null
 +                    || !environmentPrefs.isDefaultValuePreference("partition.default_zoom_level.android"));
@@ -238,14 +241,14 @@
  
  import androidx.annotation.VisibleForTesting;
  
-@@ -251,6 +253,7 @@
+@@ -240,6 +242,7 @@
+     private void notifyWillBeDestroyed() {
+         assert !mDestroyNotified;
+         mDestroyNotified = true;
++        EnvironmentZoom.forgetContext(this); // Before teardown observers and native pointer invalidation.
  
-     @CalledByNative
-     private void onNativeDestroyed() {
-+        EnvironmentZoom.forgetContext(this);
-         mNativeProfile = 0;
- 
-         if (!mDestroyNotified) {
+         ProfileManager.onProfileDestroyed(this);
+     }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 @@ -3,6 +3,8 @@
@@ -265,6 +268,14 @@
  
          // Resume the ChromeActivity...
  
+@@ -1632,6 +1635,7 @@
+     @Override
+     public void onStopWithNative() {
+         super.onStopWithNative();
++        EnvironmentZoom.flushPendingWrites();
+         if (mFullscreenVideoPictureInPictureController != null) {
+             mFullscreenVideoPictureInPictureController.onStop();
+         }
 --- a/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomManager.java
 +++ b/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomManager.java
 @@ -3,6 +3,8 @@

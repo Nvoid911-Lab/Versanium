@@ -58,18 +58,19 @@ public final class EnvironmentZoomPolicy {
     }
     public void setDefault(Environment env, double factor) {
         requireFinite(factor);
+        if (Double.compare(defaultFactor(env), factor) == 0) return;
         values.put("default." + env.name(), Double.toString(factor));
         persist(); // Deliberately do not prune site entries equal to the default.
     }
     public void setSite(Environment env, String host, double factor) {
         requireFinite(factor);
         if (host.isEmpty()) return;
+        if (hasSite(env, host) && Double.compare(resolve(env, host), factor) == 0) return;
         values.put(siteKey(env, host), Double.toString(factor));
         persist(); // Explicitly saving the default is still an explicit site choice.
     }
     public void resetSite(Environment env, String host) {
-        values.remove(siteKey(env, host));
-        persist();
+        if (values.remove(siteKey(env, host)) != null) persist();
     }
     public Map<String, Double> sites(Environment env) {
         Map<String, Double> sites = new LinkedHashMap<>();
