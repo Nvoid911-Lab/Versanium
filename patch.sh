@@ -257,4 +257,10 @@ sed -i 's/|| mSupportedProfileType == SupportedProfileType.REGULAR) {/|| mSuppor
 sed -i 's/|| mSupportedProfileType == SupportedProfileType.OFF_THE_RECORD) {/|| mSupportedProfileType == SupportedProfileType.OFF_THE_RECORD || mSupportedProfileType == SupportedProfileType.MIXED) {/' chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 
 
+# Keep native navigation, Java zoom UI and persistence changes together.
+python3 "$SCRIPT_DIR/tools/apply_environment_zoom.py" || {
+    echo "ERROR: environment zoom anchors changed; review the Chromium patch before building." >&2
+    exit 1
+}
+
 export PATCHED=1

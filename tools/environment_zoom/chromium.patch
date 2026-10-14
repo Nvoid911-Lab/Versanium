@@ -1,0 +1,548 @@
+--- a/content/public/android/java/src/org/chromium/content_public/browser/HostZoomMap.java
++++ b/content/public/android/java/src/org/chromium/content_public/browser/HostZoomMap.java
+@@ -106,6 +106,9 @@
+      */
+     public static double getZoomLevel(WebContents webContents) {
+         assert !webContents.isDestroyed();
++        double environmentLevel = EnvironmentZoom.resolve(
++                webContents, HostZoomMapImpl.getEnvironmentHost(webContents));
++        if (Double.isFinite(environmentLevel)) return environmentLevel;
+ 
+         // Just before returning a zoom level from the backend, we must again take into account the
+         // system level setting. Here we need to do the reverse operation of the above, effectively
+--- a/content/public/android/java/src/org/chromium/content/browser/HostZoomMapImpl.java
++++ b/content/public/android/java/src/org/chromium/content/browser/HostZoomMapImpl.java
+@@ -3,6 +3,8 @@
+ // found in the LICENSE file.
+ 
+ package org.chromium.content.browser;
++
++import org.chromium.content_public.browser.EnvironmentZoom;
+ 
+ import static org.chromium.content_public.browser.HostZoomMap.TEXT_SIZE_MULTIPLIER_RATIO;
+ import static org.chromium.content_public.browser.HostZoomMap.getSystemFontScale;
+@@ -212,8 +214,34 @@
+         ResettersForTesting.register(() -> sShouldAdjustForOSLevelForTesting = oldValue);
+     }
+ 
++    public static String getEnvironmentHost(WebContents contents) {
++        return HostZoomMapImplJni.get().getEnvironmentHost(contents);
++    }
++    public static String getEnvironmentProfileKey(BrowserContextHandle context) {
++        return HostZoomMapImplJni.get().getEnvironmentProfileKey(context);
++    }
++    public static boolean isEnvironmentPrivate(BrowserContextHandle context) {
++        return HostZoomMapImplJni.get().isEnvironmentPrivate(context);
++    }
++    public static void refreshEnvironmentZoom(WebContents contents) {
++        HostZoomMapImplJni.get().refreshEnvironmentZoom(contents);
++    }
++    @CalledByNative
++    private static double getEnvironmentZoomLevel(WebContents contents,
++            @JniType("std::string") String host) {
++        return EnvironmentZoom.rendered(contents, host);
++    }
++    @CalledByNative
++    private static boolean saveEnvironmentZoomLevel(WebContents contents,
++            @JniType("std::string") String host, double factor) {
++        return EnvironmentZoom.save(contents, host, factor);
++    }
+     @NativeMethods
+     public interface Natives {
++        @JniType("std::string") String getEnvironmentHost(WebContents contents);
++        @JniType("std::string") String getEnvironmentProfileKey(BrowserContextHandle context);
++        boolean isEnvironmentPrivate(BrowserContextHandle context);
++        void refreshEnvironmentZoom(WebContents contents);
+         void setZoomLevel(WebContents webContents, double newZoomLevel, double adjustedZoomLevel);
+ 
+         double getZoomLevel(WebContents webContents);
+--- a/content/browser/host_zoom_map_impl.cc
++++ b/content/browser/host_zoom_map_impl.cc
+@@ -7,6 +7,7 @@
+ #include <algorithm>
+ #include <cmath>
+ #include <memory>
++#include <limits>
+ #include <utility>
+ 
+ #include "base/strings/utf_string_conversions.h"
+@@ -35,6 +36,7 @@
+ #include "base/android/callback_android.h"
+ #include "base/android/jni_android.h"
+ #include "base/android/jni_string.h"
++#include "base/strings/string_number_conversions.h"
+ #include "base/android/jni_utils.h"
+ #include "base/android/scoped_java_ref.h"
+ #include "content/public/browser/android/browser_context_handle.h"
+@@ -138,6 +140,17 @@
+       HostZoomMap::Get(RenderFrameHost::FromID(rfh_id)->GetSiteInstance()));
+   return host_zoom_map->GetZoomLevelForWebContents(
+       static_cast<WebContentsImpl*>(web_contents), rfh_id);
++}
++
++// static
++double HostZoomMap::GetEnvironmentZoomLevel(WebContents* contents, const GURL& url) {
++#if BUILDFLAG(IS_ANDROID)
++  return Java_HostZoomMapImpl_getEnvironmentZoomLevel(
++      base::android::AttachCurrentThread(), contents->GetJavaWebContents(),
++      net::GetHostOrSpecFromURL(url));
++#else
++  return std::numeric_limits<double>::quiet_NaN();
++#endif
+ }
+ 
+ // static
+@@ -431,6 +444,17 @@
+     GlobalRenderFrameHostId rfh_id) {
+   DCHECK_CURRENTLY_ON(BrowserThread::UI);
+ 
++#if BUILDFLAG(IS_ANDROID)
++  // Read the committed RFH URL, not a Java pending URL or a profile-global value.
++  auto* environment_rfh = RenderFrameHost::FromID(rfh_id);
++  if (environment_rfh && !environment_rfh->GetParentOrOuterDocument()) {
++    JNIEnv* env = base::android::AttachCurrentThread();
++    double level = Java_HostZoomMapImpl_getEnvironmentZoomLevel(
++        env, web_contents_impl->GetJavaWebContents(),
++        net::GetHostOrSpecFromURL(GetURLForRenderFrameHost(rfh_id)));
++    if (std::isfinite(level)) return level;
++  }
++#endif
+   if (UsesTemporaryZoomLevel(rfh_id))
+     return GetTemporaryZoomLevel(rfh_id);
+ 
+@@ -451,6 +475,15 @@
+     double level) {
+   DCHECK_CURRENTLY_ON(BrowserThread::UI);
+ 
++#if BUILDFLAG(IS_ANDROID)
++  auto* environment_rfh = RenderFrameHost::FromID(rfh_id);
++  if (environment_rfh && !environment_rfh->GetParentOrOuterDocument() &&
++      Java_HostZoomMapImpl_saveEnvironmentZoomLevel(
++          base::android::AttachCurrentThread(), web_contents_impl->GetJavaWebContents(),
++          net::GetHostOrSpecFromURL(GetURLForRenderFrameHost(rfh_id)), level)) {
++    return; // Includes native keyboard zoom; never write the shared legacy host map.
++  }
++#endif
+   if (UsesTemporaryZoomLevel(rfh_id)) {
+     SetTemporaryZoomLevel(rfh_id, level);
+   } else {
+@@ -615,6 +648,13 @@
+   GlobalRenderFrameHostId rfh_id =
+       web_contents->GetPrimaryMainFrame()->GetGlobalId();
+ 
++  if (Java_HostZoomMapImpl_saveEnvironmentZoomLevel(
++          env, web_contents->GetJavaWebContents(),
++          net::GetHostOrSpecFromURL(HostZoomMap::GetURLForWebContents(web_contents)),
++          new_zoom_level)) {
++    return;
++  }
++
+   // We want to set and save the new zoom level, but we want to actually render
+   // the adjusted level.
+   HostZoomMap::SetZoomLevel(web_contents, new_zoom_level);
+@@ -630,6 +670,32 @@
+   // SetZoomLevelForWebContents will keep updating what is rendered, but will no
+   // longer call SetZoomLevelForHost, which saves the choice for that host.
+   host_zoom_map->SetNoLongerUsesTemporaryZoomLevel(rfh_id);
++}
++
++static std::string JNI_HostZoomMapImpl_GetEnvironmentHost(
++    JNIEnv* env, const base::android::JavaRef<jobject>& j_contents) {
++  auto* contents = WebContents::FromJavaWebContents(j_contents);
++  return net::GetHostOrSpecFromURL(HostZoomMap::GetURLForWebContents(contents));
++}
++
++static std::string JNI_HostZoomMapImpl_GetEnvironmentProfileKey(
++    JNIEnv* env, const base::android::JavaRef<jobject>& j_context) {
++  auto* context = BrowserContextFromJavaHandle(j_context);
++  CHECK(context);
++  return base::HexEncode(context->GetPath().AsUTF8Unsafe());
++}
++
++static bool JNI_HostZoomMapImpl_IsEnvironmentPrivate(
++    JNIEnv* env, const base::android::JavaRef<jobject>& j_context) {
++  auto* context = BrowserContextFromJavaHandle(j_context);
++  CHECK(context);
++  return context->IsOffTheRecord();
++}
++
++static void JNI_HostZoomMapImpl_RefreshEnvironmentZoom(
++    JNIEnv* env, const base::android::JavaRef<jobject>& j_contents) {
++  auto* contents = static_cast<WebContentsImpl*>(WebContents::FromJavaWebContents(j_contents));
++  if (contents) contents->UpdateZoom();
+ }
+ 
+ static void JNI_HostZoomMapImpl_SetZoomLevelForHost(
+--- a/content/public/android/BUILD.gn
++++ b/content/public/android/BUILD.gn
+@@ -400,6 +400,8 @@
+     "java/src/org/chromium/content_public/browser/GestureStateListener.java",
+     "java/src/org/chromium/content_public/browser/GlobalRenderFrameHostId.java",
+     "java/src/org/chromium/content_public/browser/HostZoomMap.java",
++    "java/src/org/chromium/content_public/browser/EnvironmentZoom.java",
++    "java/src/org/chromium/content_public/browser/EnvironmentZoomPolicy.java",
+     "java/src/org/chromium/content_public/browser/ImageDownloadCallback.java",
+     "java/src/org/chromium/content_public/browser/ImeAdapter.java",
+     "java/src/org/chromium/content_public/browser/ImeEventObserver.java",
+--- a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java
+@@ -3,6 +3,8 @@
+ // found in the LICENSE file.
+ 
+ package org.chromium.chrome.browser.tab;
++
++import org.chromium.content_public.browser.EnvironmentZoom;
+ 
+ import static org.chromium.build.NullUtil.assumeNonNull;
+ import static org.chromium.chrome.browser.url_constants.UrlConstantResolver.getOriginalNativeHistoryUrl;
+@@ -1398,6 +1400,7 @@
+                 notifyLoadProgress(getProgress());
+             }
+ 
++            EnvironmentZoom.refreshAll();
+             for (TabObserver observer : mObservers) observer.onShown(this, type);
+ 
+             // Updating the timestamp has to happen after the showInternal() call since subclasses
+@@ -1795,6 +1798,10 @@
+         if (webContents != null) {
+             assert mWindowAndroid != null;
+             webContents.setTopLevelNativeWindow(mWindowAndroid);
++            @Nullable PrefService environmentPrefs = UserPrefs.get(getProfile());
++            EnvironmentZoom.registerLegacyDefaultPresence(getProfile(), environmentPrefs == null
++                    || !environmentPrefs.isDefaultValuePreference("partition.default_zoom_level.android"));
++            EnvironmentZoom.attach(webContents, getProfile());
+         }
+ 
+         if (windowAndroid != null) {
+@@ -2207,6 +2214,12 @@
+ 
+     /** Calls onContentChanged on all TabObservers and updates accessibility visibility. */
+     void notifyContentChanged() {
++        if (getWebContents() != null) {
++            @Nullable PrefService environmentPrefs = UserPrefs.get(getProfile());
++            EnvironmentZoom.registerLegacyDefaultPresence(getProfile(), environmentPrefs == null
++                    || !environmentPrefs.isDefaultValuePreference("partition.default_zoom_level.android"));
++            EnvironmentZoom.attach(getWebContents(), getProfile());
++        }
+         for (TabObserver observer : mObservers) observer.onContentChanged(this);
+     }
+ 
+--- a/chrome/browser/profiles/android/java/src/org/chromium/chrome/browser/profiles/Profile.java
++++ b/chrome/browser/profiles/android/java/src/org/chromium/chrome/browser/profiles/Profile.java
+@@ -3,6 +3,8 @@
+ // found in the LICENSE file.
+ 
+ package org.chromium.chrome.browser.profiles;
++
++import org.chromium.content_public.browser.EnvironmentZoom;
+ 
+ import androidx.annotation.VisibleForTesting;
+ 
+@@ -251,6 +253,7 @@
+ 
+     @CalledByNative
+     private void onNativeDestroyed() {
++        EnvironmentZoom.forgetContext(this);
+         mNativeProfile = 0;
+ 
+         if (!mDestroyNotified) {
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+@@ -3,6 +3,8 @@
+ // found in the LICENSE file.
+ 
+ package org.chromium.chrome.browser.app;
++
++import org.chromium.content_public.browser.EnvironmentZoom;
+ 
+ import static org.chromium.build.NullUtil.assertNonNull;
+ import static org.chromium.build.NullUtil.assumeNonNull;
+@@ -1322,6 +1324,7 @@
+         // closed the old UMA record, pertaining to the previous (backgrounded) activity, and opened
+         // a new one pertaining to the "resumed" activity.
+         super.onResumeWithNative();
++        EnvironmentZoom.refreshAll();
+ 
+         // Resume the ChromeActivity...
+ 
+--- a/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomManager.java
++++ b/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomManager.java
+@@ -3,6 +3,8 @@
+ // found in the LICENSE file.
+ 
+ package org.chromium.components.browser_ui.accessibility;
++
++import org.chromium.content_public.browser.EnvironmentZoom;
+ 
+ import static org.chromium.content_public.browser.HostZoomMap.AVAILABLE_ZOOM_FACTORS;
+ 
+@@ -69,7 +71,10 @@
+ 
+     /** Resets the zoom level of the current WebContents to the default zoom level. */
+     void resetZoomLevel() {
+-        setZoomLevel(getDefaultZoomLevel());
++        WebContents contents = getWebContents();
++        if (contents == null || !EnvironmentZoom.reset(contents)) {
++            setZoomLevel(getDefaultZoomLevel());
++        }
+     }
+ 
+     /** Returns the zoom level of the current WebContents. */
+@@ -85,7 +90,10 @@
+     /** Returns the default zoom level of the current Profile. */
+     @VisibleForTesting
+     double getDefaultZoomLevel() {
+-        return HostZoomMap.getDefaultZoomLevel(mDelegate.getBrowserContextHandle());
++        WebContents contents = getWebContents();
++        double value = contents == null ? Double.NaN : EnvironmentZoom.defaultFor(contents);
++        return Double.isFinite(value) ? value
++                : HostZoomMap.getDefaultZoomLevel(mDelegate.getBrowserContextHandle());
+     }
+ 
+     /** Returns the WebContents of the current tab. */
+--- a/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomBarMediator.java
++++ b/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomBarMediator.java
+@@ -93,8 +93,9 @@
+     }
+ 
+     void handleResetClicked() {
+-        // Reset as if the user moved the bar to the default zoom value
+-        handleBarValueChanged(PageZoomUtils.convertZoomFactorToBarValue(mDefaultZoomFactor));
++        // Reset removes the explicit site choice. Moving the slider to default does not.
++        mManager.resetZoomLevel();
++        pushProperties();
+     }
+ 
+     void handleBarValueChanged(int newValue) {
+--- a/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomUtils.java
++++ b/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomUtils.java
+@@ -94,7 +94,7 @@
+         // 10, we can rewrite the above as: log10(chosenZoomLevel) / log10(1.2);
+         double result = Math.log10(chosenZoomLevel) / Math.log10(TEXT_SIZE_MULTIPLIER_RATIO);
+ 
+-        return MathUtils.roundTwoDecimalPlaces(result);
++        return Math.log((newValue + 50) / 100.0) / Math.log(1.2);
+     }
+ 
+     /**
+--- a/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/AccessibilitySettings.java
++++ b/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/AccessibilitySettings.java
+@@ -3,6 +3,9 @@
+ // found in the LICENSE file.
+ 
+ package org.chromium.components.browser_ui.accessibility;
++
++import org.chromium.content_public.browser.EnvironmentZoom;
++import org.chromium.content_public.browser.EnvironmentZoomPolicy;
+ 
+ import static org.chromium.build.NullUtil.assertNonNull;
+ import static org.chromium.build.NullUtil.assumeNonNull;
+@@ -85,7 +88,6 @@
+                 }
+             };
+ 
+-    private PageZoomPreference mPageZoomDefaultZoomPref;
+     private ChromeSwitchPreference mPageZoomIncludeOSAdjustment;
+     private ChromeSwitchPreference mPageZoomAlwaysShowPref;
+     private ChromeSwitchPreference mForceEnableZoomPref;
+@@ -117,32 +119,23 @@
+         mPageTitle.set(getString(R.string.prefs_accessibility));
+ 
+         assertNonNull(mDelegate);
+-        // TODO(crbug.com/439911511): Add PageZoomPreference directly to the xml file instead.
+-        // Create the page zoom preference.
+-        if (mDelegate.shouldUseSlider()) {
+-            mPageZoomDefaultZoomPref = new PageZoomSliderPreference(getContext(), null);
+-        } else {
+-            mPageZoomDefaultZoomPref = new PageZoomSeekbarPreference(getContext(), null);
+-        }
+-        mPageZoomDefaultZoomPref.setKey(PREF_PAGE_ZOOM_DEFAULT_ZOOM);
+-        mPageZoomDefaultZoomPref.setOrder(-1);
+-        getPreferenceScreen().addPreference(mPageZoomDefaultZoomPref);
+-
++        EnvironmentZoomSettings.add(this, mDelegate.getBrowserContextHandle());
++        // Keep the existing experimental text contrast and preview, without a global zoom control.
++        if (PageZoomPreference.shouldShowTextSizeContrastSetting()) {
++            PageZoomPreference contrast = new PageZoomSliderPreference(getContext(), null);
++            contrast.setKey("titanium_text_contrast");
++            contrast.setOrder(1);
++            contrast.setContrastOnly(true);
++            contrast.setInitialValue(PageZoomUtils.convertZoomFactorToBarValue(
++                    EnvironmentZoom.store(mDelegate.getBrowserContextHandle()).defaultFactor(
++                            EnvironmentZoomPolicy.Environment.MOBILE)));
++            contrast.setTextSizeContrastDelegate(mDelegate.getTextSizeContrastAccessibilityDelegate());
++            getPreferenceScreen().addPreference(contrast);
++        }
+         mPageZoomAlwaysShowPref = findPreference(PREF_PAGE_ZOOM_ALWAYS_SHOW);
+         mPageZoomIncludeOSAdjustment = findPreference(PREF_PAGE_ZOOM_INCLUDE_OS_ADJUSTMENT);
+-
+-        // Set the initial values for the page zoom settings, and set change listeners.
+-        mPageZoomDefaultZoomPref.setInitialValue(
+-                PageZoomUtils.getDefaultZoomAsBarValue(mDelegate.getBrowserContextHandle()));
+-        mPageZoomDefaultZoomPref.setOnPreferenceChangeListener(this);
+         mPageZoomAlwaysShowPref.setChecked(PageZoomUtils.shouldShowZoomMenuItem(getContext()));
+         mPageZoomAlwaysShowPref.setOnPreferenceChangeListener(this);
+-
+-        // When Smart Zoom feature is enabled, set the required delegate.
+-        if (PageZoomPreference.shouldShowTextSizeContrastSetting()) {
+-            mPageZoomDefaultZoomPref.setTextSizeContrastDelegate(
+-                    mDelegate.getTextSizeContrastAccessibilityDelegate());
+-        }
+ 
+         mForceEnableZoomPref = findPreference(PREF_FORCE_ENABLE_ZOOM);
+         mForceEnableZoomPref.setOnPreferenceChangeListener(this);
+@@ -184,7 +177,7 @@
+                 });
+ 
+         Preference zoomInfo = findPreference(PREF_ZOOM_INFO);
+-        zoomInfo.setVisible(true);
++        zoomInfo.setVisible(false);
+         zoomInfo.setOnPreferenceClickListener(
+                 preference -> {
+                     Bundle initialArguments = new Bundle();
+@@ -299,11 +292,6 @@
+             RecordHistogram.recordBooleanHistogram(
+                     "DomDistiller.Android.ReaderModeEnableLinksInAccessibilitySettings",
+                     readerEnableLinks);
+-        } else if (PREF_PAGE_ZOOM_DEFAULT_ZOOM.equals(preference.getKey())) {
+-            mPageZoomLatestDefaultZoomPrefValue =
+-                    PageZoomUtils.convertBarValueToZoomLevel((Integer) newValue);
+-            PageZoomUtils.setDefaultZoomByBarValue(
+-                    mDelegate.getBrowserContextHandle(), (Integer) newValue);
+         } else if (PREF_PAGE_ZOOM_ALWAYS_SHOW.equals(preference.getKey())) {
+             PageZoomUtils.setShouldAlwaysShowZoomMenuItem((Boolean) newValue);
+         } else if (PREF_PAGE_ZOOM_INCLUDE_OS_ADJUSTMENT.equals(preference.getKey())) {
+@@ -374,37 +362,12 @@
+     public static void updateDynamicPreferences(
+             Context context, AccessibilitySettingsDelegate delegate, SettingsIndexData indexData) {
+         String prefFragment = AccessibilitySettings.class.getName();
+-        int subViewPos = 0;
+-        addEntryForKey(
+-                indexData,
+-                prefFragment,
+-                PREF_PAGE_ZOOM_DEFAULT_ZOOM,
+-                PREF_PAGE_ZOOM_DEFAULT_ZOOM,
+-                subViewPos,
+-                R.string.page_zoom_title,
+-                R.string.page_zoom_summary);
+-        subViewPos += 1;
+-        // Default zoom/Text size contrast/Preview are under a single preference. Add 2 virtual
+-        // entries to index and make the latter 2 searchable.
++        indexData.removeEntryForKey(prefFragment, PREF_ZOOM_INFO);
+         if (PageZoomPreference.shouldShowTextSizeContrastSetting()) {
+-            addEntryForKey(
+-                    indexData,
+-                    prefFragment,
+-                    "page_zoom_text_size_contrast",
+-                    PREF_PAGE_ZOOM_DEFAULT_ZOOM,
+-                    subViewPos,
+-                    R.string.text_size_contrast_title,
++            addEntryForKey(indexData, prefFragment, "titanium_text_contrast",
++                    "titanium_text_contrast", 0, R.string.text_size_contrast_title,
+                     R.string.text_size_contrast_summary);
+-            subViewPos += 1;
+-        }
+-        addEntryForKey(
+-                indexData,
+-                prefFragment,
+-                "page_zoom_preview",
+-                PREF_PAGE_ZOOM_DEFAULT_ZOOM,
+-                subViewPos,
+-                R.string.page_zoom_preview_title,
+-                R.string.page_zoom_preview_text_summary);
++        }
+         if (!shouldShowJumpStartOmniboxPref()) {
+             indexData.removeEntryForKey(prefFragment, OmniboxFeatures.KEY_JUMP_START_OMNIBOX);
+         }
+--- a/components/browser_ui/accessibility/android/BUILD.gn
++++ b/components/browser_ui/accessibility/android/BUILD.gn
+@@ -39,6 +39,7 @@
+   srcjar_deps = [ ":accessibility_jni_headers" ]
+   sources = [
+     "java/src/org/chromium/components/browser_ui/accessibility/AccessibilitySettings.java",
++    "java/src/org/chromium/components/browser_ui/accessibility/EnvironmentZoomSettings.java",
+     "java/src/org/chromium/components/browser_ui/accessibility/AccessibilitySettingsDelegate.java",
+     "java/src/org/chromium/components/browser_ui/accessibility/DeviceAccessibilitySettingsHandler.java",
+     "java/src/org/chromium/components/browser_ui/accessibility/FontSizePrefs.java",
+@@ -127,6 +128,8 @@
+     "java/res/values/dimens.xml",
+     "java/res/values/styles.xml",
+     "java/res/xml/accessibility_preferences.xml",
++    "java/res/values/titanium_zoom_strings.xml",
++    "java/res/values-ja/titanium_zoom_strings.xml",
+   ]
+ 
+   deps = [
+--- a/components/browser_ui/accessibility/android/java/res/xml/accessibility_preferences.xml
++++ b/components/browser_ui/accessibility/android/java/res/xml/accessibility_preferences.xml
+@@ -59,4 +59,17 @@
+         android:summary="@string/touchpad_overscroll_history_navigation_summary"
+         android:title="@string/touchpad_overscroll_history_navigation_title" />
+ 
++    <androidx.preference.SeekBarPreference
++        android:key="titanium_zoom_mobile" android:title="@string/titanium_zoom_mobile"
++        android:order="-4" android:persistent="false" />
++    <androidx.preference.SeekBarPreference
++        android:key="titanium_zoom_dex" android:title="@string/titanium_zoom_dex"
++        android:order="-3" android:persistent="false" />
++    <androidx.preference.ListPreference
++        android:key="titanium_zoom_display" android:title="@string/titanium_zoom_display"
++        android:order="-2" android:persistent="false" />
++    <Preference android:key="titanium_zoom_mobile_sites" android:title="@string/titanium_zoom_mobile_sites"
++        android:order="-1" android:persistent="false" />
++    <Preference android:key="titanium_zoom_dex_sites" android:title="@string/titanium_zoom_dex_sites"
++        android:order="0" android:persistent="false" />
+ </PreferenceScreen>
+--- a/content/public/browser/host_zoom_map.h
++++ b/content/public/browser/host_zoom_map.h
+@@ -90,6 +90,7 @@
+   // Returns the current zoom level for the specified WebContents. May be
+   // temporary or host-specific.
+   CONTENT_EXPORT static double GetZoomLevel(WebContents* web_contents);
++  CONTENT_EXPORT static double GetEnvironmentZoomLevel(WebContents* contents, const GURL& url);
+   CONTENT_EXPORT static double GetZoomLevel(WebContents* web_contents,
+                                             GlobalRenderFrameHostId rfh_id);
+ 
+--- a/content/browser/web_contents/web_contents_impl.cc
++++ b/content/browser/web_contents/web_contents_impl.cc
+@@ -9886,6 +9886,10 @@
+     return HostZoomMap::GetZoomLevel(this, rfh->GetGlobalId());
+   }
+ #if BUILDFLAG(IS_ANDROID)
++  if (!rfh->GetParentOrOuterDocument()) {
++    double environment_level = HostZoomMap::GetEnvironmentZoomLevel(this, url);
++    if (std::isfinite(environment_level)) return environment_level;
++  }
+   return HostZoomMapForRenderFrameHost(rfh)
+       ->GetZoomLevelForHostAndSchemeAndroid(url.GetScheme(),
+                                             net::GetHostOrSpecFromURL(url));
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettings.java
+@@ -214,7 +214,7 @@
+         p = findPreference(Type.USE_STORAGE);
+         if (p != null) p.setOnPreferenceClickListener(this);
+         p = findPreference(Type.ZOOM);
+-        if (p != null) p.setOnPreferenceClickListener(this);
++        if (p != null) p.setVisible(false); // Replaced by environment lists in Accessibility.
+ 
+         // For the permission autorevocation switch.
+         ChromeSwitchPreference switchPref =
+--- a/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomPreference.java
++++ b/components/browser_ui/accessibility/android/java/src/org/chromium/components/browser_ui/accessibility/PageZoomPreference.java
+@@ -29,6 +29,8 @@
+ /** Abstract base class for the page zoom section of Accessibility Settings. */
+ @NullMarked
+ public abstract class PageZoomPreference extends Preference {
++    private boolean mContrastOnly;
++    public void setContrastOnly(boolean value) { mContrastOnly = value; }
+     protected int mInitialValue;
+     protected ChromeImageButton mDecreaseButton;
+     protected ChromeImageButton mIncreaseButton;
+@@ -64,6 +66,7 @@
+     @Override
+     public void onBindViewHolder(PreferenceViewHolder holder) {
+         super.onBindViewHolder(holder);
++        if (mContrastOnly) holder.findViewById(R.id.page_zoom_section).setVisibility(View.GONE);
+ 
+         // Re-use the main control layout, but remove extra padding and background.
+         LinearLayout container = (LinearLayout) holder.findViewById(R.id.page_zoom_view_container);
