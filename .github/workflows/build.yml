@@ -28,6 +28,9 @@ jobs:
           submodules: true
       
       - name: Update
+        # F11 feature patches are validated against the committed Vanadium revision.
+        # Keep the regular build's update behavior; do not advance test sources mid-build.
+        if: ${{ !inputs.f11_test_build }}
         run: |
           cd vanadium
           git fetch --tags
