@@ -3,9 +3,9 @@ from pathlib import Path
 import re
 import subprocess
 
-VANADIUM = 'c1892f4db7a828b9fcbca9ab6a6898b0a7396fae'
-VERSION = '155.0.8059.39'
-CHROMIUM = '3ff7ac5a9224be9156d7f8703a06e22890aafd34'
+VANADIUM = '8a06a43a04074ab26fa4dc8f8aba915285d56839'
+VERSION = '155.0.8059.79'
+CHROMIUM = 'a49e2e3d4addfd84e765b52afe230bedb81096db'
 
 
 def git(root, *args):
