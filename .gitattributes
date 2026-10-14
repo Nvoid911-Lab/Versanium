@@ -1,0 +1,2 @@
+# A unified diff represents empty context lines with a required single space.
+tools/environment_zoom/chromium.patch whitespace=-blank-at-eol

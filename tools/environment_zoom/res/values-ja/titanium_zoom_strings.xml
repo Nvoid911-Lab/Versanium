@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="titanium_zoom_mobile">モバイルのデフォルトズーム（％）</string>
-    <string name="titanium_zoom_dex">DeX／外部画面のデフォルトズーム（％）</string>
-    <string name="titanium_zoom_default_summary">ページの絶対倍率です。保存済みのサイト設定が優先されます。</string>
-    <string name="titanium_zoom_display">この画面のズーム環境</string>
-    <string name="titanium_zoom_auto">自動：本体画面はモバイル、外部画面はDeX</string>
-    <string name="titanium_zoom_mobile_sites">モバイルの保存済みサイトズーム</string>
-    <string name="titanium_zoom_dex_sites">DeXの保存済みサイトズーム</string>
-    <string name="titanium_zoom_sites_summary">サイトを選ぶと、この環境の個別設定を解除できます。</string>
-    <string name="titanium_zoom_no_sites">この環境に保存済みのサイト設定はありません。</string>
-    <string name="titanium_zoom_reset_confirm">このサイトを環境のデフォルトに戻しますか？もう一方の環境には影響しません。</string>
+    <string formatted="false" name="titanium_zoom_mobile">モバイルのデフォルトズーム（％）</string>
+    <string formatted="false" name="titanium_zoom_dex">DeX／外部画面のデフォルトズーム（％）</string>
+    <string formatted="false" name="titanium_zoom_default_summary">ページの絶対倍率です。保存済みのサイト設定が優先されます。</string>
+    <string formatted="false" name="titanium_zoom_display">この画面のズーム環境</string>
+    <string formatted="false" name="titanium_zoom_auto">自動：本体画面はモバイル、外部画面はDeX</string>
+    <string formatted="false" name="titanium_zoom_mobile_sites">モバイルの保存済みサイトズーム</string>
+    <string formatted="false" name="titanium_zoom_dex_sites">DeXの保存済みサイトズーム</string>
+    <string formatted="false" name="titanium_zoom_sites_summary">サイトを選ぶと、この環境の個別設定を解除できます。</string>
+    <string formatted="false" name="titanium_zoom_no_sites">この環境に保存済みのサイト設定はありません。</string>
+    <string formatted="false" name="titanium_zoom_reset_confirm">このサイトを環境のデフォルトに戻しますか？もう一方の環境には影響しません。</string>
 </resources>

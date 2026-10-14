@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="titanium_zoom_mobile">Mobile default zoom (%)</string>
-    <string name="titanium_zoom_dex">DeX / external display default zoom (%)</string>
-    <string name="titanium_zoom_default_summary">Absolute page zoom; saved site settings take priority.</string>
-    <string name="titanium_zoom_display">Zoom environment for this display</string>
-    <string name="titanium_zoom_auto">Automatic: mobile on built-in display, DeX on external display</string>
-    <string name="titanium_zoom_mobile_sites">Saved mobile site zoom</string>
-    <string name="titanium_zoom_dex_sites">Saved DeX site zoom</string>
-    <string name="titanium_zoom_sites_summary">Select a site to remove its override in this environment.</string>
-    <string name="titanium_zoom_no_sites">No site overrides saved in this environment.</string>
-    <string name="titanium_zoom_reset_confirm">Use the environment default for this site? The other environment stays unchanged.</string>
+    <string formatted="false" name="titanium_zoom_mobile">Mobile default zoom (%)</string>
+    <string formatted="false" name="titanium_zoom_dex">DeX / external display default zoom (%)</string>
+    <string formatted="false" name="titanium_zoom_default_summary">Absolute page zoom; saved site settings take priority.</string>
+    <string formatted="false" name="titanium_zoom_display">Zoom environment for this display</string>
+    <string formatted="false" name="titanium_zoom_auto">Automatic: mobile on built-in display, DeX on external display</string>
+    <string formatted="false" name="titanium_zoom_mobile_sites">Saved mobile site zoom</string>
+    <string formatted="false" name="titanium_zoom_dex_sites">Saved DeX site zoom</string>
+    <string formatted="false" name="titanium_zoom_sites_summary">Select a site to remove its override in this environment.</string>
+    <string formatted="false" name="titanium_zoom_no_sites">No site overrides saved in this environment.</string>
+    <string formatted="false" name="titanium_zoom_reset_confirm">Use the environment default for this site? The other environment stays unchanged.</string>
 </resources>
