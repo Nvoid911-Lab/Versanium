@@ -18,11 +18,14 @@ Use of this source code is governed by a BSD-style license in LICENSE. -->
 def generate(master,repo=REPO,font_path=Path('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf')):
     raw=master.read_bytes()
     source=Image.open(io.BytesIO(raw))
-    if source.format!='PNG' or source.width!=source.height or source.width<512:
-        raise ValueError('Provide the original square PNG, at least 512px; no replacement/generated logo is accepted')
+    if source.format not in ('PNG','JPEG') or source.width!=source.height or source.width<512:
+        raise ValueError('Provide the original square PNG or JPEG, at least 512px; no replacement/generated logo is accepted')
     image=source.convert('RGBA')
     # White artwork on black: luminance becomes alpha. On black this retains the design.
-    alpha=ImageChops.multiply(ImageOps.grayscale(image),image.getchannel('A'))
+    luminance=ImageOps.grayscale(image)
+    # JPEG black-background ringing is not artwork; remove only near-black noise.
+    if source.format=='JPEG':luminance=luminance.point(lambda v: 0 if v<=16 else v)
+    alpha=ImageChops.multiply(luminance,image.getchannel('A'))
     box=alpha.getbbox()
     if not box:raise ValueError('No artwork found in the supplied master')
     ink=Image.new('RGBA',image.size,'white');ink.putalpha(alpha);ink=ink.crop(box)
@@ -35,7 +38,11 @@ def generate(master,repo=REPO,font_path=Path('/usr/share/fonts/truetype/dejavu/D
         p=repo/relative;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data);paths.append(str(relative))
     def png(relative,img):
         b=io.BytesIO();img.save(b,format='PNG');save(relative,b.getvalue())
-    save(BASE/'master.png',raw)  # Byte-for-byte source preservation.
+    if source.format=='JPEG':
+        save(BASE/'master-original.jpg',raw)  # Exact attached bytes, no recompression.
+        png(BASE/'master.png',image)
+    else:
+        save(BASE/'master.png',raw)
     for density,scale in DENSITIES.items():
         folder=BASE/'android'/('mipmap-'+density)
         png(folder/'app_icon.png',image.resize((round(48*scale),)*2,Image.Resampling.LANCZOS))
@@ -56,10 +63,10 @@ def generate(master,repo=REPO,font_path=Path('/usr/share/fonts/truetype/dejavu/D
         draw.text((x,y),'Versanium',font=ImageFont.truetype(str(font_path),round(size[0]*.05)),fill='white')
         draw.text((x,y+90),'Android browsing across\nmobile and desktop environments',font=ImageFont.truetype(str(font_path),round(size[0]*.016)),fill='white')
         png(relative,canvas)
-    data=base64.b64encode(raw).decode()
+    data=base64.b64encode((repo/BASE/'master.png').read_bytes()).decode()
     svg=f'''<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640"><rect width="1280" height="640" fill="black"/><image x="32" y="58" width="525" height="525" href="data:image/png;base64,{data}"/><text x="589" y="315" fill="white" font-family="sans-serif" font-size="64">Versanium</text><text x="589" y="390" fill="white" font-family="sans-serif" font-size="20">Android browsing across</text><text x="589" y="418" fill="white" font-family="sans-serif" font-size="20">mobile and desktop environments</text></svg>'''
     save(BASE/'social-preview.svg',svg.encode())
-    manifest={'master_sha256':hashlib.sha256(raw).hexdigest(),'files':{p:hashlib.sha256((repo/p).read_bytes()).hexdigest() for p in paths}}
+    manifest={'master_sha256':hashlib.sha256((repo/BASE/'master.png').read_bytes()).hexdigest(),'files':{p:hashlib.sha256((repo/p).read_bytes()).hexdigest() for p in paths}}
     target=repo/BASE/'assets.json';target.write_text(json.dumps(manifest,indent=2)+'\n')
     print('Prepared assets from unchanged supplied master:',len(paths))
 

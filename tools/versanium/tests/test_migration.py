@@ -38,6 +38,15 @@ class MigrationTests(unittest.TestCase):
         try:
             with self.assertRaises(RuntimeError):assets.check_assets(self.repo)
         finally:manifest.write_text(old)
+    def test_jpeg_original_preserved_and_png_converted(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);original=root/'original.jpg'
+            Image.open(self.input).convert('RGB').save(original,format='JPEG')
+            output=root/'output';output.mkdir();generate_icons.generate(original,output)
+            self.assertEqual(original.read_bytes(),(output/'res/versanium/master-original.jpg').read_bytes())
+            with Image.open(output/'res/versanium/master.png') as converted:self.assertEqual(converted.format,'PNG')
+            self.assertEqual(len(assets.check_assets(output)['files']),24)
+
     def test_missing_master_fails_before_build(self):
         with tempfile.TemporaryDirectory() as d:
             with self.assertRaises(RuntimeError):assets.check_assets(Path(d))

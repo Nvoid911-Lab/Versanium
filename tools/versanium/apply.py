@@ -14,6 +14,8 @@ def check_assets(repo):
     for density in ('mdpi','hdpi','xhdpi','xxhdpi','xxxhdpi'):
         for name in ('app_icon.png','layered_app_icon.png','layered_app_icon_background.png'):
             expected.add(f'res/versanium/android/mipmap-{density}/{name}')
+    if 'res/versanium/master-original.jpg' in values.get('files',{}):
+        expected.add('res/versanium/master-original.jpg')
     if set(values.get('files',{}))!=expected:raise RuntimeError('Incomplete or unexpected icon asset manifest')
     for relative,expected in values['files'].items():
         p=(repo/relative).resolve()

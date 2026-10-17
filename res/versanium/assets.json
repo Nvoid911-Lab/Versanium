@@ -1,0 +1,29 @@
+{
+  "master_sha256": "563a6be10f395051cb9e7d73341ea4a0128106d6705088af17ecac21a7352a91",
+  "files": {
+    "res/versanium/master-original.jpg": "c8df04f4520255c30ed4d53a87b01536882769841336d7e5c0de0143b62f8d77",
+    "res/versanium/master.png": "563a6be10f395051cb9e7d73341ea4a0128106d6705088af17ecac21a7352a91",
+    "res/versanium/android/mipmap-mdpi/app_icon.png": "335a35963b6c37023eece9b8e52742e85d0e063f9723a29298f5bf0ec61f0dec",
+    "res/versanium/android/mipmap-mdpi/layered_app_icon.png": "89433fd005566cac5b926f9f2558a8811408f2fd1a76a408491e19bdba36199e",
+    "res/versanium/android/mipmap-mdpi/layered_app_icon_background.png": "d9d7452390a2ff8195bc322efc4a1c20bd98bb2cdf597727cac8990d5b2cbc94",
+    "res/versanium/android/mipmap-hdpi/app_icon.png": "40655dfeef554706d6faa36a25a8f0a5e216bb31d5935738862a33bcc5a7ff29",
+    "res/versanium/android/mipmap-hdpi/layered_app_icon.png": "99171e79eaf212049432043f9ba0c19f192a0d3404cbee4195f06092cf6b9713",
+    "res/versanium/android/mipmap-hdpi/layered_app_icon_background.png": "6096df7e591089cc4e912bd6b58afaa3817e93c31010a96594f8236b36df1b1f",
+    "res/versanium/android/mipmap-xhdpi/app_icon.png": "66d3baeff2233c9f09a3bf85f49994cba41b32517091ce4fd9d0c5d45fce480b",
+    "res/versanium/android/mipmap-xhdpi/layered_app_icon.png": "24e83147efec6ec0d29874d04cf60233ad09cc37b5eee32db177ee51e9a304e2",
+    "res/versanium/android/mipmap-xhdpi/layered_app_icon_background.png": "bdff1c4a77611f4b7de8d9ddd441bade5a821f278e50ad3eec24a4a93a751dbe",
+    "res/versanium/android/mipmap-xxhdpi/app_icon.png": "691f676b093d54b7d7ba6955ad9798a477774702ccf5cf0e5b077d3d4d9a5e39",
+    "res/versanium/android/mipmap-xxhdpi/layered_app_icon.png": "784a3f0785f2448f94a7e0326d339b0291b3451220596776c5d1d848e8d4fb67",
+    "res/versanium/android/mipmap-xxhdpi/layered_app_icon_background.png": "4f9104545084c0e2a5cf8f799a16bccc49e3199af5369b10cc712e463103cd68",
+    "res/versanium/android/mipmap-xxxhdpi/app_icon.png": "9c428f440a56cc0f5a0a1a669a7e722c49cf3d1eda0ff62938babc786fcb9772",
+    "res/versanium/android/mipmap-xxxhdpi/layered_app_icon.png": "7c15433ec3d3201f50e03f1326410c8b9c386edd2b5ae153d1663659566a8e78",
+    "res/versanium/android/mipmap-xxxhdpi/layered_app_icon_background.png": "b6ef0a7b099a01ec82e11546a518949d13e65aae39a6e92a98b597388d2112cd",
+    "res/versanium/android/mipmap-nodpi/layered_app_icon_foreground.xml": "a8d7a86305f3a365367b6d656cff0c2b73fedd3780204f839120d1f94c5b64da",
+    "res/versanium/android/drawable/themed_app_icon.xml": "a8d7a86305f3a365367b6d656cff0c2b73fedd3780204f839120d1f94c5b64da",
+    "res/versanium/logo.png": "b64f326a66cf1df88731de3585e8912335255060b2caaabaea66096e5c781e74",
+    "fastlane/metadata/android/en-US/images/icon.png": "b64f326a66cf1df88731de3585e8912335255060b2caaabaea66096e5c781e74",
+    "res/versanium/social-preview.png": "bc7bf5567a78fabaedd27f46864884ad2b6e6f71f7fa4021e787c914f22598b4",
+    "fastlane/metadata/android/en-US/images/featureGraphic.png": "d38e8994843e80e3929e8130dda4455a4fb5529dbdaf2641c13a4dfcfa9ec420",
+    "res/versanium/social-preview.svg": "f111a97ee9e4dc03020e85564e1dd416c2a3548bb47b05dfa6356b4cb3138a4d"
+  }
+}
