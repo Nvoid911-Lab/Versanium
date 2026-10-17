@@ -29,7 +29,9 @@ not a claim to have copied PR discussions or inaccessible GitHub settings.
 Operational handoff: both main branches use the stable synchronization checkpoint. The branding work
 is pushed as migration/versanium to both repositories, with the same SHA. Branding is not advanced to
 main while the actual master assets and rename access are missing. Existing feature histories remain.
-Primary receives the Lab F11, zoom, update, and PiP branch heads by normal fast-forward/new-ref pushes.
+Primary received the Lab F11, zoom, update, and PiP branch heads by normal fast-forward/new-ref pushes.
+All six corresponding remote branch tips (including main and migration/versanium) were compared and match.
+Local default pushes and this migration branch track the Primary remote; explicit backup pushes mirror the same commits.
 Existing tags are left unchanged; no new release tag is pushed during migration.
 
 ## Repository names and metadata
@@ -66,7 +68,7 @@ by repository identity to Primary and is also gated by explicit approval. Both w
 The complete file lists are in [changed-files.tsv](changed-files.tsv), separated into synchronization
 and branding changes. [titanium-occurrences.tsv](titanium-occurrences.tsv) classifies every remaining
 tracked text match by file, line, and column. This is a repository-source audit, not an APK string dump.
-The inventory excludes itself and this new handoff report to avoid self-referential generated rows.
+The inventory excludes the generated handoff/audit files themselves to avoid self-referential rows.
 
 A — current-app branding changed/prepared:
 
@@ -152,6 +154,7 @@ Executed:
   workflow gates and inline shell. These are not an actual icon review, signed APK, or GitHub run.
 - Actual pinned Vanadium channel resource and Chromium BRANDING fields: app/widget names changed;
   existing comments/company/copyright/internal identity retained.
+- AAPT2 compile of synthetic-fixture generated icon resources: PASS. Not resource link or actual-logo validation.
 - actionlint, YAML parsing, shell syntax, git diff --check.
 - Existing zoom Policy 481 assertions, Bridge 31 assertions, Persistence 13 checks; revision gate
   5 metadata-model cases. Bridge Android/JNI are doubles, not renderer/device verification.
