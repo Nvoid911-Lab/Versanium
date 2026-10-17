@@ -1,105 +1,72 @@
-# Titanium Browser for Android
+# Versanium
 
-[![Stars](https://img.shields.io/github/stars/jqssun/android-titanium-browser?label=Stars&logo=GitHub)](https://github.com/jqssun/android-titanium-browser)
-[![GitHub](https://img.shields.io/github/downloads/jqssun/android-titanium-browser/total?label=GitHub&logo=GitHub)](https://github.com/jqssun/android-titanium-browser/releases)
-[![license](https://img.shields.io/badge/License-GPLv2-blue.svg)](https://github.com/jqssun/android-titanium-browser/blob/main/LICENSE)
-[![build](https://img.shields.io/github/actions/workflow/status/jqssun/android-titanium-browser/build.yml)](https://github.com/jqssun/android-titanium-browser/actions/workflows/build.yml)
-[![release](https://img.shields.io/github/v/release/jqssun/android-titanium-browser)](https://github.com/jqssun/android-titanium-browser/releases)
+## Purpose
 
-A secure and fully open-source, Chromium-based web browser with support for extensions, based on [Vanadium](https://github.com/GrapheneOS/Vanadium) by [GrapheneOS](https://github.com/GrapheneOS). This project was formerly known as [Helium Browser for Android](https://github.com/jqssun/android-helium-browser) but was later renamed to avoid branding confusion. To maintain a fast and native experience for everyone, advanced features are modularized into [**Titanium Extension for Android**](https://github.com/jqssun/android-titanium-extension).
+Versanium is an Android browser project focused on providing a comfortable and consistent browsing experience across both smartphones and desktop-style environments.
 
-For the latest builds, see [**Releases**](https://github.com/jqssun/android-titanium-browser/releases/latest). You can also update between GitHub and Google Play releases seamlessly.
+## Relationship to Titanium Browser
 
-[<img height="48" alt="Get it on Google Play" src="https://jqssun.github.io/images/badges/google-play-store.svg">](https://play.google.com/store/apps/details?id=io.github.jqssun.helium)
-[<img height="48" alt="Get it on GitHub" src="https://jqssun.github.io/images/badges/github.svg">](https://github.com/jqssun/android-titanium-browser/releases/latest)
+Versanium is built on top of Titanium Browser for Android and therefore inherits much of its architecture, functionality, and upstream work. The project does not attempt to replace Titanium Browser, but to explore additional improvements for specific Android usage scenarios.
 
-<img alt="Titanium Browser for Android" src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" />
+## Downloads and Builds
 
-## Usage
+Official Versanium builds produced by this project are distributed through the GitHub Releases page.
 
-### Installing Extensions
+Release APKs use the following naming format:
 
-You can install extensions from the following sources:
-- [Chrome Web Store (Recommended)](https://chromewebstore.google.com/)
-- [Opera Add-ons](https://addons.opera.com/)
-- [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/)
+`Versanium-<version>_arm64-v8a.apk`
 
-You can also install from local CRX (or ZIP) file in the options page of the built-in [**Titanium Extension for Android**](https://github.com/jqssun/android-titanium-extension). 
+For example:
 
-Additionally, you can load an unpacked extension manually for testing purposes by navigating to [`chrome://extensions`](chrome://extensions). Enable **Developer mode**, select **Load unpacked**, and choose the folder containing the extension in the Storage Access Framework (SAF) picker. It may take a moment for the extension to load.
+`Versanium-154.0.8037.126_arm64-v8a.apk`
 
-### Using Extensions
+## Installation
 
-To run an extension in Incognito (OTR) mode, go to **Manage extensions**, find the extension you want to use in Incognito mode, select **Details**, and turn on **Allow in Incognito**.
+1. Download the latest Versanium APK from the GitHub Releases page.
+2. Open the downloaded APK on your Android device.
+3. If prompted, allow installation from the application used to open the APK.
+4. Complete the installation.
 
-For advanced features including external download manager, enhanced dark mode, and additional privacy options, you can use the built-in [**Titanium Extension for Android**](https://github.com/jqssun/android-titanium-extension).
+Versanium currently provides builds targeting `arm64-v8a`.
 
-### Debug URLs
+Before installing an update, make sure the APK comes from this project's official GitHub repository or Releases page.
 
-To view and access the debug URLs, use [`chrome://chrome-urls`](chrome://chrome-urls). For **Experiments**, use [`chrome://flags`](chrome://flags).
+## Unofficial Project Notice
 
-### WebRTC IP Policy
+Versanium is an independent, unofficial derivative of Titanium Browser for Android. It is not an official Titanium Browser release and is not maintained, endorsed, or supported by the upstream Titanium Browser developers.
 
-The option is available by using the menu button <kbd>⋮</kbd> in the top right corner, then selecting **Settings**, **Privacy and security**. If you experience issues with WebRTC due to IPs being shielded by default (e.g. [Discord Voice](https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc)), try changing it to **Default public interface only**, or **Default**.
+## Upstream and Credits
 
-## Implementation
+Versanium is based on the work of several upstream open-source projects.
 
-> [!WARNING]
-> [Titanium Browser for Android](#titanium-browser-for-android) only attempts to improve security and privacy where possible. For better protection on Android, you should instead use [GrapheneOS](https://grapheneos.org) with [Vanadium](https://vanadium.app), which additionally integrates patches into Android System WebView and provides significant kernel and memory management hardening on the OS level.
+Special thanks and credit go to:
 
-```mermaid
----
-config:
-  layout: dagre
----
-flowchart TD
- subgraph s1["Additional Patches"]
-        n5["Feature Overrides"]
-        n6["UI Overrides"]
-        n7["Manifest V2 + Secure Off Store Install Support"]
-        n8["Miscellaneous Fixes + Improvements"]
-  end
- subgraph s2["Vanadium"]
-        n9["Generic Patches<small><br>patches/*.patch</small>"]
-        n10["Subprojects Patches<small><br>subprojects_patches/**/*.patch</small>"]
-  end
- subgraph s3["Titanium Browser for Android"]
-        n11["GN Build Configuration<small><br>args.gn</small>"]
-        n12["Signed Release"]
-  end
-    n1["Chromium"] --> s1 & s2
-    n5 --> n6
-    n6 --> n7
-    n7 --> n8
-    s1 --> s3
-    s2 --> s3
-    n11 --> n12
-    n5@{ shape: subproc}
-    n6@{ shape: subproc}
-    n7@{ shape: subproc}
-    n8@{ shape: subproc}
-    n9@{ shape: subproc}
-    n10@{ shape: subproc}
-    n11@{ shape: subproc}
-    n12@{ shape: subproc}
-    n1@{ shape: rounded}
-    classDef Aqua stroke-width:1px, stroke-dasharray:none, stroke:#46EDC8, fill:#DEFFF8, color:#378E7A
-    style n5 stroke:#FF6D00
-    style n7 stroke:#FF6D00
-```
+- [Titanium Browser for Android](https://github.com/jqssun/android-titanium-browser)
+- [Vanadium](https://github.com/GrapheneOS/Vanadium)
+- [Chromium](https://www.chromium.org/)
 
-## Building
+Versanium inherits significant portions of its architecture, functionality, patches, and build system from these upstream projects and their contributors.
 
-All releases are built using [Actions](https://github.com/jqssun/android-titanium-browser/actions). Current releases can also be attested using [GitHub CLI](https://github.com/cli/cli).
+The original authors and contributors retain credit for their respective work.
 
-```shell
-gh attestation verify *.apk -R jqssun/android-titanium-browser
-```
+Where appropriate, changes developed in Versanium that may also benefit Titanium Browser can be considered separately for upstream contribution.
 
-This repository provides the build script to compile on the latest Ubuntu, and may also work with other Linux distributions.
+## License
 
-To build these releases yourself via CI (e.g. GitHub Actions), fork this repository. Supply your `base64` encoded `keystore.jks` and `local.properties` (containing `keyAlias`, `keyPassword` and `storePassword`) to [**Repository secrets**](https://github.com/jqssun/android-titanium-browser/blob/main/.github/workflows/build.yml#L49-L50) under **Settings** > **Secrets and variables** > **Actions**. To generate a release, go to **Actions**, select **Build**, and select **Run workflow**. Under **Runner**, you can either use a GitHub-hosted runner by entering `ubuntu-latest`, or `self-hosted` for your own hardware.
+Versanium is distributed under the applicable open-source licenses inherited from its upstream projects.
 
-## Credits
+The main project license is the GNU General Public License version 2 (GPLv2).
 
-This project would not have been possible without the huge community contributions from [Vanadium](https://github.com/GrapheneOS/Vanadium), and without the privacy-focused, open-source approach shared by various other Chromium projects. All credit goes to the original authors and contributors. This project started around the same time as [Helium Browser for Linux](https://github.com/imputnet/helium-linux) but it is not affiliated with the desktop Helium project.
+See the [`LICENSE`](LICENSE) file and individual source files for the full licensing and copyright information.
+
+Upstream copyright notices, license notices, and attribution remain applicable to the portions of the project derived from their respective sources.
+
+## Disclaimer
+
+Versanium is provided as-is, without any guarantee of availability, compatibility, stability, or fitness for a particular purpose.
+
+Some features may be experimental and may behave differently from upstream Titanium Browser.
+
+Versanium-specific bugs or regressions should not automatically be attributed to Titanium Browser or its developers.
+
+Users are responsible for evaluating whether a particular build is suitable for their own devices and use cases.
