@@ -5,7 +5,7 @@ import re
 
 
 PACKAGE = "io.github.nvoid911.titanium.f11test"
-APP_NAME = "Titanium F11 Test"
+APP_NAME = "Versanium"
 
 
 def configure(root):
@@ -41,7 +41,7 @@ def configure(root):
         rf'\g<1>{APP_NAME}\g<2>', strings,
     )
     if count != 1:
-        raise ValueError("Expected exactly one Titanium app_name resource")
+        raise ValueError("Expected exactly one app_name resource")
 
     # Validate every input before writing either output. Base args.gn and the
     # checked-in resources remain untouched; only the Chromium tree changes.
