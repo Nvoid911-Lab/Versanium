@@ -7,17 +7,18 @@ CHANNEL = 'chrome/android/java/res_titanium_base/values/channel_constants.xml'
 PRODUCT = 'chrome/app/theme/chromium/BRANDING'
 # Restricted to text nodes of resource elements, not keys, attributes, paths or comments.
 ELEMENT = re.compile(r'<(?P<tag>message|translation|string)\b[^>]*>.*?</(?P=tag)>', re.S)
-KEEP = re.compile(r'Titanium Extension|Copyright|copyright|license|licence|attribution|https?://', re.I)
+KEEP = re.compile(r'Copyright|license|licence|attribution|https://github\.com/(?:jqssun/android-titanium|GrapheneOS/Vanadium|chromium/)', re.I)
+TEXT_TOKEN = re.compile(r'https?://[^\s<>]+|Titanium Extension(?: for Android)?|Titanium Browser for Android|(?<![A-Za-z0-9_])Titanium(?![A-Za-z0-9_])')
 
 
 def brand_resources(text):
     def element(match):
         source = match.group()
         if KEEP.search(source):
-            return source  # External component, credits, legal text, or link: explicit B category.
+            return source  # Explicit upstream reference, credits, or legal text: B category.
         parts = re.split(r'(<[^>]*>)', source)
         for i in range(0, len(parts), 2):
-            parts[i] = re.sub(r'(?<![A-Za-z0-9_])Titanium(?![A-Za-z0-9_])', APP_NAME, parts[i])
+            parts[i] = TEXT_TOKEN.sub(lambda token: APP_NAME if token.group() == 'Titanium' else token.group(), parts[i])
         return ''.join(parts)
     return ELEMENT.sub(element, text)
 

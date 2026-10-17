@@ -47,6 +47,9 @@ class MigrationTests(unittest.TestCase):
         self.assertIn('Versaniumを開く',out);self.assertIn('>Versanium</ph>',out)
         self.assertIn('name="IDS_TITANIUM" desc="Titanium implementation"',out)
         self.assertIn('Copyright Titanium Authors',out)
+        mixed=branding.brand_resources('<message name="HELP">Titanium uses Titanium Extension for Android. See https://support.example/Titanium/help</message>')
+        self.assertIn('Versanium uses Titanium Extension for Android',mixed)
+        self.assertIn('https://support.example/Titanium/help',mixed)
     def test_upstream_component_and_legal_references_remain(self):
         for s in ['<message name="EXT">Titanium Extension for Android</message>', '<message name="COPYRIGHT">Copyright Titanium Authors</message>', '<message name="LINK">https://github.com/jqssun/android-titanium-browser Titanium</message>']:
             self.assertEqual(branding.brand_resources(s),s)

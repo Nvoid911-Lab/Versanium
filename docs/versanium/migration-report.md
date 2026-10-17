@@ -83,8 +83,8 @@ A — current-app branding changed/prepared:
   Resource IDs, attributes, comments and paths are not globally replaced. Japanese adjacent text
   is handled without relying on Unicode word boundaries.
 - Product FULLNAME/SHORTNAME are Versanium for current-app/About branding. Company, copyright,
-  installer identity and bundle identifiers are retained. Resource elements containing legal text,
-  external Titanium Extension or upstream links are conservatively retained.
+  installer identity and bundle identifiers are retained. Resource elements containing legal text or explicit upstream links are conservatively retained;
+  external Titanium Extension phrases and URL tokens are protected within other resource text.
 - New icon installation is implemented but not executed for the actual logo. Original artwork
   must be supplied, converted, visually reviewed, and committed before test building.
 
