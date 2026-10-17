@@ -10,6 +10,11 @@ def check_assets(repo):
     if not manifest.is_file():
         raise RuntimeError('Original Versanium PNG is not available as a file. Supply it and run tools/versanium/generate_icons.py; do not build with the old/recreated logo.')
     values=json.loads(manifest.read_text())
+    expected={'res/versanium/master.png','res/versanium/logo.png','res/versanium/social-preview.png','res/versanium/social-preview.svg','fastlane/metadata/android/en-US/images/icon.png','fastlane/metadata/android/en-US/images/featureGraphic.png', 'res/versanium/android/mipmap-nodpi/layered_app_icon_foreground.xml','res/versanium/android/drawable/themed_app_icon.xml'}
+    for density in ('mdpi','hdpi','xhdpi','xxhdpi','xxxhdpi'):
+        for name in ('app_icon.png','layered_app_icon.png','layered_app_icon_background.png'):
+            expected.add(f'res/versanium/android/mipmap-{density}/{name}')
+    if set(values.get('files',{}))!=expected:raise RuntimeError('Incomplete or unexpected icon asset manifest')
     for relative,expected in values['files'].items():
         p=(repo/relative).resolve()
         if not p.is_relative_to(repo.resolve()) or not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest()!=expected:

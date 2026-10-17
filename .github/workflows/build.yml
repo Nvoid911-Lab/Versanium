@@ -1,4 +1,4 @@
-name: Build
+name: Versanium Build
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: string
         default: 'blacksmith-8vcpu-ubuntu-2404'
       f11_test_build:
-        description: 'Build only the arm64 F11 test APK'
+        description: 'Test APK only, using the existing F11 app identity'
         required: true
         type: boolean
         default: true
@@ -19,6 +19,10 @@ permissions:
   id-token: write
   attestations: write
 
+env:
+  # Initial migration: change only after explicit user approval and device testing.
+  VERSANIUM_RELEASE_APPROVED: 'false'
+
 jobs:
   build:
     runs-on: ${{ inputs.runner }}
@@ -26,81 +30,68 @@ jobs:
       - uses: actions/checkout@v5
         with:
           submodules: true
-      
-      - name: Verify reviewed F11 source inputs
-        if: ${{ inputs.f11_test_build }}
-        run: python3 tools/check_environment_zoom_revision.py --repository "$PWD"
 
-      - name: Update
-        # F11 feature patches are validated against the committed Vanadium revision.
-        # Keep the regular build's update behavior; do not advance test sources mid-build.
-        if: ${{ !inputs.f11_test_build }}
+      - name: Enforce test-first migration and prepared original assets
+        env:
+          TEST_BUILD: ${{ inputs.f11_test_build && 'true' || 'false' }}
         run: |
-          cd vanadium
-          git fetch --tags
-          git checkout $(git tag | sort -V | tail -n1)
-          cd ..
-          git add vanadium
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          if ! git diff --staged --quiet; then
-            git commit -am "update"
-            git push
+          if [ "$TEST_BUILD" != "true" ] && [ "$VERSANIUM_RELEASE_APPROVED" != "true" ]; then
+            echo "Only a test artifact is authorized before device approval." >&2
+            exit 1
           fi
+          python3 tools/versanium/apply.py --check-assets
+          python3 tools/check_environment_zoom_revision.py --repository "$PWD"
 
       - name: Set ENV
-        run: | 
+        run: |
           chmod +x *.sh
-          echo "unix_time=$(date +%s)" >> $GITHUB_ENV
-    
+          VERSION=$(grep -m1 -o '[0-9]\+\(\.[0-9]\+\)\{3\}' vanadium/args.gn)
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Build
         env:
-            DEBIAN_FRONTEND: noninteractive
-            LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
-            STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
-            F11_TEST_BUILD: ${{ inputs.f11_test_build && '1' || '0' }}
-        run: |
-          ./build.sh
+          DEBIAN_FRONTEND: noninteractive
+          LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
+          STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
+          F11_TEST_BUILD: ${{ inputs.f11_test_build && '1' || '0' }}
+        run: ./build.sh
 
-      - name: Set
-        run: |
-          if [ "${{ inputs.f11_test_build }}" = "true" ]; then
-            export VERSION=$(grep -m1 -o '[0-9]\+\(\.[0-9]\+\)\{3\}' vanadium/args.gn)
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
-            mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a-f11-test.apk
-          else
-            export VERSION=$(find chromium/src/out/release -name '*arm64-v8a.apk' | sed 's/.*\///;s/\-arm64-v8a.apk$//')
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
-            mv $(find chromium/src/out/release -name '*arm64-v8a.aab') $VERSION-${{ env.unix_time }}-arm64-v8a.aab
-            mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
-            mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-armeabi-v7a.apk
-          fi
+      - name: Stage Test APK
+        if: ${{ inputs.f11_test_build }}
+        run: python3 tools/versanium/package_apk.py --source chromium/src/out/release --version "$VERSION" --test
 
-      - name: Publish
-        if: ${{ !inputs.f11_test_build }}
-        uses: softprops/action-gh-release@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: v${{ env.VERSION }}
-          tag_name: v${{ env.VERSION }}
-          files: |
-            ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a.aab
-            ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a.apk
-            ${{ env.VERSION }}-${{ env.unix_time }}-armeabi-v7a.apk
-
-      - name: Attest
-        if: ${{ !inputs.f11_test_build }}
-        uses: actions/attest-build-provenance@v4
-        with:
-          subject-path: |
-            ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a.aab
-            ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a.apk
-            ${{ env.VERSION }}-${{ env.unix_time }}-armeabi-v7a.apk
-      - name: Upload F11 test APK
+      - name: Upload Versanium Test
         if: ${{ inputs.f11_test_build }}
         uses: actions/upload-artifact@v4
         with:
-          name: titanium-f11-arm64-test
-          path: ${{ env.VERSION }}-${{ env.unix_time }}-arm64-v8a-f11-test.apk
+          name: Versanium-Test
+          path: dist/Versanium-${{ env.VERSION }}_Test.apk
           if-no-files-found: error
           retention-days: 7
+
+      - name: Stage approved Release APK
+        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911/Versanium' }}
+        run: python3 tools/versanium/package_apk.py --source chromium/src/out/release --version "$VERSION"
+
+      - name: Publish approved Release
+        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911/Versanium' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Versanium ${{ env.VERSION }}
+          tag_name: v${{ env.VERSION }}
+          body: |
+            Versanium ${{ env.VERSION }}
+
+            Architecture: arm64-v8a
+            Based on Titanium Browser for Android.
+
+            APK:
+            Versanium-${{ env.VERSION }}_arm64-v8a.apk
+          files: dist/Versanium-${{ env.VERSION }}_arm64-v8a.apk
+
+      - name: Attest approved Release
+        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911/Versanium' }}
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: dist/Versanium-${{ env.VERSION }}_arm64-v8a.apk
