@@ -31,7 +31,7 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-echo "===== Titanium signing certificate check ====="
+echo "===== Versanium signing certificate check ====="
 echo
 
 #
