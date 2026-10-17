@@ -9,7 +9,7 @@ on:
         type: string
         default: 'blacksmith-8vcpu-ubuntu-2404'
       f11_test_build:
-        description: 'Test APK only, using the existing F11 app identity'
+        description: 'Create Test artifact (false reserved for an approved Release)'
         required: true
         type: boolean
         default: true
@@ -53,7 +53,8 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
-          F11_TEST_BUILD: ${{ inputs.f11_test_build && '1' || '0' }}
+          # Keep the installed app identity for BOTH delivery modes.
+          F11_TEST_BUILD: '1'
         run: ./build.sh
 
       - name: Stage Test APK

@@ -111,8 +111,10 @@ C — intentionally retained:
 ## Android identity, signing, upstream
 
 **package/applicationId changed: NO.**
-The test path remains io.github.nvoid911.titanium.f11test. The existing normal-build args retain
-io.github.jqssun.helium; this migration does not silently unify the two identities.
+Both delivery choices in the Versanium workflow use the existing F11 profile and
+io.github.nvoid911.titanium.f11test. A future formal filename does not switch the installed app ID.
+The internal normal-build args still retain io.github.jqssun.helium for direct legacy builds; that
+mode is not selected by this workflow. No existing identifier was renamed.
 Manifest authorities, custom permissions, shared-UID rejection and task-affinity validation remain.
 
 **signing configuration changed: NO.**
@@ -141,8 +143,9 @@ The production approval flag is a checked-in false. Non-test dispatch fails pref
 Publish/Attest additionally require non-test + explicit approval + Nvoid911/Versanium. Test artifact
 paths never reach Release publish. Production publishing remains unapproved and was not attempted.
 The old workflow's automatic latest-Vanadium update/commit/push step is removed so these branding builds
-stay on the reviewed source pins. Internal normal-build armeabi/AAB generation/signing is retained,
-but future public Release stages only the arm64 APK. That normal build path is not newly validated.
+stay on the reviewed source pins. Internal normal-build armeabi/AAB generation/signing is retained for direct legacy use.
+Versanium workflow delivery modes both select the existing single-arm64 F11 identity/profile; only
+the filename/delivery target differs. The internal normal build path is not newly validated.
 
 ## Validation and remaining work
 

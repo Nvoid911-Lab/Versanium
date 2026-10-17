@@ -83,6 +83,8 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(w['on']['workflow_dispatch']['inputs']['f11_test_build']['default'],'true')
         self.assertEqual(w['on']['workflow_dispatch']['inputs']['runner']['default'],'blacksmith-8vcpu-ubuntu-2404')
         steps=w['jobs']['build']['steps']
+        build=next(s for s in steps if s.get('name')=='Build')
+        self.assertEqual(build['env']['F11_TEST_BUILD'],'1')  # Delivery choice must not change Android identity.
         for step in steps:
             if step.get('name','').startswith(('Publish','Attest','Stage approved')):
                 guard=step['if'];self.assertIn('!inputs.f11_test_build',guard);self.assertIn("env.VERSANIUM_RELEASE_APPROVED == 'true'",guard);self.assertIn("github.repository == 'Nvoid911/Versanium'",guard)
