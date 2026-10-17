@@ -1,4 +1,4 @@
-name: Check signing properties
+name: Check signing certificate
 
 on:
   workflow_dispatch:
@@ -10,13 +10,17 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
           submodules: false
-      - name: Check LOCAL_TEST_JKS without exposing values
+
+      - name: Check signing certificate SHA-256
         shell: bash
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
+          STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
         run: bash .github/scripts/check-signing-properties.sh
