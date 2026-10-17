@@ -17,7 +17,7 @@ def brand_resources(text):
             return source  # External component, credits, legal text, or link: explicit B category.
         parts = re.split(r'(<[^>]*>)', source)
         for i in range(0, len(parts), 2):
-            parts[i] = re.sub(r'\bTitanium\b', APP_NAME, parts[i])
+            parts[i] = re.sub(r'(?<![A-Za-z0-9_])Titanium(?![A-Za-z0-9_])', APP_NAME, parts[i])
         return ''.join(parts)
     return ELEMENT.sub(element, text)
 
