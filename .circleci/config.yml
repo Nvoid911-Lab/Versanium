@@ -1,3 +1,4 @@
+# Triggered by a harmless config comment to validate the GitHub App push trigger.
 version: 2.1
 
 jobs:
