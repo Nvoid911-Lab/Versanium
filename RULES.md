@@ -125,6 +125,65 @@ Project Sources should contain or point to a compact Versanium project index tha
 
 Project Sources are a shared context layer, not a replacement for live GitHub verification.
 
+### 8.1 Canonical Project Sources file
+
+- The canonical shared-context filename is `Versanium_Project_Context.md`.
+- Keep the filename stable when refreshing it so multiple dated or differently named snapshots do not coexist and create ambiguity.
+- The file is an index/snapshot, not technical Source of Truth. Live Primary GitHub and the four authoritative GitHub documents remain higher priority.
+- A stale Project Sources snapshot must never override newer live Primary state.
+
+### 8.2 Refresh triggers
+
+ChatGPT must evaluate Project Sources freshness during Versanium work. Refresh is required when a confirmed change makes the current context materially stale, including changes to:
+
+- Primary/Secondary repository roles or synchronization state;
+- active integration branch or an important recorded branch HEAD/reference;
+- `PROJECT_STATUS.md`, `RULES.md`, `ARCHITECTURE.md`, or `DECISIONS.md` when the changed content is represented or summarized in Project Sources;
+- build/CI architecture, runner policy, Test/Release gating, or release policy;
+- product architecture, major feature status, compatibility/identity policy, or upstream relationship;
+- stable project roles, operating rules, or material decisions;
+- major completed/current/next-work state used for cross-chat handoff;
+- Notion planning/history when the Project Sources snapshot explicitly mirrors that information;
+- any conflict where Project Sources no longer matches live Primary GitHub.
+
+A refresh is normally not required for transient investigation notes, speculative ideas, failed temporary experiments, or minor commits that do not change the shared project snapshot.
+
+### 8.3 Refresh decision and notification
+
+- ChatGPT is responsible for detecting when a refresh trigger has occurred during work it can observe.
+- When a refresh is required, ChatGPT must explicitly tell the user that `Versanium_Project_Context.md` is stale and identify the material reason.
+- Do not silently continue treating a known-stale snapshot as current.
+- If the user must manually replace the Project Sources attachment, ChatGPT must generate the replacement file and clearly request replacement of the old canonical file with the new one.
+
+### 8.4 Refresh order
+
+Unless a recovery situation requires otherwise, refresh in this order:
+
+1. verify live Primary GitHub state;
+2. implement and verify the technical/state change;
+3. update the four authoritative GitHub documents as applicable;
+4. synchronize the reviewed Primary ref to Secondary without force and verify the result;
+5. update Notion when planning/history changed materially;
+6. regenerate `Versanium_Project_Context.md` from the resulting authoritative state;
+7. notify the user that Project Sources replacement is required;
+8. user replaces the old canonical Project Sources file with the regenerated file;
+9. subsequent chats use the refreshed context, while still verifying live GitHub for state-sensitive work.
+
+Do not regenerate the canonical context before the authoritative GitHub state for that work unit is settled. This avoids immediately creating another stale snapshot.
+
+### 8.5 Freshness verification
+
+After a Project Sources refresh:
+
+- verify that repository roles and the source hierarchy are still correct;
+- verify that any recorded important branch/ref state matches the intended post-change state;
+- verify that summaries of the four authoritative documents do not contradict those documents;
+- verify that completed/current/next-work sections reflect the settled work unit;
+- remove superseded current-state claims rather than preserving them as if still active;
+- preserve historical facts only when they remain useful and are clearly labeled as history.
+
+If Project Sources and live GitHub disagree at any later time, live Primary GitHub wins and this refresh procedure must be invoked again when the difference is material.
+
 ## 9. Notion rule
 
 Notion is for:
