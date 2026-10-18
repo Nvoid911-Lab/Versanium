@@ -1,35 +1,100 @@
-# Repository別runner選択（2026-10-18）
+# Versanium repository / runner policy（2026-10-18）
 
-Primaryを唯一のSource of Truthとし、同一のbuild.ymlをSecondaryへ通常同期する。
+## Repository roles
 
-| Repository | Runner |
+`Nvoid911-Lab/Versanium` を今後の **Primary / Source of Truth** とする。
+
+`Nvoid911/Versanium` は **Backup / Secondary** として保持し、Lab側の移行・ビルド・実機検証・Release経路が十分に確認できた後にArchiveする方針とする。
+
+通常の同期方向は以下とする。
+
+```text
+Nvoid911-Lab/Versanium
+        ↓
+Nvoid911/Versanium
+```
+
+PrimaryとSecondaryで独立した開発履歴を進めない。force pushやhistory rewriteは行わない。
+
+## GitHub Actions runner selection
+
+Versanium Buildは `workflow_dispatch` の `runner_provider` choice inputから、次のreview済みrunnerのみ選択できる。
+
+| Choice | Runner label |
 |---|---|
-| Nvoid911/Versanium | sengi-standard-8-ubuntu-2404 |
-| Nvoid911-Lab/Versanium | blacksmith-8vcpu-ubuntu-2404 |
+| `blacksmith` | `blacksmith-8vcpu-ubuntu-2404` |
+| `sengi` | `sengi-standard-8-ubuntu-2404` |
 
-Sengi labelは既存履歴 `069b1e58ed7d9f97e30bfcc6c2e4b4aafb8f212b`（Use Sengi 8 vCPU runner by default）のbuild.ymlで確認した。Blacksmith labelは作業前のmigration/versaniumで確認した。現在のrunner登録状態・容量・権限は実行確認していない。
+自由入力のrunner labelは許可しない。`runs-on` はchoice→labelの固定mapから選択し、未定義値は実在しない `versanium-runner-not-allowed` へfail-closedする。
 
-Workflowの `runs-on` は `fromJSON` によるrepository→label対応表を `github.repository` で参照する。自由入力のrunner inputは廃止した。将来のrunner切替は、この対応表をPrimaryでレビュー・変更してSecondaryへ同期する。各repositoryで毎回修正する必要はない。
+Build job自体は次の2repositoryのみ許可する。
 
-build jobの `if` で上記2repositoryのみ許可する。job条件はrunner割当より先に評価されるため、想定外repositoryではjobをスキップしrunnerを確保しない。これは「失敗jobを実行する」のではなく「Buildを実行させない」fail-closedである。対応表にないrepositoryのruns-on評価にも、実runnerではない拒否用ラベル `versanium-repository-not-allowed` を設定する。Blacksmith等への既定fallbackは設けない。
+- `Nvoid911-Lab/Versanium`（Primary）
+- `Nvoid911/Versanium`（Backup / Secondary）
 
-## 保持事項
+これにより、PrimaryでBlacksmith/Sengiを利用状況・無料枠・必要に応じた課金方針に応じて選択できる。Backup側でもTest build経路は保持できるが、正式なSource of TruthはLabのみとする。
 
-- workflow_dispatchのみ。runner input以外のTest inputは変更なし。
-- Test package `io.github.nvoid911.versanium.test` と従来F11 package `io.github.nvoid911.titanium.f11test` の分離、表示名、実アイコン、正式版identity経路は変更なし。
-- `VERSANIUM_RELEASE_APPROVED: 'false'` を維持。正式版のstage/publish/attestは非Test・明示承認true・Primary repository一致の3条件を維持し、Secondaryは許可しない。
-- Build step、署名設定、LOCAL_TEST_JKS/STORE_TEST_JKS等のSecrets参照は作業前と一致。
+## Production Release restriction
 
-## 検証
+Production ReleaseはPrimaryである次のrepositoryだけに限定する。
 
-- migration tests 13件PASS。実YAMLから対応表とjob条件を読み、Primary→Sengi、Secondary→Blacksmith、想定外3repository→job許可なし／拒否labelをローカル検証した。Actions式全体の実行エンジンによる評価ではない。
-- Release guardの正確な3条件と承認false、Test package分離、Secrets参照を回帰テストで検証。
-- actionlint v1.7.7 PASS。
-- YAML validation / 全Workflow inline shellのbash構文検証 PASS（migration tests）。
-- bash -n build.sh patch.sh common.sh .github/scripts/check-signing-properties.sh PASS。
-- git diff --check PASS。
-- 作業前後のYAMLを比較し、全Build steps・global permissions・envが同一であることを確認。identity・署名・アイコンの実装差分なし。
+```text
+Nvoid911-Lab/Versanium
+```
 
-GitHub Actionsは一切実行していない。dispatch、run開始、rerun、job rerun、runnerを消費する操作、build.sh実行は行っていない。実際のSengi/Blacksmith割当・起動はユーザーの制限解除後の手動実行で確認する。
+正式版のstage / publish / attestは、以下の全条件を満たす場合のみ許可する。
 
-変更ファイルは `.github/workflows/build.yml`、`tools/versanium/tests/test_migration.py`、本書のみ。migration/versaniumだけに通常pushし、Primary/Secondaryを同一SHAに保つ。main merge、Release、tag、force push、履歴書換えは行わない。
+- Test buildではない
+- `VERSANIUM_RELEASE_APPROVED == 'true'`
+- `github.repository == 'Nvoid911-Lab/Versanium'`
+
+現在は引き続き `VERSANIUM_RELEASE_APPROVED: 'false'` とし、実機Testと明示承認前のProduction Releaseを禁止する。
+
+## Test / signing policy
+
+以下は変更しない。
+
+- Versanium Test package: `io.github.nvoid911.versanium.test`
+- Legacy Titanium F11 Test package: `io.github.nvoid911.titanium.f11test`
+- `LOCAL_TEST_JKS`
+- `STORE_TEST_JKS`
+- 既存のF11 test compilation/signing pathを利用したVersanium Test build
+- Test artifact name: `Versanium-Test`
+
+Production package identity / signing identity / update compatibilityは、正式Release前に別途監査する。
+
+## CircleCI policy
+
+CircleCIは検証用途を終了し、今後のVersanium buildでは使用しない。
+
+Primary/開発branchから `.circleci/config.yml` を削除し、GitHub Actions + Blacksmith/Sengiをbuild経路とする。CircleCI側のGitHub連携・project接続も解除する。
+
+過去のCircleCI検証branchやcommitがhistory上に残ることは許容するが、active configuration / triggerとしては使用しない。
+
+## Build前に必ず並行して確認する項目
+
+今後のVersanium Test buildを開始する前に、runner選択だけでなく次の3系統を同時に確認する。
+
+1. **Titanium upstream version / source alignment**
+   - `jqssun/android-titanium-browser` の最新version・commitを確認する。
+   - Versaniumの現在pinとの差分を確認する。
+   - 必要なら `migration/versanium` にupstream変更を取り込んでからbuildする。
+
+2. **Build optimization**
+   - Chromium/Vanadium buildの所要時間・runner resource・不要な再処理を確認する。
+   - Blacksmith/Sengiの無料枠と必要に応じた課金を踏まえ、無駄なbuildを避ける。
+   - build前static validationを優先し、runner消費はユーザーの明示実行まで開始しない。
+
+3. **YouTube PiP investigation**
+   - Titanium/Chromiumで確認されているYouTube PiP問題の調査・修正検討を並行して維持する。
+   - PiP修正候補をbuildへ入れる場合は、upstreamとの差分・Versanium固有変更・回帰リスクを先に確認する。
+
+これらは別々の作業ではあるが、次回Test build candidateを決める際には必ず同じpre-build判断に含める。
+
+## Execution rule
+
+ChatGPTが要件・upstream・build・PiP・runner方針を整理し、repository変更とstatic validationを行う。
+
+GitHub Actionsのrunnerを実際に消費する操作は、ユーザーが明示的にbuild実行を指示するまで開始しない。
+
+Test build成功後はGalaxy S23 / Samsung DeXで実機検証を行い、その結果を確認するまでは `migration/versanium → main` の機能移行、Production Release、tag作成を進めない。
