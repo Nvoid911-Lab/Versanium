@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  circleci-large-gen2-test:
+  versanium-test-build:
     machine:
       image: ubuntu-2604:current
     resource_class: large.gen2
@@ -21,23 +21,36 @@ jobs:
             git submodule update --init --recursive
 
       - run:
-          name: Verify Versanium Test inputs
+          name: Verify Versanium Test inputs and signing variables
           command: |
             set -euxo pipefail
             python3 tools/versanium/apply.py --check-assets
             python3 tools/check_environment_zoom_revision.py --repository "$PWD"
             grep -F 'io.github.nvoid911.versanium.test' tools/configure_f11_identity.py
+            test -n "${LOCAL_TEST_JKS:-}" || { echo "LOCAL_TEST_JKS is not configured in CircleCI." >&2; exit 1; }
+            test -n "${STORE_TEST_JKS:-}" || { echo "STORE_TEST_JKS is not configured in CircleCI." >&2; exit 1; }
 
       - run:
-          name: Verify migration branch checkout
+          name: Build Versanium Test APK
           command: |
             set -euxo pipefail
-            git rev-parse --abbrev-ref HEAD || true
-            git rev-parse HEAD
-            test -f build.sh
-            test -d vanadium
+            chmod +x ./*.sh
+            ./build.sh
+
+      - run:
+          name: Stage Versanium Test APK
+          command: |
+            set -euxo pipefail
+            VERSION=$(grep -m1 -o '[0-9]\+\(\.[0-9]\+\)\{3\}' vanadium/args.gn)
+            test -n "$VERSION"
+            python3 tools/versanium/package_apk.py \
+              --source chromium/src/out/release \
+              --version "$VERSION" \
+              --test
+            test -s "dist/Versanium-${VERSION}_Test.apk"
+            echo "Built dist/Versanium-${VERSION}_Test.apk"
 
 workflows:
-  circleci-large-gen2-test:
+  versanium-test-build:
     jobs:
-      - circleci-large-gen2-test
+      - versanium-test-build
