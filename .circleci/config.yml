@@ -1,4 +1,4 @@
-# Triggered by a harmless config comment to validate the GitHub App push trigger.
+# Triggered by GitHub App push trigger smoke test.
 version: 2.1
 
 jobs:
