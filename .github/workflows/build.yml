@@ -3,11 +3,6 @@ name: Versanium Build
 on:
   workflow_dispatch:
     inputs:
-      runner:
-        description: 'Runner'
-        required: true
-        type: string
-        default: 'blacksmith-8vcpu-ubuntu-2404'
       f11_test_build:
         description: 'Create Test artifact (false reserved for an approved Release)'
         required: true
@@ -25,7 +20,10 @@ env:
 
 jobs:
   build:
-    runs-on: ${{ inputs.runner }}
+    # Job-level guard is evaluated before runner allocation. Forks cannot build.
+    if: ${{ github.repository == 'Nvoid911/Versanium' || github.repository == 'Nvoid911-Lab/Versanium' }}
+    # Shared by Primary/Secondary; edit this reviewed map to change runner providers.
+    runs-on: ${{ fromJSON('{"Nvoid911/Versanium":"sengi-standard-8-ubuntu-2404","Nvoid911-Lab/Versanium":"blacksmith-8vcpu-ubuntu-2404"}')[github.repository] || 'versanium-repository-not-allowed' }}
     steps:
       - uses: actions/checkout@v5
         with:

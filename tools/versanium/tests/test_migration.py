@@ -120,13 +120,16 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(set(w['on']),{'workflow_dispatch'});self.assertEqual(w['name'],'Versanium Build')
         self.assertEqual(w['env']['VERSANIUM_RELEASE_APPROVED'],'false')
         self.assertEqual(w['on']['workflow_dispatch']['inputs']['f11_test_build']['default'],'true')
-        self.assertEqual(w['on']['workflow_dispatch']['inputs']['runner']['default'],'blacksmith-8vcpu-ubuntu-2404')
+        self.assertNotIn('runner',w['on']['workflow_dispatch']['inputs'])
         steps=w['jobs']['build']['steps']
         build=next(s for s in steps if s.get('name')=='Build')
         self.assertEqual(build['env']['F11_TEST_BUILD'],'1')  # Existing F11 compilation/signing mode is retained.
         self.assertEqual(build['env']['VERSANIUM_TEST_BUILD'],"${{ inputs.f11_test_build && '1' || '0' }}")
+        self.assertEqual(build['env']['LOCAL_TEST_JKS'],'${{ secrets.LOCAL_TEST_JKS }}')
+        self.assertEqual(build['env']['STORE_TEST_JKS'],'${{ secrets.STORE_TEST_JKS }}')
         for step in steps:
             if step.get('name','').startswith(('Publish','Attest','Stage approved')):
+                self.assertEqual(step['if'],"${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911/Versanium' }}")
                 guard=step['if'];self.assertIn('!inputs.f11_test_build',guard);self.assertIn("env.VERSANIUM_RELEASE_APPROVED == 'true'",guard);self.assertIn("github.repository == 'Nvoid911/Versanium'",guard)
         upload=next(s for s in steps if s.get('uses','').startswith('actions/upload-artifact@'))
         self.assertEqual(upload['with']['name'],'Versanium-Test');self.assertTrue(upload['with']['path'].endswith('_Test.apk'))
@@ -136,6 +139,30 @@ class MigrationTests(unittest.TestCase):
         self.assertNotEqual(blocked.returncode,0);self.assertIn('Only a test artifact',blocked.stderr)
         env['TEST_BUILD']='true';allowed=subprocess.run(['bash','-c','python3() { return 0; };\n'+preflight],env=env,capture_output=True,text=True)
         self.assertEqual(allowed.returncode,0)  # CLI checks mocked here; real asset check is tested separately.
+    def test_repository_runner_map_and_allocation_guard(self):
+        import re
+        w=yaml.load((REPO/'.github/workflows/build.yml').read_text(),Loader=yaml.BaseLoader)
+        job=w['jobs']['build']
+        match=re.fullmatch(r"\$\{\{ fromJSON\('([^']+)'\)\[github.repository\] \|\| 'versanium-repository-not-allowed' \}\}",job['runs-on'])
+        self.assertIsNotNone(match)
+        mapping=json.loads(match.group(1))
+        self.assertEqual(mapping,{'Nvoid911/Versanium':'sengi-standard-8-ubuntu-2404','Nvoid911-Lab/Versanium':'blacksmith-8vcpu-ubuntu-2404'})
+        guard=job['if'];self.assertTrue(guard.startswith('${{ ') and guard.endswith(' }}'))
+        atoms=guard[4:-3].split(' || ')
+        allowed=[]
+        for atom in atoms:
+            part=re.fullmatch(r"github.repository == '([^']+)'",atom)
+            self.assertIsNotNone(part);allowed.append(part.group(1))
+        self.assertEqual(set(allowed),set(mapping))
+        for repo,expected in [('Nvoid911/Versanium','sengi-standard-8-ubuntu-2404'),('Nvoid911-Lab/Versanium','blacksmith-8vcpu-ubuntu-2404'),('other/Versanium',None),('Nvoid911/android-titanium-browser',None),('Nvoid911-Lab/another-repo',None)]:
+            permitted=any(repo==value for value in allowed)
+            selected=mapping.get(repo,'versanium-repository-not-allowed')
+            if expected is None:
+                self.assertFalse(permitted);self.assertEqual(selected,'versanium-repository-not-allowed')
+            else:
+                self.assertTrue(permitted);self.assertEqual(selected,expected)
+        self.assertNotIn('inputs.runner',job['runs-on'])
+
     def test_inline_shell_and_yaml(self):
         for p in (REPO/'.github/workflows').glob('*.yml'):
             w=yaml.load(p.read_text(),Loader=yaml.BaseLoader)
