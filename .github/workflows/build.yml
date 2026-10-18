@@ -3,6 +3,14 @@ name: Versanium Build
 on:
   workflow_dispatch:
     inputs:
+      runner_provider:
+        description: 'Runner provider'
+        required: true
+        type: choice
+        options:
+          - blacksmith
+          - sengi
+        default: blacksmith
       f11_test_build:
         description: 'Create Test artifact (false reserved for an approved Release)'
         required: true
@@ -20,10 +28,11 @@ env:
 
 jobs:
   build:
-    # Job-level guard is evaluated before runner allocation. Forks cannot build.
-    if: ${{ github.repository == 'Nvoid911/Versanium' || github.repository == 'Nvoid911-Lab/Versanium' }}
-    # Shared by Primary/Secondary; edit this reviewed map to change runner providers.
-    runs-on: ${{ fromJSON('{"Nvoid911/Versanium":"sengi-standard-8-ubuntu-2404","Nvoid911-Lab/Versanium":"blacksmith-8vcpu-ubuntu-2404"}')[github.repository] || 'versanium-repository-not-allowed' }}
+    # Lab is the source of truth. The personal repository remains an allowed backup/sub repository.
+    # This guard is evaluated before runner allocation so unexpected repositories cannot consume runner capacity.
+    if: ${{ github.repository == 'Nvoid911-Lab/Versanium' || github.repository == 'Nvoid911/Versanium' }}
+    # Keep provider selection constrained to reviewed labels; never accept an arbitrary runner label.
+    runs-on: ${{ fromJSON('{"blacksmith":"blacksmith-8vcpu-ubuntu-2404","sengi":"sengi-standard-8-ubuntu-2404"}')[inputs.runner_provider] || 'versanium-runner-not-allowed' }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -70,11 +79,11 @@ jobs:
           retention-days: 7
 
       - name: Stage approved Release APK
-        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911/Versanium' }}
+        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911-Lab/Versanium' }}
         run: python3 tools/versanium/package_apk.py --source chromium/src/out/release --version "$VERSION"
 
       - name: Publish approved Release
-        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911/Versanium' }}
+        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911-Lab/Versanium' }}
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -91,7 +100,7 @@ jobs:
           files: dist/Versanium-${{ env.VERSION }}_arm64-v8a.apk
 
       - name: Attest approved Release
-        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911/Versanium' }}
+        if: ${{ !inputs.f11_test_build && env.VERSANIUM_RELEASE_APPROVED == 'true' && github.repository == 'Nvoid911-Lab/Versanium' }}
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: dist/Versanium-${{ env.VERSION }}_arm64-v8a.apk
