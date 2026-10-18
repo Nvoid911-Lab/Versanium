@@ -1,0 +1,74 @@
+version: 2.1
+
+jobs:
+  versanium-test-build:
+    machine:
+      image: ubuntu-2604:current
+    resource_class: large.gen2
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+      # build.sh still uses this legacy switch for the single-arm64 test path.
+      # VERSANIUM_TEST_BUILD selects the Versanium Test identity.
+      F11_TEST_BUILD: "1"
+      VERSANIUM_TEST_BUILD: "1"
+    steps:
+      - checkout:
+          method: full
+
+      - run:
+          name: Initialize submodules
+          command: |
+            set -euxo pipefail
+            git submodule sync --recursive
+            git submodule update --init --recursive
+
+      - run:
+          name: Verify Versanium Test inputs
+          command: |
+            set -euxo pipefail
+            test -n "${LOCAL_TEST_JKS:-}" || { echo "LOCAL_TEST_JKS is not configured in CircleCI." >&2; exit 1; }
+            test -n "${STORE_TEST_JKS:-}" || { echo "STORE_TEST_JKS is not configured in CircleCI." >&2; exit 1; }
+            python3 tools/versanium/apply.py --check-assets
+            python3 tools/check_environment_zoom_revision.py --repository "$PWD"
+            python3 - <<'PY'
+            from pathlib import Path
+            text = Path('tools/configure_f11_identity.py').read_text()
+            required = 'io.github.nvoid911.versanium.test'
+            if required not in text:
+                raise SystemExit(f'Missing expected Versanium Test package: {required}')
+            print(f'Versanium Test package verified: {required}')
+            PY
+
+      - run:
+          name: Build Versanium Test APK
+          no_output_timeout: 30m
+          command: |
+            set -euxo pipefail
+            chmod +x ./*.sh
+            ./build.sh
+
+      - run:
+          name: Stage Versanium Test APK
+          command: |
+            set -euxo pipefail
+            VERSION=$(grep -m1 -o '[0-9]\+\(\.[0-9]\+\)\{3\}' vanadium/args.gn)
+            test -n "$VERSION"
+            python3 tools/versanium/package_apk.py \
+              --source chromium/src/out/release \
+              --version "$VERSION" \
+              --test
+            test -s "dist/Versanium-${VERSION}_Test.apk"
+            echo "Built dist/Versanium-${VERSION}_Test.apk"
+
+      - store_artifacts:
+          path: dist
+          destination: Versanium-Test
+
+workflows:
+  versanium-test:
+    jobs:
+      - versanium-test-build:
+          filters:
+            branches:
+              only:
+                - migration/versanium
