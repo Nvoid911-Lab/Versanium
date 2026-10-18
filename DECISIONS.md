@@ -73,6 +73,22 @@
 
 **Decision:** Do not reinterpret this as a role reversal. Primary remains authoritative. Synchronize reviewed migration refs Primary → Secondary without force when ancestry permits. Main synchronization remains a separate consequential operation and is not performed merely as part of documentation setup.
 
+## 2026-10-19 — Complete Primary → Secondary migration branch synchronization
+
+**Decision:** Fast-forward Secondary `Nvoid911/Versanium` branch `migration/versanium` to the reviewed Primary documentation head.
+
+**Previous Secondary head:** `a8098ae78f82b91b1a8dc48a54d4bcc514177207`
+
+**Synchronized head:** `b40976ec3c209c805fba5326f2326e8324fc64d2`
+
+**Transfer:** 15 commits, Primary → Secondary.
+
+**Safety:** The Secondary head was verified as an ancestor of the Primary head before push. A normal fast-forward push was used; no force or force-with-lease operation was used.
+
+**Verification:** After push, Primary and Secondary `migration/versanium` resolved to the same SHA, and the synchronized commit was independently retrievable from both repositories.
+
+**Consequence:** The migration-branch discrepancy recorded earlier on 2026-10-19 is resolved. The two `main` branches remain outside this synchronization decision and must not be changed merely to make their tips match.
+
 ## Decision-entry template
 
 For future material decisions append:
