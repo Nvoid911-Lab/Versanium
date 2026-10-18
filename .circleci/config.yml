@@ -67,5 +67,4 @@ jobs:
 workflows:
   versanium-test:
     jobs:
-      - versanium-test-build:
-          filters: pipeline.git.branch == "migration/versanium"
+      - versanium-test-build
