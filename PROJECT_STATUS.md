@@ -26,18 +26,20 @@ Primary `Nvoid911-Lab/Versanium`:
 
 - default branch: `main`
 - `main`: `4ca486ba88313aa95bbccf67812435c13edb3bc7`
-- reviewed `migration/versanium` synchronization point: `b40976ec3c209c805fba5326f2326e8324fc64d2`
+- reviewed `migration/versanium` synchronization point before this status refresh: `1fe02df8dd2a7dd7d31582229e2a3b47ef4989be`
 - relevant preserved branches include `feature/dex-mobile-zoom`, `feature/f11-toolbar`, `feature/youtube-pip`, and `update/titanium-155.0.8059.79`
 
 Secondary `Nvoid911/Versanium` at review:
 
 - default branch: `main`
 - `main`: `6755ccfd5d5c8a5e8fa3620be6da9ccd4a399aa7`
-- reviewed `migration/versanium` synchronization point: `b40976ec3c209c805fba5326f2326e8324fc64d2`
+- reviewed `migration/versanium` synchronization point: `1fe02df8dd2a7dd7d31582229e2a3b47ef4989be`
 
-On 2026-10-19, Secondary `migration/versanium` was fast-forwarded from `a8098ae78f82b91b1a8dc48a54d4bcc514177207` to the reviewed Primary documentation head `b40976ec3c209c805fba5326f2326e8324fc64d2`. The transfer contained 15 commits, used no force push, and the two migration refs were verified at the same SHA after synchronization.
+On 2026-10-19, Secondary `migration/versanium` was first fast-forwarded from `a8098ae78f82b91b1a8dc48a54d4bcc514177207` to `b40976ec3c209c805fba5326f2326e8324fc64d2` in a 15-commit non-force synchronization. Two documentation commits were then fast-forwarded to `d2ef18cef2f7fa82c131c6f2716e1d34c23fd66a`. After the Project Sources refresh policy was formalized in `RULES.md`, one additional documentation commit was fast-forwarded to `1fe02df8dd2a7dd7d31582229e2a3b47ef4989be`. Each synchronization used the normal Primary → Secondary direction with no force push and was followed by SHA equality verification.
 
-The `main` branches remain separate and are not implicitly synchronized by the migration-branch operation. Any `main` change remains a separate consequential operation requiring review and approval.
+This `PROJECT_STATUS.md` refresh itself creates a newer Primary commit after the reviewed synchronization point above; synchronize that resulting reviewed Primary ref to Secondary before treating the control plane as fully synchronized again.
+
+The `main` branches remain separate and are not implicitly synchronized by migration-branch operations. Any `main` change remains a separate consequential operation requiring review and approval.
 
 ## Build and release policy
 
@@ -76,7 +78,8 @@ Completed or established:
 - repositories renamed to Versanium
 - Primary/Secondary roles corrected: Lab is Primary; Personal is Secondary
 - migration branch contains branding/migration work and test/release guards
-- Primary/Secondary `migration/versanium` reviewed history synchronized by non-force fast-forward on 2026-10-19
+- Primary/Secondary `migration/versanium` reviewed history synchronized by non-force fast-forward through `1fe02df8dd2a7dd7d31582229e2a3b47ef4989be` on 2026-10-19
+- Project Sources refresh triggers, ordering, notification, and freshness verification are formalized in `RULES.md` and mirrored in the Notion Project Hub
 - Titanium 155.0.8059.79 update work is preserved
 - DeX/mobile zoom work is preserved
 - F11 toolbar/certificate diagnostic work is preserved
@@ -85,6 +88,8 @@ Completed or established:
 
 Still requiring validation before production release:
 
+- synchronize this status-refresh commit Primary → Secondary before considering the documentation control plane fully synchronized
+- regenerate and replace `Versanium_Project_Context.md` after that synchronization
 - review the latest Titanium/upstream delta before the next Test build
 - review build optimizations before the next Test build
 - retain awareness of the Titanium/Chromium YouTube PiP issue during browser validation
