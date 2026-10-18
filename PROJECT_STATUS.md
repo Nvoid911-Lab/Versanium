@@ -26,16 +26,18 @@ Primary `Nvoid911-Lab/Versanium`:
 
 - default branch: `main`
 - `main`: `4ca486ba88313aa95bbccf67812435c13edb3bc7`
-- active migration branch before this documentation update: `migration/versanium` at `7a3beb16851ce22989018ac609a7c98693231fc9`
+- reviewed `migration/versanium` synchronization point: `b40976ec3c209c805fba5326f2326e8324fc64d2`
 - relevant preserved branches include `feature/dex-mobile-zoom`, `feature/f11-toolbar`, `feature/youtube-pip`, and `update/titanium-155.0.8059.79`
 
 Secondary `Nvoid911/Versanium` at review:
 
 - default branch: `main`
 - `main`: `6755ccfd5d5c8a5e8fa3620be6da9ccd4a399aa7`
-- `migration/versanium`: `a8098ae78f82b91b1a8dc48a54d4bcc514177207`
+- reviewed `migration/versanium` synchronization point: `b40976ec3c209c805fba5326f2326e8324fc64d2`
 
-The two repositories were **not at identical branch tips at the start of this review**. This is a known synchronization issue, not evidence that Secondary is authoritative. Documentation setup should finish by advancing Secondary's migration branch to the reviewed Primary documentation head where possible.
+On 2026-10-19, Secondary `migration/versanium` was fast-forwarded from `a8098ae78f82b91b1a8dc48a54d4bcc514177207` to the reviewed Primary documentation head `b40976ec3c209c805fba5326f2326e8324fc64d2`. The transfer contained 15 commits, used no force push, and the two migration refs were verified at the same SHA after synchronization.
+
+The `main` branches remain separate and are not implicitly synchronized by the migration-branch operation. Any `main` change remains a separate consequential operation requiring review and approval.
 
 ## Build and release policy
 
@@ -74,6 +76,7 @@ Completed or established:
 - repositories renamed to Versanium
 - Primary/Secondary roles corrected: Lab is Primary; Personal is Secondary
 - migration branch contains branding/migration work and test/release guards
+- Primary/Secondary `migration/versanium` reviewed history synchronized by non-force fast-forward on 2026-10-19
 - Titanium 155.0.8059.79 update work is preserved
 - DeX/mobile zoom work is preserved
 - F11 toolbar/certificate diagnostic work is preserved
@@ -82,7 +85,6 @@ Completed or established:
 
 Still requiring validation before production release:
 
-- confirm Primary/Secondary branch synchronization after documentation changes
 - review the latest Titanium/upstream delta before the next Test build
 - review build optimizations before the next Test build
 - retain awareness of the Titanium/Chromium YouTube PiP issue during browser validation
