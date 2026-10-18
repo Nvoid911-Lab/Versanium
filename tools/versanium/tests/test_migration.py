@@ -161,7 +161,8 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(set(allowed),{'Nvoid911-Lab/Versanium','Nvoid911/Versanium'})
         self.assertEqual(mapping['blacksmith'],'blacksmith-8vcpu-ubuntu-2404')
         self.assertEqual(mapping['sengi'],'sengi-standard-8-ubuntu-2404')
-        self.assertNotIn('inputs.runner',job['runs-on'])
+        self.assertIn('[inputs.runner_provider]',job['runs-on'])
+        self.assertNotIn('[inputs.runner]',job['runs-on'])
 
     def test_inline_shell_and_yaml(self):
         for p in (REPO/'.github/workflows').glob('*.yml'):
