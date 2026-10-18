@@ -53,8 +53,9 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
-          # Keep the installed app identity for BOTH delivery modes.
+          # Retain the existing build/signing path; isolate only the Test delivery.
           F11_TEST_BUILD: '1'
+          VERSANIUM_TEST_BUILD: ${{ inputs.f11_test_build && '1' || '0' }}
         run: ./build.sh
 
       - name: Stage Test APK

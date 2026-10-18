@@ -78,7 +78,11 @@ source $SCRIPT_DIR/patch.sh
 cp $SCRIPT_DIR/args.gn out/Default/args.gn
 if [ "$F11_TEST_BUILD" = "1" ]; then
     sed -i 's/target_cpu = "arm"/target_cpu = "arm64"/' out/Default/args.gn
-    python3 "$SCRIPT_DIR/tools/configure_f11_identity.py" || {
+    identity_options=()
+    if [ "${VERSANIUM_TEST_BUILD:-0}" = "1" ]; then
+        identity_options+=(--versanium-test)
+    fi
+    python3 "$SCRIPT_DIR/tools/configure_f11_identity.py" "${identity_options[@]}" || {
         echo "ERROR: failed to configure the isolated F11 test app." >&2
         exit 1
     }

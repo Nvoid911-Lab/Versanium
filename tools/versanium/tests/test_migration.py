@@ -67,7 +67,7 @@ class MigrationTests(unittest.TestCase):
         for p in (self.repo/'res/versanium/android').rglob('*.xml'):
             root=ET.parse(p).getroot();self.assertEqual(root.tag,'bitmap')
             self.assertEqual(root.get('{http://schemas.android.com/apk/res/android}src'),'@mipmap/layered_app_icon')
-    def test_identity_changes_only_visible_label(self):
+    def test_test_identity_isolation_and_legacy_default(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);args=root/'out/Default/args.gn';args.parent.mkdir(parents=True)
             args.write_text((REPO/'args.gn').read_text())
@@ -77,6 +77,33 @@ class MigrationTests(unittest.TestCase):
             manifest.write_text(original);identity.configure(root)
             self.assertEqual(identity.PACKAGE,'io.github.nvoid911.titanium.f11test')
             self.assertIn('>Versanium</string>',strings.read_text());self.assertEqual(manifest.read_text(),original)
+            self.assertIn('chrome_public_manifest_package = "io.github.nvoid911.titanium.f11test"',args.read_text())
+            identity.configure(root,versanium_test=True)
+            self.assertIn('chrome_public_manifest_package = "io.github.nvoid911.versanium.test"',args.read_text())
+            self.assertEqual(manifest.read_text(),original)
+            self.assertIn('>Versanium</string>',strings.read_text())
+            for bad in ('<permission android:name="io.github.nvoid911.titanium.f11test.PRIVATE"/>', '<activity android:taskAffinity="shared.task"/>'):
+                manifest.write_text(original.replace('</application>',bad+'</application>'))
+                before=args.read_bytes()
+                with self.assertRaises(ValueError):identity.configure(root,versanium_test=True)
+                self.assertEqual(before,args.read_bytes())
+    def test_build_identity_selector_without_running_build_script(self):
+        import re
+        script=(REPO/'build.sh').read_text()
+        block=re.search(r'    identity_options=\(\).*?python3[^\n]+(?= \|\| \{)',script,re.S).group()
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);args=root/'out/Default/args.gn';args.parent.mkdir(parents=True)
+            strings=root/branding.CHANNEL;strings.parent.mkdir(parents=True)
+            manifest=root/'chrome/android/java/AndroidManifest.xml'
+            manifest.write_text('<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="@string/app_name"><provider android:authorities="{{ manifest_package }}.provider"/></application></manifest>')
+            for selected,package in [('1',identity.VERSANIUM_TEST_PACKAGE),('0',identity.PACKAGE),(None,identity.PACKAGE)]:
+                args.write_text((REPO/'args.gn').read_text())
+                strings.write_text('<resources><string name="app_name">Versanium</string></resources>')
+                env=dict(os.environ,SCRIPT_DIR=str(REPO));env.pop('VERSANIUM_TEST_BUILD',None)
+                if selected is not None:env['VERSANIUM_TEST_BUILD']=selected
+                subprocess.run(['bash','-e','-c',block],cwd=root,env=env,check=True,capture_output=True,text=True)
+                self.assertIn('chrome_public_manifest_package = "'+package+'"',args.read_text())
+
     def test_packaging_bytes_and_only_arm64(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);source=root/'release';source.mkdir();payload=b'NOT-AN-APK: filename/copy fixture only'
@@ -96,7 +123,8 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(w['on']['workflow_dispatch']['inputs']['runner']['default'],'blacksmith-8vcpu-ubuntu-2404')
         steps=w['jobs']['build']['steps']
         build=next(s for s in steps if s.get('name')=='Build')
-        self.assertEqual(build['env']['F11_TEST_BUILD'],'1')  # Delivery choice must not change Android identity.
+        self.assertEqual(build['env']['F11_TEST_BUILD'],'1')  # Existing F11 compilation/signing mode is retained.
+        self.assertEqual(build['env']['VERSANIUM_TEST_BUILD'],"${{ inputs.f11_test_build && '1' || '0' }}")
         for step in steps:
             if step.get('name','').startswith(('Publish','Attest','Stage approved')):
                 guard=step['if'];self.assertIn('!inputs.f11_test_build',guard);self.assertIn("env.VERSANIUM_RELEASE_APPROVED == 'true'",guard);self.assertIn("github.repository == 'Nvoid911/Versanium'",guard)

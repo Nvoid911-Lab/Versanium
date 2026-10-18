@@ -2,13 +2,16 @@
 
 from pathlib import Path
 import re
+import argparse
 
 
 PACKAGE = "io.github.nvoid911.titanium.f11test"
+VERSANIUM_TEST_PACKAGE = "io.github.nvoid911.versanium.test"
 APP_NAME = "Versanium"
 
 
-def configure(root):
+def configure(root, versanium_test=False):
+    package = VERSANIUM_TEST_PACKAGE if versanium_test else PACKAGE
     args_path = root / "out/Default/args.gn"
     strings_path = root / "chrome/android/java/res_titanium_base/values/channel_constants.xml"
     manifest_path = root / "chrome/android/java/AndroidManifest.xml"
@@ -25,6 +28,11 @@ def configure(root):
         for group in authorities for value in group.split(";")
     ):
         raise ValueError("Expected all Chrome provider authorities to use manifest_package")
+    declared_permissions = re.findall(r'<permission(?:-group|-tree)?\b[^>]*android:name="([^"]+)"', manifest)
+    affinities = re.findall(r'android:taskAffinity="([^"]*)"', manifest)
+    for value in [*declared_permissions, *(v for v in affinities if v)]:
+        if not re.match(r'^\{\{ manifest_package \}\}(?:\.|$)', value):
+            raise ValueError("Expected custom permissions and nonempty task affinities to use manifest_package")
     if "android:sharedUserId" in manifest:
         raise ValueError("Unexpected shared UID in Chrome manifest")
     if '@string/app_name' not in manifest:
@@ -32,7 +40,7 @@ def configure(root):
 
     args, count = re.subn(
         r'^chrome_public_manifest_package\s*=\s*"[^"]+"\s*$',
-        f'chrome_public_manifest_package = "{PACKAGE}"', args, flags=re.MULTILINE,
+        f'chrome_public_manifest_package = "{package}"', args, flags=re.MULTILINE,
     )
     if count != 1:
         raise ValueError("Expected exactly one chrome_public_manifest_package setting")
@@ -47,8 +55,11 @@ def configure(root):
     # checked-in resources remain untouched; only the Chromium tree changes.
     args_path.write_text(args)
     strings_path.write_text(strings)
-    print(f"F11 test identity: {PACKAGE} / {APP_NAME}")
+    print(f"Generated test identity: {package} / {APP_NAME}")
 
 
 if __name__ == "__main__":
-    configure(Path.cwd())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--versanium-test", action="store_true", help="Isolate only the Versanium Test delivery")
+    options = parser.parse_args()
+    configure(Path.cwd(), versanium_test=options.versanium_test)
