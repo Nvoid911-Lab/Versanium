@@ -68,6 +68,7 @@ Current runner provider choices:
 |---|---|
 | Blacksmith | `blacksmith-8vcpu-ubuntu-2404` |
 | Sengi | `sengi-standard-8-ubuntu-2404` |
+| IdeaPad (self-hosted WSL2) | `versanium-ideapad` |
 
 The provider is selected at dispatch time in the current Primary workflow. Arbitrary runner labels are not accepted.
 
@@ -160,3 +161,10 @@ The four root documents form the project control plane:
 - `DECISIONS.md` — append-only material decision log.
 
 Notion provides the human planning/history layer. ChatGPT Project Sources provide a compact shared entry point across project chats. Neither should supersede live GitHub state.
+## IdeaPad recovery boundary (2026-10-22 proposal)
+
+The manual Versanium Build workflow has an opt-in resume_ideapad mode solely for the preserved Run #5 arm64 Test tree. The controller lives in `$GITHUB_WORKSPACE/versanium-recovery-control`; the original `$GITHUB_WORKSPACE/chromium` and depot_tools stay at their original absolute paths. Only the controller directory is cleaned by checkout. A shared workflow concurrency group and a recovery flock protect against overlapping current jobs; they cannot protect against manually launched processes or old workflow revisions.
+
+Recovery does not fetch Chromium, sync dependencies, run hooks, install packages, regenerate GN, or reapply patches. Ninja/Siso still decides which actions are valid for reuse. The controller validates original repository HEAD, reviewed Chromium/Vanadium ancestry and version, expected patched HEAD, exact generated GN arguments, and required state files. These checks establish the reported prepared-tree provenance, not a full cryptographic attestation of all modified source files. Local source modifications are expected from the original patch pipeline.
+
+Signed output and staging live only under the fresh controller checkout. Signing material uses a private RUNNER_TEMP directory, removed on normal exit and handled termination; force-kill/power loss can leave residue there. No production publishing path is added. Dependencies and toolchain are reused as already provisioned. General persistent source storage outside the checkout remains a later migration, after recovery validation.

@@ -2,7 +2,7 @@
 
 > Authoritative operational status for the Versanium project. Update this file whenever repository roles, active branches, build policy, current milestones, or blockers change.
 
-Last reviewed: 2026-10-19 JST
+Last reviewed: 2026-10-22 JST (IdeaPad recovery proposal; not yet device/build validated)
 
 ## Project
 
@@ -20,7 +20,7 @@ User-facing product name and distributed APK branding are Versanium. Upstream at
 
 The Primary repository is authoritative. Normal synchronization direction is **Primary → Secondary**. Never infer repository roles from older migration reports or old chat history.
 
-## Current Git state at review
+## Historical Git state at the 2026-10-19 review
 
 Primary `Nvoid911-Lab/Versanium`:
 
@@ -48,8 +48,8 @@ Current `migration/versanium` workflow facts on Primary:
 - workflow: `Versanium Build`
 - trigger: manual `workflow_dispatch` only
 - allowed repositories: the two Versanium repositories only
-- runner provider is manually selected from reviewed choices: `blacksmith` or `sengi`
-- runner labels are constrained to `blacksmith-8vcpu-ubuntu-2404` and `sengi-standard-8-ubuntu-2404`
+- runner provider is manually selected from reviewed choices: `blacksmith`, `sengi`, or `ideapad`
+- runner labels are constrained to `blacksmith-8vcpu-ubuntu-2404`, `sengi-standard-8-ubuntu-2404`, and `versanium-ideapad`
 - default build is Test
 - Test artifact: `Versanium-Test`
 - artifact retention: 7 days
@@ -57,7 +57,7 @@ Current `migration/versanium` workflow facts on Primary:
 - production stage/publish/attest is restricted to `Nvoid911-Lab/Versanium`
 - no production release is authorized until explicit user approval after testing
 
-Older documentation that maps a fixed runner to each repository is historical. The current Primary workflow allows selection between the two reviewed providers while still rejecting arbitrary runner labels.
+Older documentation that maps a fixed runner to each repository is historical. The current Primary workflow allows selection between the three reviewed providers while still rejecting arbitrary runner labels.
 
 ## Identity and compatibility policy
 
@@ -116,3 +116,16 @@ Any ChatGPT conversation working on Versanium should first resolve current proje
 6. older individual chat content.
 
 If sources conflict, higher-ranked evidence wins and the conflict must be recorded in `DECISIONS.md` or this status file as appropriate.
+## 2026-10-22 — IdeaPad Run #5 recovery proposal
+
+Live Primary integration HEAD checked before this change: `6e7517e6de89e5a1230cebf906470795112466a3` (PR #2 merged). Secondary synchronization after the October 19 snapshot has not been reverified; do not infer equality.
+
+Run #5 (`39567794721`, job `119114201472`) is completed/cancelled. Build step ran from 2026-10-21 17:15:05 to 23:15:29 JST with no explicit timeout override in the original workflow, consistent with the default 360-minute timeout. Full log retrieval failed, so exact last target and build-time OOM absence remain unverified.
+
+User-provided local evidence: Chromium 53GB, `out/Default` 14GB, retained Ninja/Siso state, patched Chromium HEAD prefix `8b1224debc`, arm64 Versanium Test package, no remaining compiler processes, and Windows C: free 323088138240 bytes. Current idle swap usage and empty current dmesg search do not prove build-time memory behavior.
+
+This proposed change adds `resume_ideapad` (default false) to the existing manual workflow. Recovery is restricted to Primary + IdeaPad + Test, retains the original source/output paths, checks the pinned Run #5 inputs, and uses a child controller checkout so checkout cleanup does not touch the preserved tree. It bypasses build.sh setup/hooks/patching/sudo and resumes chrome_java then chrome_public_apk. Recovery alone has a 1200-minute job timeout and resource telemetry. Normal IdeaPad builds refuse an existing workspace before checkout. Old workflow reruns do NOT gain this protection.
+
+Validation: 20 local migration/recovery unit checks and shell syntax checks pass. No Actions build, on-device validation, merge, production release, or Secondary synchronization was performed for this proposal. General persistent-workspace provisioning and automatic source-update handling remain future work; this is narrowly scoped recovery, not a general cache implementation.
+
+Next: review/merge the recovery PR into migration/versanium; verify upstream/PiP awareness required by RULES before authorizing a new manual Test run. Dispatch the new branch revision with runner_provider=ideapad, f11_test_build=true, resume_ideapad=true. Never rerun Run #5. Review telemetry and validate the APK on Galaxy S23 and DeX. Refresh Notion/Project Sources after authoritative integration and reviewed synchronization settle; the October 19 Context is stale regarding IdeaPad and build state.
