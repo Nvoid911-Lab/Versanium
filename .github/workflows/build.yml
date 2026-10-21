@@ -12,6 +12,11 @@ on:
           - sengi
           - ideapad
         default: blacksmith
+      resume_ideapad:
+        description: 'Resume preserved IdeaPad Run #5 (ideapad + Test only)'
+        required: true
+        type: boolean
+        default: false
       f11_test_build:
         description: 'Create Test artifact (false reserved for an approved Release)'
         required: true
@@ -34,12 +39,70 @@ jobs:
     if: ${{ github.repository == 'Nvoid911-Lab/Versanium' || github.repository == 'Nvoid911/Versanium' }}
     # Keep provider selection constrained to reviewed labels; never accept an arbitrary runner label.
     runs-on: ${{ fromJSON('{"blacksmith":"blacksmith-8vcpu-ubuntu-2404","sengi":"sengi-standard-8-ubuntu-2404","ideapad":"versanium-ideapad"}')[inputs.runner_provider] || 'versanium-runner-not-allowed' }}
+    concurrency:
+      group: ${{ inputs.runner_provider == 'ideapad' && 'versanium-ideapad-workspace' || format('versanium-cloud-{0}', github.run_id) }}
+      cancel-in-progress: false
+    timeout-minutes: ${{ inputs.runner_provider == 'ideapad' && inputs.resume_ideapad && 1200 || 360 }}
     steps:
+      - name: Validate recovery selection before checkout
+        env:
+          RESUME: ${{ inputs.resume_ideapad && 'true' || 'false' }}
+          PROVIDER: ${{ inputs.runner_provider }}
+          TEST_BUILD: ${{ inputs.f11_test_build && 'true' || 'false' }}
+        run: |
+          if [ "$RESUME" = true ] && { [ "$PROVIDER" != ideapad ] || [ "$TEST_BUILD" != true ] || [ "$GITHUB_REPOSITORY" != Nvoid911-Lab/Versanium ]; }; then
+            echo 'Recovery requires Primary, ideapad and Test mode.' >&2
+            exit 1
+          fi
+          if [ "$RESUME" = true ]; then
+            if [ -L "$GITHUB_WORKSPACE/versanium-recovery-control" ] || [ "$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)" != 6e7517e6de89e5a1230cebf906470795112466a3 ]; then
+              echo 'Unexpected original workspace or controller symlink; refusing checkout.' >&2
+              exit 1
+            fi
+          fi
+      - name: Protect existing IdeaPad workspace before checkout
+        if: ${{ inputs.runner_provider == 'ideapad' && !inputs.resume_ideapad }}
+        run: |
+          if [ -e "$GITHUB_WORKSPACE/chromium" ] || [ -e "$GITHUB_WORKSPACE/depot_tools" ]; then
+            echo "Preserved workspace found. Use reviewed resume_ideapad=true; do not rerun an old workflow." >&2
+            exit 1
+          fi
       - uses: actions/checkout@v5
         with:
-          submodules: true
+          submodules: ${{ !inputs.resume_ideapad }}
+          path: ${{ inputs.resume_ideapad && 'versanium-recovery-control' || '.' }}
+          fetch-depth: ${{ inputs.resume_ideapad && '0' || '1' }}
+          persist-credentials: false
+
+      - name: Resume preserved IdeaPad Test
+        if: ${{ inputs.resume_ideapad }}
+        working-directory: versanium-recovery-control
+        env:
+          LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
+          STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
+          VERSANIUM_TEST_BUILD: '1'
+        run: bash tools/versanium/resume_ideapad.sh
+
+      - name: Upload resumed Versanium Test
+        if: ${{ inputs.resume_ideapad }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Versanium-Test
+          path: versanium-recovery-control/dist/Versanium-155.0.8059.79_Test.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload IdeaPad resource measurements
+        if: ${{ always() && inputs.resume_ideapad }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: IdeaPad-resume-resources
+          path: versanium-recovery-control/diagnostics/vmstat.txt
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Enforce test-first migration and prepared original assets
+        if: ${{ !inputs.resume_ideapad }}
         env:
           TEST_BUILD: ${{ inputs.f11_test_build && 'true' || 'false' }}
         run: |
@@ -51,12 +114,14 @@ jobs:
           python3 tools/check_environment_zoom_revision.py --repository "$PWD"
 
       - name: Set ENV
+        if: ${{ !inputs.resume_ideapad }}
         run: |
           chmod +x *.sh
           VERSION=$(grep -m1 -o '[0-9]\+\(\.[0-9]\+\)\{3\}' vanadium/args.gn)
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Build
+        if: ${{ !inputs.resume_ideapad }}
         env:
           DEBIAN_FRONTEND: noninteractive
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
@@ -67,11 +132,11 @@ jobs:
         run: ./build.sh
 
       - name: Stage Test APK
-        if: ${{ inputs.f11_test_build }}
+        if: ${{ inputs.f11_test_build && !inputs.resume_ideapad }}
         run: python3 tools/versanium/package_apk.py --source chromium/src/out/release --version "$VERSION" --test
 
       - name: Upload Versanium Test
-        if: ${{ inputs.f11_test_build }}
+        if: ${{ inputs.f11_test_build && !inputs.resume_ideapad }}
         uses: actions/upload-artifact@v4
         with:
           name: Versanium-Test

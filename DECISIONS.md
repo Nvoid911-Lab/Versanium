@@ -102,3 +102,14 @@ Reason:
 Consequences:
 Verification / evidence:
 ```
+
+
+## 2026-10-22 — Propose in-place recovery of IdeaPad Run #5
+
+**Decision proposed for review:** Resume the preserved source/output in place via a dedicated opt-in mode in the existing manual workflow. Checkout the controller into a separate child directory and reject ordinary IdeaPad checkout when the old workspace exists. Do not move, clean, reset, sync, or reapply patches to the interrupted tree.
+
+**Reason:** The initial IdeaPad job reached C++ compilation but was cancelled after approximately six hours. The user confirmed 14GB of output and Ninja/Siso state remain. Moving paths or repeating the original non-idempotent setup could discard useful work.
+
+**Scope:** Primary-only arm64 Test recovery at original repository commit 6e7517e6de89e5a1230cebf906470795112466a3, unchanged GN arguments and default parallelism, 1200-minute recovery timeout, vmstat telemetry, temporary signing files, no production authorization. Mismatches fail closed without a full-build fallback.
+
+**Validation/status:** Local checks only; review and real IdeaPad recovery remain pending. This does not declare a permanent persistent-workspace implementation or authorize dispatch. Old Run #5 reruns remain unsafe because workflow changes do not retroactively alter them.
