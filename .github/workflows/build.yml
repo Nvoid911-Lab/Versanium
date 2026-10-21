@@ -10,6 +10,7 @@ on:
         options:
           - blacksmith
           - sengi
+          - ideapad
         default: blacksmith
       f11_test_build:
         description: 'Create Test artifact (false reserved for an approved Release)'
@@ -32,7 +33,7 @@ jobs:
     # This guard is evaluated before runner allocation so unexpected repositories cannot consume runner capacity.
     if: ${{ github.repository == 'Nvoid911-Lab/Versanium' || github.repository == 'Nvoid911/Versanium' }}
     # Keep provider selection constrained to reviewed labels; never accept an arbitrary runner label.
-    runs-on: ${{ fromJSON('{"blacksmith":"blacksmith-8vcpu-ubuntu-2404","sengi":"sengi-standard-8-ubuntu-2404"}')[inputs.runner_provider] || 'versanium-runner-not-allowed' }}
+    runs-on: ${{ fromJSON('{"blacksmith":"blacksmith-8vcpu-ubuntu-2404","sengi":"sengi-standard-8-ubuntu-2404","ideapad":"versanium-ideapad"}')[inputs.runner_provider] || 'versanium-runner-not-allowed' }}
     steps:
       - uses: actions/checkout@v5
         with:
