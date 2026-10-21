@@ -123,7 +123,7 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(inputs['f11_test_build']['default'],'true')
         self.assertEqual(inputs['runner_provider']['type'],'choice')
         self.assertEqual(inputs['runner_provider']['default'],'blacksmith')
-        self.assertEqual(inputs['runner_provider']['options'],['blacksmith','sengi'])
+        self.assertEqual(inputs['runner_provider']['options'],['blacksmith','sengi','ideapad'])
         self.assertNotIn('runner',inputs)
         steps=w['jobs']['build']['steps']
         build=next(s for s in steps if s.get('name')=='Build')
@@ -151,7 +151,7 @@ class MigrationTests(unittest.TestCase):
         match=re.fullmatch(r"\$\{\{ fromJSON\('([^']+)'\)\[inputs\.runner_provider\] \|\| 'versanium-runner-not-allowed' \}\}",job['runs-on'])
         self.assertIsNotNone(match)
         mapping=json.loads(match.group(1))
-        self.assertEqual(mapping,{'blacksmith':'blacksmith-8vcpu-ubuntu-2404','sengi':'sengi-standard-8-ubuntu-2404'})
+        self.assertEqual(mapping,{'blacksmith':'blacksmith-8vcpu-ubuntu-2404','sengi':'sengi-standard-8-ubuntu-2404','ideapad':'versanium-ideapad'})
         guard=job['if'];self.assertTrue(guard.startswith('${{ ') and guard.endswith(' }}'))
         atoms=guard[4:-3].split(' || ')
         allowed=[]
@@ -161,6 +161,7 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(set(allowed),{'Nvoid911-Lab/Versanium','Nvoid911/Versanium'})
         self.assertEqual(mapping['blacksmith'],'blacksmith-8vcpu-ubuntu-2404')
         self.assertEqual(mapping['sengi'],'sengi-standard-8-ubuntu-2404')
+        self.assertEqual(mapping['ideapad'],'versanium-ideapad')
         self.assertIn('[inputs.runner_provider]',job['runs-on'])
         self.assertNotIn('[inputs.runner]',job['runs-on'])
 
