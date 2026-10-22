@@ -113,3 +113,12 @@ Verification / evidence:
 **Scope:** Primary-only arm64 Test recovery at original repository commit 6e7517e6de89e5a1230cebf906470795112466a3, unchanged GN arguments and default parallelism, 1200-minute recovery timeout, vmstat telemetry, temporary signing files, no production authorization. Mismatches fail closed without a full-build fallback.
 
 **Validation/status:** Local checks only; review and real IdeaPad recovery remain pending. This does not declare a permanent persistent-workspace implementation or authorize dispatch. Old Run #5 reruns remain unsafe because workflow changes do not retroactively alter them.
+
+
+## 2026-10-22 — Propose six local jobs for IdeaPad recovery
+
+**Supersedes:** Retaining default recovery parallelism in the earlier Run #5 recovery decision.
+
+**Reason:** User-supplied long-duration vmstat measurements show recurring memory pressure and swap traffic on the 12GB WSL instance. The default execution had twelve concurrent clang++ processes and very slow progress.
+
+**Proposed change:** Use autoninja -j 6 for chrome_java and chrome_public_apk in recovery only. Scheduling is changed without changing GN inputs or cleaning incremental state. Six is an initial measured tuning candidate, not a promise of six-hour completion. Keep telemetry for comparison. Production remains blocked; Run 39624481319 is cancelled and a new Test dispatch requires user selection.

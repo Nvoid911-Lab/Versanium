@@ -33,10 +33,13 @@ vmstat -t 60 > "$CONTROL_ROOT/diagnostics/vmstat.txt" &
 MONITOR_PID=$!
 cd "$WORKSPACE/chromium/src"
 export VERSION=155.0.8059.79
+# Limit local compilation pressure on the 12GB WSL instance. This changes
+# scheduling only; retain the prepared GN configuration and output tree.
+printf 'Recovery local job limit: 6\n'
 printf '\nResuming chrome_java at %s\n' "$(date -Is)"
-autoninja -C out/Default chrome_java
+autoninja -C out/Default -j 6 chrome_java
 printf '\nResuming chrome_public_apk at %s\n' "$(date -Is)"
-autoninja -C out/Default chrome_public_apk
+autoninja -C out/Default -j 6 chrome_public_apk
 APK=out/Default/apks/ChromePublic.apk
 [ -s "$APK" ] || { echo 'Expected ChromePublic.apk was not generated' >&2; exit 1; }
 : "${LOCAL_TEST_JKS:?Signing properties secret missing}"

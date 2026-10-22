@@ -101,6 +101,23 @@ class RecoveryTests(unittest.TestCase):
                 env={'RESUME': 'true', 'PROVIDER': provider, 'TEST_BUILD': test, 'GITHUB_REPOSITORY': repo})
             self.assertEqual(result.returncode == 0, accepted)
 
+    def test_both_targets_limit_jobs_and_stop_on_failure(self):
+        # Exercise the actual shell invocation lines with a fake compiler driver.
+        script = (ROOT / 'tools/versanium/resume_ideapad.sh').read_text()
+        commands = '\n'.join(line for line in script.splitlines() if line.startswith('autoninja '))
+        self.assertTrue(commands)
+        stub = 'autoninja() { printf "%s\\n" "$*"; return "${FAIL:-0}"; };\n'
+        completed = subprocess.run(['bash', '-e', '-c', stub + commands],
+            capture_output=True, text=True, env={})
+        self.assertEqual(completed.returncode, 0)
+        self.assertEqual(completed.stdout.splitlines(), [
+            '-C out/Default -j 6 chrome_java',
+            '-C out/Default -j 6 chrome_public_apk'])
+        failed = subprocess.run(['bash', '-e', '-c', stub + commands],
+            capture_output=True, text=True, env={'FAIL': '9'})
+        self.assertEqual(failed.returncode, 9)
+        self.assertEqual(len(failed.stdout.splitlines()), 1)
+
 
 if __name__ == '__main__':
     unittest.main()
