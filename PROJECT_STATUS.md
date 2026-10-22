@@ -129,3 +129,12 @@ This proposed change adds `resume_ideapad` (default false) to the existing manua
 Validation: 20 local migration/recovery unit checks and shell syntax checks pass. No Actions build, on-device validation, merge, production release, or Secondary synchronization was performed for this proposal. General persistent-workspace provisioning and automatic source-update handling remain future work; this is narrowly scoped recovery, not a general cache implementation.
 
 Next: review/merge the recovery PR into migration/versanium; verify upstream/PiP awareness required by RULES before authorizing a new manual Test run. Dispatch the new branch revision with runner_provider=ideapad, f11_test_build=true, resume_ideapad=true. Never rerun Run #5. Review telemetry and validate the APK on Galaxy S23 and DeX. Refresh Notion/Project Sources after authoritative integration and reviewed synchronization settle; the October 19 Context is stale regarding IdeaPad and build state.
+
+
+## 2026-10-22 — Limit IdeaPad recovery to six jobs (proposal)
+
+PR #3 was merged into migration/versanium at 630c950c8e6cc940a85c9a5cf4aad5a7c0473c61. The resulting Run 39624481319 was explicitly cancelled by the user; GitHub confirms completed/cancelled. It must not be treated as a successful Test build.
+
+At about 10h53m, the user reported 1951/37342 tasks. A naive task-count extrapolation is not a reliable completion forecast. Longer vmstat samples showed repeated swap-in/out, swap-out peaks around 27MB/s, free memory dipping to about 80MB, and kernel CPU up to 52%. Twelve clang++ processes were present. This supports reducing concurrency to relieve memory pressure; it does not exclude sleep, power or thermal limits.
+
+Proposed change: pass -j 6 to both recovery autoninja targets. Preserve source paths, GN args, existing outputs, signing isolation, guards and the 20-hour timeout. There is no clean/reset or new build dispatch. Actual improvement must be measured after review/merge and explicit Test execution. Validation: 21 migration/recovery unit checks, inline shell syntax, bash -n and git diff --check. General persistent provisioning and Secondary/Notion/Project Sources refresh remain pending; do not interpret earlier proposal snapshots as current build success.
