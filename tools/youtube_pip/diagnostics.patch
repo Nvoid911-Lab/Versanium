@@ -1,6 +1,6 @@
 --- a/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
-@@ -253,6 +253,35 @@
+@@ -253,6 +253,41 @@
          return true;
      }
  
@@ -19,11 +19,17 @@
 +        String host = url.getHost();
 +        if (!"https".equals(url.getScheme()) || !("youtube.com".equals(host)
 +                || "www.youtube.com".equals(host) || "m.youtube.com".equals(host))) return;
++        android.app.AppOpsManager appOps = mActivity.getSystemService(android.app.AppOpsManager.class);
++        int appOp = appOps == null ? -1 : appOps.checkOpNoThrow(
++                android.app.AppOpsManager.OPSTR_PICTURE_IN_PICTURE,
++                android.os.Process.myUid(), mActivity.getPackageName());
 +        String record = stage
 +                + " full=" + contents.hasActiveEffectivelyFullscreenVideo()
 +                + " videoAllows=" + contents.isPictureInPictureAllowedForFullscreenVideo()
 +                + " devicePip=" + mActivity.getPackageManager().hasSystemFeature(
 +                        PackageManager.FEATURE_PICTURE_IN_PICTURE)
++                + " appOp=" + appOp
++                + " recentTaskAllowed=" + canStartPipBasedOnRecentTasks()
 +                + " inPip=" + mActivity.isInPictureInPictureMode()
 +                + " changing=" + mActivity.isChangingConfigurations()
 +                + " finishing=" + mActivity.isFinishing();
@@ -128,8 +134,8 @@
  [
    {
 +    "name": "versanium-youtube-diagnostics",
-+    "owners": ["//chrome/android/OWNERS"],
-+    "expiry_milestone": 156
++    "owners": ["298596960+Nvoid911@users.noreply.github.com"],
++    "expiry_milestone": 157
 +  },
 +  {
      "name": "aaudio-per-stream-device-selection",

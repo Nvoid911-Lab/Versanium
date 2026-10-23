@@ -7,12 +7,12 @@
   if (state && (typeof state.adjust !== 'function' || typeof state.mobile !== 'boolean')) return null;
   if (!state && !Object.isExtensible(window)) return null;
   if (!state) {
-    state = {mobile:false,pip:false,background:false,pauses:0,visibilityEvents:0,pipAdjusted:false,backgroundInstalled:false};
+    state = {mobile:false,pip:false,background:false,pauses:0,pauseMethodObserved:false,pauseWithActivation:false,visibilityEvents:0,pipAdjusted:false,backgroundInstalled:false};
     Object.defineProperty(window,'__versaniumYoutubeState',{value:state});
     const nativeHidden = Object.getOwnPropertyDescriptor(Document.prototype,'hidden');
     const nativeVisibility = Object.getOwnPropertyDescriptor(Document.prototype,'visibilityState');
     // Unknown DOM/descriptor: safely leave background behavior unchanged.
-    if (nativeHidden && nativeVisibility && typeof nativeHidden.get === 'function' &&
+    if (options.background && nativeHidden && nativeVisibility && typeof nativeHidden.get === 'function' &&
         typeof nativeVisibility.get === 'function' &&
         Object.isExtensible(document) && !Object.getOwnPropertyDescriptor(document,'hidden') &&
         !Object.getOwnPropertyDescriptor(document,'visibilityState')) {
@@ -28,10 +28,25 @@
         if (state.mobile && state.background) event.stopImmediatePropagation();
       },true);
     }
+    const attempts = new WeakMap();
+    const watched = new WeakSet();
     const adjust = () => {
-      if (!state.mobile || !state.pip) return;
+      if (!state.mobile) return;
       for (const video of document.querySelectorAll('video')) {
-        if ('disablePictureInPicture' in video && video.disablePictureInPicture === true) {
+        if (state.diagnostics && !watched.has(video) && typeof video.pause === 'function' &&
+            Object.isExtensible(video) && !Object.getOwnPropertyDescriptor(video,'pause')) {
+          watched.add(video);
+          const pause = video.pause;
+          video.pause = function(...args) {
+            if (state.mobile && state.diagnostics) {
+              state.pauseMethodObserved = true;
+              state.pauseWithActivation = !!navigator.userActivation?.isActive;
+            }
+            return Reflect.apply(pause,this,args);
+          };
+        }
+        if (state.pip && 'disablePictureInPicture' in video && video.disablePictureInPicture === true && (attempts.get(video) || 0) < 8) {
+          attempts.set(video,(attempts.get(video) || 0)+1);
           video.disablePictureInPicture = false;
           video.removeAttribute('disablepictureinpicture');
           state.pipAdjusted = true;
@@ -50,10 +65,12 @@
   state.mobile = options.mobile;
   state.pip = options.pip;
   state.background = options.background;
+  state.diagnostics = !!options.diagnostics;
   state.adjust();
   // Fixed booleans/counts only; no URL/title/config/video ID or page-provided strings.
   return {mobile:!!state.mobile,pip:!!state.pip,background:!!state.background,
     pipAdjusted:!!state.pipAdjusted,backgroundApplied:!!(state.mobile && state.background && state.backgroundInstalled),pauseObserved:state.pauses>0,
-    visibilityObserved:state.visibilityEvents>0,
+    visibilityObserved:state.visibilityEvents>0,pauseMethodObserved:!!state.pauseMethodObserved,
+    pauseWithActivation:!!state.pauseWithActivation,
     paused:!!document.querySelector('video')?.paused};
 })()

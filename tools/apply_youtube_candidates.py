@@ -14,7 +14,8 @@ def apply(root,repository):
         if source.count(anchor)!=1:raise RuntimeError('YouTube TabImpl hook changed')
     script=(repository/'tools/youtube_pip/candidate.js').read_text()
     method='''    private void applyVersaniumYoutubeCandidate(String stage) {
-        if (isOffTheRecord() || getWebContents() == null || getWebContents().isDestroyed()
+        if (isDestroyed() || mNativeTabAndroid == 0 || mProfile.getNativeBrowserContextPointer() == 0
+                || getWebContents() == null || getWebContents().isDestroyed() || isOffTheRecord()
                 || !org.chromium.base.CommandLine.isInitialized()) return;
         var command = org.chromium.base.CommandLine.getInstance();
         boolean pip = command.hasSwitch("versanium-youtube-pip-candidate");
@@ -28,17 +29,18 @@ def apply(root,repository):
                 || "m.youtube.com".equals(address.getHost()))) return;
         boolean mobile = EnvironmentZoom.isMobileDisplay(contents);
         String options = "{\\"mobile\\":" + mobile + ",\\"pip\\":" + pip
-                + ",\\"background\\":" + background + "}";
+                + ",\\"background\\":" + background + ",\\\"diagnostics\\\":" + diagnostics + "}";
         String script = SCRIPT_LITERAL.replace("__VERSANIUM_OPTIONS__", options);
         contents.evaluateJavaScript(script, result -> {
             if (diagnostics && result != null && result.length() < 512) {
                 try {
                     org.json.JSONObject record = new org.json.JSONObject(result);
-                    Log.i("VersaniumYT", "stage=%s mobile=%b pip=%b background=%b backgroundApplied=%b adjusted=%b pause=%b visibility=%b paused=%b",
+                    Log.i("VersaniumYT", "stage=%s mobile=%b pip=%b background=%b backgroundApplied=%b adjusted=%b pause=%b visibility=%b paused=%b pauseMethod=%b pauseUserActivation=%b",
                             stage,
                             record.optBoolean("mobile"),record.optBoolean("pip"),record.optBoolean("background"),record.optBoolean("backgroundApplied"),
                             record.optBoolean("pipAdjusted"),record.optBoolean("pauseObserved"),
-                            record.optBoolean("visibilityObserved"),record.optBoolean("paused"));
+                            record.optBoolean("visibilityObserved"),record.optBoolean("paused"),
+                            record.optBoolean("pauseMethodObserved"),record.optBoolean("pauseWithActivation"));
                 } catch (org.json.JSONException error) {
                     Log.i("VersaniumYT", "diagnostic_invalid");
                 }
@@ -71,7 +73,7 @@ def apply(root,repository):
     metadata_text,count=re.subn(r'  \{\n    "name": "versanium-youtube-diagnostics",.*?\n  \},\n','',metadata_text,flags=re.S)
     if count!=1:raise RuntimeError('YouTube metadata anchor changed')
     for name in ('versanium-youtube-background-candidate','versanium-youtube-diagnostics','versanium-youtube-pip-candidate'):
-        record={'name':name,'owners':['Nvoid911-Lab'],'expiry_milestone':156}
+        record={'name':name,'owners':['298596960+Nvoid911@users.noreply.github.com'],'expiry_milestone':157}
         entry='  '+json.dumps(record,indent=2).replace('\n','\n  ')+',\n'
         matches=list(re.finditer(r'  \{\n    "name": "([^"\n]+)"',metadata_text))
         following=next((m for m in matches if m.group(1)>name),None)

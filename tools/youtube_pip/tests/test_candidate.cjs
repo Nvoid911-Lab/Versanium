@@ -4,7 +4,7 @@ const template=fs.readFileSync('tools/youtube_pip/candidate.js','utf8');
 let checks=0;
 function model(host='www.youtube.com',top=true,known=true){
  class Document {get hidden(){return this.actualHidden;}get visibilityState(){return this.actualHidden?'hidden':'visible';}}
- class HTMLVideoElement {constructor(){this.disablePictureInPicture=true;this.paused=false;this.plays=0;}removeAttribute(){}play(){this.plays++;throw new Error('Must never play');}}
+ class HTMLVideoElement {constructor(){this.disablePictureInPicture=true;this.paused=false;this.plays=0;}removeAttribute(){}pause(){this.paused=true;}play(){this.plays++;throw new Error('Must never play');}}
  const doc=new Document();doc.actualHidden=true;
  if(!known)Object.defineProperty(doc,'hidden',{value:true});
  const listeners={},video=new HTMLVideoElement();
@@ -13,7 +13,7 @@ function model(host='www.youtube.com',top=true,known=true){
  let mutation;
  class MutationObserver {constructor(fn){mutation=fn;}observe(){}}
  const win={};win.top=top?win:{};
- const context={window:win,document:doc,Document,HTMLVideoElement,MutationObserver,location:{hostname:host,protocol:'https:'}};
+ const context={window:win,document:doc,Document,HTMLVideoElement,MutationObserver,navigator:{userActivation:{isActive:false}},location:{hostname:host,protocol:'https:'}};
  const run=options=>vm.runInNewContext(template.replace('__VERSANIUM_OPTIONS__',JSON.stringify(options)),context);
  return {run,doc,video,listeners,mutation:()=>mutation?.()};
 }
@@ -33,4 +33,7 @@ for(const host of ['twitch.tv','youtube.com.attacker.test','youtu.be']){
 }
 m=model('www.youtube.com',false);assert.equal(m.run({mobile:true,pip:true,background:true}),null);checks++;
 m=model('www.youtube.com',true,false);m.run({mobile:true,pip:false,background:true});assert.equal(m.doc.hidden,true);checks++;
+m=model();m.run({mobile:true,pip:false,background:false,diagnostics:true});m.video.pause();
+assert.equal(m.run({mobile:true,pip:false,background:false,diagnostics:true}).pauseMethodObserved,true);checks++;
+assert.equal(m.video.paused,true);assert.equal(m.video.plays,0);checks+=2;
 console.log(`YouTube candidate: ${checks} DOM-model checks PASS; real playback/PiP unverified`);
