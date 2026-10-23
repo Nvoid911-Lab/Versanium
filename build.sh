@@ -89,6 +89,7 @@ if [ "$F11_TEST_BUILD" = "1" ]; then
 fi
 python3 build/util/lastchange.py -o build/util/LASTCHANGE || { echo "ERROR: failed to generate Chromium LASTCHANGE metadata."; exit 1; }
 gn gen out/Default || { echo "ERROR: gn gen failed; stopping before compilation/signing."; exit 1; }
+python3 "$SCRIPT_DIR/tools/versanium/write_build_provenance.py" --repository "$SCRIPT_DIR" --source "$PWD" --output "$SCRIPT_DIR/build-provenance.json" || exit 1
 mkdir -p out/tmp out/release
 
 if [ "$F11_TEST_BUILD" = "1" ]; then
