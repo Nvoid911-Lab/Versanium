@@ -10,7 +10,7 @@ The model now uses host(), with its actual string_view return shape, and require
 
 ## Current evidence and limits
 
-Original provenance artifact: **12524821969**, `Versanium-build-provenance`,1668 bytes, reported archive digest **101cc6e2b6e0c18d1ca56993b16d9bd5176a02e3451b2ea065842937fdeda0b6**. API reports not expired. This cloud could read metadata but failed to retrieve the run log and artifact payload at their result-storage destinations. Therefore the failed object's exact target, absolute host paths, patched source HEAD, GN args/toolchain hashes and archive bytes are NOT independently inspected here. Do not invent their values. The helper requires the exact downloaded archive and its API digest; a mismatch or unavailable original archive is a STOP condition, not permission to use a new self-generated baseline.
+Original provenance artifact: **12524821969**, `Versanium-build-provenance`,1668 bytes, reported archive digest **101cc6e2b6e0c18d1ca56993b16d9bd5176a02e3451b2ea065842937fdeda0b6**. API reported not expired at the initial review. This cloud could read metadata but failed to retrieve the run log and artifact payload at their result-storage destinations. Absolute host paths, patched source HEAD, GN args/toolchain hashes and archive bytes are NOT independently inspected here. The user has since confirmed the exact failed target from the original Run9 log: **obj/content/browser/browser/render_frame_host_impl.o**. The helper requires the exact downloaded archive and its API digest; a mismatch or unavailable original archive is a STOP condition, not permission to use a new self-generated baseline.
 
 GN/chrome_java success is evidence from the user's Run9 log, not this cloud compiling them. No Java changes are part of this correction. The old cloud AndroidX CONNECT403 was not a demonstrated build-host failure; Run9's Java compilation provides more relevant host evidence. Actual SAF screen inflation/lifecycle and device media behavior are still unverified. Full native/APK success remains unverified. No stored Run9 source/output exists in this cloud for a real incremental test.
 
@@ -25,7 +25,7 @@ The helper requires:
 - Exact original provenance archive hash and one original build-provenance.json. The preserved original recorder itself must match7d9102f. It recomputes the original record (no gn gen) and requires exact equality: repository/patched Chromium commits, Chromium pin/tag ancestry, Vanadium **2ae4335402eabcc6e025f3400185fe25094d8521**, version156.0.8078.47, GN args hash/version, depot_tools commit, clang hash, DEPS, source diff, overlay/patch/payload inputs. Tracked depot_tools changes reject; actual clang++ must match the recorded clang binary hash. DEPOT_TOOLS_UPDATE=0 is set; missing preserved GN binary rejects instead of bootstrapping.
 - Existing arm64 Test GN args with io.github.nvoid911.versanium.test, plus build.ninja/.ninja_log/.siso_deps. Source url/gurl.h must match the real pinned header hash.
 - Native helper matches the exact original scope body. The controller patch must equal the original patch with precisely three host_piece→host substitutions. A repeated fix or any changed predicate rejects.
-- Exactly one render_frame_host_impl.o target discovered from the existing .ninja graph, with its source pointing to the failed native file. It is NOT hard-coded from a guessed GN object path. Ambiguous/missing targets reject; obtain the actual failed target from Run9's log before revising the validator.
+- Exactly one definition of the log-confirmed **obj/content/browser/browser/render_frame_host_impl.o** in the existing .ninja files, with rule exactly `cxx` and the sole explicit input exactly `../../content/browser/renderer_host/render_frame_host_impl.cc` (relative to unchanged out/Default). Other toolchain-prefixed outputs are different targets and do not create ambiguity. Missing/duplicate exact-target definitions, wrong rules/sources, and unsupported output shapes reject. The helper reads ASCII build syntax as bytes, supports Ninja `$` newline continuations, and distinguishes explicit input from implicit/order-only/validation dependencies. It never requires whole-file UTF-8 decoding, uses no `errors="ignore"`, and does not modify any .ninja file. Variable/escaped candidate paths are not normalized into a match; unreviewed candidate forms stop instead of guessing.
 
 The original provenance did not record all Ninja/Siso state or the GN binary hash. The helper captures their CURRENT hashes for before/after preservation and future traceability; that cannot retroactively authenticate all generated graph files as original Run9 bytes. It rejects known provenance drift and requires the operator to preserve/inspect the original workspace. It does not promise cache-hit counts or ETA.
 
@@ -51,6 +51,22 @@ python3 "$RUN9_CONTROL/tools/versanium/prepare_run9.py" \
 
 Default preflight writes only the new external evidence file; it never changes the saved source/output. It checks the original provenance against current bytes. STOP on any mismatch, record the reason, and inspect; do not reset state or relax guards to pass. Repeated preflight needs a new evidence filename, never overwrites existing evidence.
 
+### Retrying the read-only preflight after controller093f787
+
+The user reports that controller `093f787e560a8288e83906f11c6f7bde59a010bc` stopped before applying any change: UTF-8 decoding failed at byte1319 of `android_clang_arm/obj/third_party/rust/lazy_static/v1/lib.ninja`. The saved graph also contains RFH objects for multiple toolchains. The previous parser incorrectly required UTF-8 for every file and uniqueness across all toolchains; `set(matches)` could additionally hide duplicate definitions of the same target. These were helper defects, not evidence of corrupt build outputs. The user confirms saved source/output were unchanged and compilation has not started.
+
+Use the new reviewed controller commit recorded in PR5, updating only the separate controller checkout. Leave RUN9_WORKSPACE at its original7d9102f checkout. Do not edit, re-encode or regenerate lib.ninja or other saved graph files. With the variables above pointing to the original workspace/archive and the separate updated controller, rerun **read-only** validation using a new evidence name:
+
+```sh
+git -C "$RUN9_CONTROL" rev-parse HEAD
+python3 "$RUN9_CONTROL/tools/versanium/prepare_run9.py" \
+  --workspace "$RUN9_WORKSPACE" --control "$RUN9_CONTROL" \
+  --provenance-zip "$RUN9_PROVENANCE_ZIP" \
+  --evidence "$RUN9_EVIDENCE_ROOT/preflight-target-fix.json"
+```
+
+No `--apply` or compiler command is part of this retry. A successful result must name exactly `obj/content/browser/browser/render_frame_host_impl.o`. All provenance, original SHA, GN, toolchain, native-scope and preserved-output checks still apply. Actual successful host preflight with this parser remains unverified here; stop on any new mismatch rather than bypassing checks.
+
 After the source documents/controller commit and preflight are reviewed, the following explicit apply is available; **Codex has not run it on Run9**:
 
 ```sh
@@ -75,7 +91,7 @@ python3 "$RUN9_CONTROL/tools/versanium/prepare_run9.py" \
 
 This permits only the recorded corrected source-diff hash relative to the original provenance and rechecks all other fields, native/GN hashes and unchanged output state. Run it BEFORE object compilation; afterward normal build log/state changes intentionally prevent this precompile-state check from passing again. Stop on drift.
 
-Only after explicit authorization to compile on that host, use the exact target discovered in applied.json. Do NOT start with chrome_public_apk, chrome_java, build.sh or a normal Actions rerun. The following is a future manual command, NOT executed by this work:
+Only after explicit authorization to compile on that host, use the exact log-confirmed target validated against the saved graph and recorded in applied.json. Do NOT start with chrome_public_apk, chrome_java, build.sh or a normal Actions rerun. The following is a future manual command, NOT executed by this work:
 
 ```sh
 if (
@@ -125,7 +141,8 @@ The original recorder deliberately still reports repository7d9102f; applied.json
 - Fixed raw GURL header SHA256/declaration: source-checked; no real-header/native compilation.
 - Selected exact156/Vanadium/zoom/F11/PiP source patch application and generic JavaScript restrictions retained: PASS. Intentional changed-anchor rejection emits an expected patch error.
 - Scope predicate17 MODEL cases: PASS using corrected API shape; not Chromium API compilation.
-- Recovery10 tests: limited-replacement/rejection, fake header/archive rejection, wrong workspace/head, graph discovery/ambiguity, dry-run/apply/busy-process/output preservation using temporary fixtures and mocked host validation. These are NOT an execution on the saved build host.
-- Migration13 + old recovery8, actionlint, shell/YAML syntax and git diff checks: PASS. No actual object/full build or Actions run occurred here.
+- Initial recovery10 tests passed but did not cover real graph encoding/multiple-toolchain conditions; they did not establish successful host preflight.
+- After the parser correction: recovery18 tests PASS, including invalid UTF-8 at byte1319 in the reported unrelated path, multiple toolchains, exact-target absence/duplicates, wrong rule/source/output, implicit-only deceptive source, LF/CRLF continuations, literal/comment dollars and incomplete continuations. A temporary-fixture dry-run/apply/recheck now uses the real graph parser and verifies graph/output bytes stay unchanged; host provenance validation remains mocked. These are NOT an execution on the saved build host.
+- Current migration13 + old recovery8 + recovery18 =39 tests, actionlint, shell/YAML/documented-command syntax and git diff checks: PASS. No actual object/full build or Actions run occurred here.
 
 PR5 contains this correction and preparation; PR6 stays separate. Source information files PROJECT_STATUS/ARCHITECTURE/DECISIONS and the next-Test report are updated BEFORE any future host restart. Notion/Project Sources are unavailable here and are not claimed updated. main/migration branches, signature/Secrets/Test identity/runner choices are unchanged.

@@ -12,6 +12,8 @@ VANADIUM='2ae4335402eabcc6e025f3400185fe25094d8521'
 ARCHIVE_SHA='101cc6e2b6e0c18d1ca56993b16d9bd5176a02e3451b2ea065842937fdeda0b6'
 GURL_SHA='64379fac91a7d4949e7b0c2da12e26952f36ed98dbbd5506fc4480bf8c3f88aa'
 TARGET='content/browser/renderer_host/render_frame_host_impl.cc'
+# Exact failed target from the original Run9 log, not a filename/toolchain guess.
+OBJECT_TARGET='obj/content/browser/browser/render_frame_host_impl.o'
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 def file_sha(path):
@@ -41,14 +43,52 @@ def replacement(text,original_patch):
     new=old.replace('candidate_url.host_piece()','candidate_url.host()')
     return text.replace(old,new,1)
 
+def ninja_lines(path):
+    """Read bytes, joining only Ninja's escaped newlines; never rewrite the graph."""
+    pending=None
+    with path.open('rb') as f:
+        for physical in f:
+            line=physical.removesuffix(b'\n').removesuffix(b'\r')
+            # Standalone comments end at the physical newline, even after a dollar.
+            if pending is None and line.lstrip(b' \t').startswith(b'#'):continue
+            if pending is not None:
+                line=pending+line.lstrip(b' \t')
+                pending=None
+            # $$ is a literal dollar; only an odd trailing count escapes a newline.
+            dollars=len(line)-len(line.rstrip(b'$'))
+            if physical.endswith(b'\n') and dollars%2:
+                pending=line[:-1]
+                continue
+            yield line,True
+    if pending is not None:
+        yield pending,False  # Candidate edges require a complete logical line.
+
 def object_target(output):
-    matches=[]
+    expected=OBJECT_TARGET.encode('ascii')
+    definitions=[]
     for path in output.rglob('*.ninja'):
-        for line in path.read_text(errors='strict').splitlines():
-            m=re.match(r'^build ([^ :]+/render_frame_host_impl\.o): \S+ (.*)$',line)
-            if m and TARGET in m[2]:matches.append(m[1])
-    require(len(set(matches))==1,'Cannot uniquely identify failed RFH object from existing Ninja files')
-    return matches[0]
+        for line,complete in ninja_lines(path):
+            build=re.match(rb'^build[ \t]+(.*)$',line)
+            if not build:continue
+            outputs,colon,body=build[1].partition(b':')
+            # Other toolchain prefixes are different targets. Do not match by basename.
+            if expected in outputs.split():
+                definitions.append((path,outputs.split(),colon,body,complete))
+    require(len(definitions)==1,
+            'Expected exactly one definition of '+OBJECT_TARGET+'; found '+str(len(definitions)))
+    path,outputs,colon,body,complete=definitions[0]
+    require(complete,'Incomplete failed-object continuation in '+str(path))
+    require(colon==b':' and outputs==[expected],
+            'Unsupported failed-object output definition in '+str(path))
+    tokens=body.split()
+    require(tokens and tokens[0]==b'cxx','Failed-object rule must be cxx in '+str(path))
+    explicit=[]
+    for token in tokens[1:]:
+        if token in (b'|',b'||',b'|@'):break
+        explicit.append(token)
+    require(explicit==[('../../'+TARGET).encode('ascii')],
+            'Failed-object explicit source does not match Run9 in '+str(path))
+    return OBJECT_TARGET
 
 def validate(workspace,control,baseline):
     require(workspace.name=='versanium-next-test-39951209951','Not the original Run9 directory')
