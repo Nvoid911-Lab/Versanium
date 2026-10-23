@@ -108,7 +108,7 @@ def run(ecj=None, android_json=None):
         command = ['java', '-jar', str(ecj), '-21'] if ecj else ['javac', '--release', '21']
         subprocess.run(command+(['-cp',str(android_json)] if android_json else [])+['-d',str(root/'classes')]+[str(s) for s in sources],check=True)
         for test in ['EnvironmentZoomPolicyTest','EnvironmentZoomBridgeTest','EnvironmentZoomPersistenceTest']+(['EnvironmentZoomBackupTest'] if android_json else []):
-            subprocess.run(['java','-cp',str(root/'classes')+(':'+str(android_json) if android_json else ''),test],check=True)
+            subprocess.run(['java','-cp',str(root/'classes')+(':'+str(android_json) if android_json else ''),test]+([str(bundle/'tests/fixtures/legacy-zoom-v1.properties')] if test=='EnvironmentZoomBackupTest' else []),check=True)
         print('Renderer / JNI / Android lifecycle are MOCKED in bridge test; APK verification is still required.')
 
 

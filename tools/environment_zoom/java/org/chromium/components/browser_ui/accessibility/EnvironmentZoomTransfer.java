@@ -80,6 +80,7 @@ final class EnvironmentZoomTransfer {
                                     .onUnmappableCharacter(CodingErrorAction.REPORT)
                                     .decode(ByteBuffer.wrap(bytes.toByteArray())).toString();
                             backup = EnvironmentZoomBackup.decode(json);
+                            backup.validateForRestore();
                         } catch (IOException | IllegalStateException | IllegalArgumentException | SecurityException error) {
                             MAIN.post(() -> message(app,false));return;
                         }
@@ -106,8 +107,8 @@ final class EnvironmentZoomTransfer {
         if (!available(fragment) || EnvironmentZoom.isPrivateContext(browser)) return;
         int sites = (int)backup.values.keySet().stream().filter(k -> k.startsWith("site.")).count();
         String summary = fragment.getString(R.string.titanium_zoom_import_confirm,
-                EnvironmentZoomPolicy.percent(Double.parseDouble(backup.values.get("default.MOBILE"))),
-                EnvironmentZoomPolicy.percent(Double.parseDouble(backup.values.get("default.DEX"))),
+                EnvironmentZoomBackup.describeDefault(backup.values.get("default.MOBILE")),
+                EnvironmentZoomBackup.describeDefault(backup.values.get("default.DEX")),
                 sites,backup.displayMode);
         new AlertDialog.Builder(fragment.requireContext()).setTitle(R.string.titanium_zoom_import)
                 .setMessage(summary).setNegativeButton(android.R.string.cancel,null)

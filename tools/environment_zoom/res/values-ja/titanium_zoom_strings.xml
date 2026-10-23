@@ -13,7 +13,8 @@
     <string name="titanium_zoom_export">ズーム設定をエクスポート</string>
     <string name="titanium_zoom_import">ズーム設定をインポート</string>
     <string name="titanium_zoom_transfer_ok">ズーム設定の転送が完了しました。</string>
-    <string name="titanium_zoom_transfer_failed">転送に失敗したか、保存処理が待機中です。置換の完了は確認できていません。ストレージと保存処理を確認して再試行してください。</string>
-    <string name="titanium_zoom_import_confirm">両環境の設定を置換しますか？ モバイル既定: %1$d%%、DeX既定: %2$d%%、サイト設定: %3$d件。表示モード %4$s は現在の画面だけに適用します。両環境の既存サイト設定を統合せず置換します。他のローカル画面の指定は保持します。</string>
+    <string name="titanium_zoom_transfer_failed">転送に失敗したか、保存処理が待機中、または旧値を安全に適用できません。元ファイルは保持されます。置換の完了は確認できていません。ストレージと保存処理を確認して再試行してください。</string>
+    <string name="titanium_zoom_import_confirm">両環境の設定を置換しますか？ モバイル既定倍率（指数表記）: %1$s、DeX既定倍率（指数表記）: %2$s、サイト設定: %3$d件。表示モード %4$s は現在の画面だけに適用します。両環境の既存サイト設定を統合せず置換します。他のローカル画面の指定は保持します。 保存値は正確に復元しますが、描画倍率にはChromiumの制限があります。</string>
     <string name="titanium_zoom_export_scope">両環境のズームと現在の画面の表示モードを保存します。画面IDは含めません。</string>
+    <string name="titanium_zoom_legacy_default_summary">保存済み倍率 %1$s はスライダー範囲外です。スライダーを操作するまでは保存値を保持します。</string>
 </resources>

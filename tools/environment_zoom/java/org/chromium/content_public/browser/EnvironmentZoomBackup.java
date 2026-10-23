@@ -12,7 +12,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
 
-/** Strict portable backup; native absolute exponents are never converted to rounded percent. */
+/** Strict portable backup; native absolute exponents are never converted to rounded percent.
+ * The archive domain is every finite double, matching Policy storage/migration, NOT the
+ * 50..300 percent slider domain. No arithmetic is needed to validate or round-trip a value.
+ * Renderer support for extreme legacy values is a separate concern; do not silently clamp.
+ */
 public final class EnvironmentZoomBackup {
     public static final int MAX_BYTES = 1024 * 1024;
     public static final int MAX_SITES = 10000;
@@ -100,9 +104,26 @@ public final class EnvironmentZoomBackup {
     private static String number(JsonReader reader) throws IOException {
         if (reader.peek() != JsonToken.NUMBER) throw new IOException("Expected numeric exponent");
         double value = reader.nextDouble();
-        if (!Double.isFinite(value) || value < EnvironmentZoomPolicy.factor(50) - 1e-12
-                || value > EnvironmentZoomPolicy.factor(300) + 1e-12) throw new IOException("Zoom range");
+        if (!Double.isFinite(value)) throw new IOException("Non-finite zoom exponent");
         return Double.toString(value);
+    }
+    /** An archive can preserve every finite old value, but never feed pow overflow/underflow
+     * to a renderer through an imported file. Check Android's documented font envelope too.
+     * This is numerical safety, not a promise that every ratio is supported by Blink UI.
+     * Reject the whole restore explicitly; keep the archive and existing settings unchanged.
+     */
+    public void validateForRestore() throws IOException {
+        for (Map.Entry<String,String> entry : values.entrySet()) {
+            if (!entry.getKey().startsWith("default.") && !entry.getKey().startsWith("site.")) continue;
+            double ratio = Math.pow(1.2, Double.parseDouble(entry.getValue()));
+            if (!Double.isFinite(ratio * 2.0) || ratio * 0.85 < Double.MIN_NORMAL) {
+                throw new IOException("Legacy exponent cannot be safely applied; archive preserved");
+            }
+        }
+    }
+    /** Exact exponent, including values the slider cannot represent; no percent overflow. */
+    public static String describeDefault(String exponent) {
+        return "1.2^" + exponent;
     }
     private static void requireMode(String mode) throws IOException {
         if (!"auto".equals(mode) && !"mobile".equals(mode) && !"dex".equals(mode)) throw new IOException("Display mode");
