@@ -4,6 +4,8 @@ import json,os,subprocess
 
 def apply(root,repository):
     diagnostics=repository/'tools/youtube_pip/diagnostics.patch'
+    execution=repository/'tools/youtube_pip/execution_scope.patch'
+    subprocess.run(['git','apply','--check',str(execution)],cwd=root,check=True)
     subprocess.run(['git','apply','--check',str(diagnostics)],cwd=root,check=True)
     tab=root/'chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java'
     source=tab.read_text()
@@ -13,6 +15,8 @@ def apply(root,repository):
     for anchor in (marker,show,hide):
         if source.count(anchor)!=1:raise RuntimeError('YouTube TabImpl hook changed')
     script=(repository/'tools/youtube_pip/candidate.js').read_text()
+    if not script.startswith('/*versanium-youtube-candidate-v1*/'):
+        raise RuntimeError('Marked YouTube payload required for fail-closed native execution')
     method='''    private void applyVersaniumYoutubeCandidate(String stage) {
         if (isDestroyed() || mNativeTabAndroid == 0 || mProfile.getNativeBrowserContextPointer() == 0
                 || getWebContents() == null || getWebContents().isDestroyed() || isOffTheRecord()
@@ -31,6 +35,7 @@ def apply(root,repository):
         String options = "{\\"mobile\\":" + mobile + ",\\"pip\\":" + pip
                 + ",\\"background\\":" + background + ",\\\"diagnostics\\\":" + diagnostics + "}";
         String script = SCRIPT_LITERAL.replace("__VERSANIUM_OPTIONS__", options);
+        if (diagnostics) Log.i("VersaniumYT", "stage=%s injection_requested mobile=%b", stage,mobile);
         contents.evaluateJavaScript(script, result -> {
             if (diagnostics && result != null && result.length() < 512) {
                 try {
@@ -56,6 +61,7 @@ def apply(root,repository):
     source=source.replace(marker,method+'\n'+marker+'        applyVersaniumYoutubeCandidate("load");\n')
     source=source.replace(show,show+'        applyVersaniumYoutubeCandidate("show");\n')
     source=source.replace(hide,hide+'        applyVersaniumYoutubeCandidate("hide");\n')
+    subprocess.run(['git','apply',str(execution)],cwd=root,check=True)
     subprocess.run(['git','apply',str(diagnostics)],cwd=root,check=True)
     tab.write_text(source)
     flags=root/'chrome/browser/about_flags.cc'

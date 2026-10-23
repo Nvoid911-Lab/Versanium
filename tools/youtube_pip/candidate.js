@@ -1,3 +1,4 @@
+/*versanium-youtube-candidate-v1*/
 (() => {
   'use strict';
   if (window.top !== window || location.protocol !== 'https:' ||

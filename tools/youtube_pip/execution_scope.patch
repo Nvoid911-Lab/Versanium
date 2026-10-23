@@ -1,0 +1,106 @@
+--- a/content/browser/renderer_host/render_frame_host_impl.h
++++ b/content/browser/renderer_host/render_frame_host_impl.h
+@@ -523,6 +523,10 @@
+                                const std::u16string& method_name,
+                                base::ListValue arguments,
+                                JavaScriptResultCallback callback) override;
++#if BUILDFLAG(IS_ANDROID)
++  // Opt-in normal YouTube main-frame scope. Does not enable process-wide injection.
++  static bool IsVersaniumYoutubeScopeAllowed(RenderFrameHost* frame);
++#endif
+   void ExecuteJavaScript(const std::u16string& javascript,
+                          JavaScriptResultCallback callback) override;
+   void ExecuteJavaScriptInIsolatedWorld(const std::u16string& javascript,
+--- a/content/browser/renderer_host/render_frame_host_impl.cc
++++ b/content/browser/renderer_host/render_frame_host_impl.cc
+@@ -3859,7 +3859,11 @@
+ void RenderFrameHostImpl::ExecuteJavaScript(const std::u16string& javascript,
+                                             JavaScriptResultCallback callback) {
+   CHECK_CURRENTLY_ON(BrowserThread::UI);
++#if BUILDFLAG(IS_ANDROID)
++  CHECK(CanExecuteJavaScript() || IsVersaniumYoutubeScopeAllowed(this));
++#else
+   CHECK(CanExecuteJavaScript());
++#endif
+   AssertFrameWasCommitted();
+ 
+   const bool wants_result = !callback.is_null();
+@@ -14268,6 +14272,31 @@
+           this));
+   return bypass_redirect_checks;
+ }
++
++#if BUILDFLAG(IS_ANDROID)
++bool RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(RenderFrameHost* frame) {
++  if (!frame || !frame->IsRenderFrameLive() || !frame->IsActive() ||
++      frame->GetParentOrOuterDocumentOrEmbedder() ||
++      !base::CommandLine::InitializedForCurrentProcess()) {
++    return false;
++  }
++  BrowserContext* candidate_context = frame->GetProcess()->GetBrowserContext();
++  if (candidate_context->IsOffTheRecord() || candidate_context->ShutdownStarted()) {
++    return false;
++  }
++  const GURL& candidate_url = frame->GetLastCommittedURL();
++  if (!candidate_url.SchemeIs("https") ||
++      !(candidate_url.host_piece() == "youtube.com" ||
++        candidate_url.host_piece() == "www.youtube.com" ||
++        candidate_url.host_piece() == "m.youtube.com")) {
++    return false;
++  }
++  const auto* candidate_command = base::CommandLine::ForCurrentProcess();
++  return candidate_command->HasSwitch("versanium-youtube-pip-candidate") ||
++         candidate_command->HasSwitch("versanium-youtube-background-candidate") ||
++         candidate_command->HasSwitch("versanium-youtube-diagnostics");
++}
++#endif
+ 
+ bool RenderFrameHostImpl::CanExecuteJavaScript() {
+   if (g_allow_injecting_javascript) {
+--- a/content/browser/web_contents/web_contents_android.cc
++++ b/content/browser/web_contents/web_contents_android.cc
+@@ -27,6 +27,7 @@
+ #include "cc/input/android/offset_tag_android.h"
+ #include "content/browser/android/java/gin_java_bridge_dispatcher_host.h"
+ #include "content/browser/media/media_web_contents_observer.h"
++#include "content/browser/renderer_host/render_frame_host_impl.h"
+ #include "content/browser/renderer_host/render_view_host_impl.h"
+ #include "content/browser/renderer_host/render_widget_host_view_android.h"
+ #include "content/browser/renderer_host/view_transition_opt_in_state.h"
+@@ -603,16 +604,25 @@
+ void WebContentsAndroid::EvaluateJavaScript(JNIEnv* env,
+                                             const JavaRef<jstring>& script,
+                                             const JavaRef<jobject>& callback) {
++  const std::u16string candidate_script = ConvertJavaStringToUTF16(env, script);
++  const bool scoped_candidate =
++      candidate_script.starts_with(u"/*versanium-youtube-candidate-v1*/");
++  if (scoped_candidate &&
++      (!web_contents_->GetRenderViewHost() ||
++       !RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(
++           web_contents_->GetPrimaryMainFrame()))) {
++    return;  // Detached/navigated/private/disabled: no CHECK and no script execution.
++  }
+   RenderViewHost* rvh = web_contents_->GetRenderViewHost();
+   CHECK(rvh, base::NotFatalUntil::M158);
+ 
+-  if (!InitializeRenderFrameForJavaScript())
++  if (!scoped_candidate && !InitializeRenderFrameForJavaScript())
+     return;
+ 
+   if (!callback) {
+     // No callback requested.
+     web_contents_->GetPrimaryMainFrame()->ExecuteJavaScript(
+-        ConvertJavaStringToUTF16(env, script), base::NullCallback());
++        candidate_script, base::NullCallback());
+     return;
+   }
+ 
+@@ -622,7 +632,7 @@
+   j_callback.Reset(env, callback);
+ 
+   web_contents_->GetPrimaryMainFrame()->ExecuteJavaScript(
+-      ConvertJavaStringToUTF16(env, script),
++      candidate_script,
+       base::BindOnce(&JavaScriptResultCallback, j_callback));
+ }
+ 

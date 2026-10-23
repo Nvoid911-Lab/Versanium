@@ -36,6 +36,14 @@ Background visibility masking can change YouTube's analytics, quality/resource d
 
 Brave source was re-fetched at fixed `46cfe58223924f363192475396dcb196ec29423d` (YouTubeScriptInjectorTabHelper and BraveFullscreenVideoPictureInPictureController). Its main-document controls and asynchronous fullscreen/Activity integration support the hypotheses but are substantially broader. Its files are MPL-2.0; copying them would require preserved notices and covered-source availability. No Brave implementation was copied; these small independent experiments use standard document/video APIs. Existing GPLv2/BSD/upstream notices remain.
 
+### Required native execution boundary (review correction)
+
+Exact 156 source inspection found WebContents.evaluateJavaScript is WebUI-only by default; RenderFrameHostImpl::ExecuteJavaScript CHECKs CanExecuteJavaScript. Calling it on normal YouTube without a native adaptation would be invalid. The draft candidate was corrected before any build.
+
+`execution_scope.patch` adds a shared Android-only predicate for a live, active, outermost normal-profile HTTPS YouTube frame with one of the three explicit experiment switches enabled. Profile shutdown, private contexts, children/embedders, other hosts/schemes and disabled flags reject. Only ExecuteJavaScript gets this scoped alternative to its existing CHECK; CanExecuteJavaScript itself and ExecuteJavaScriptMethod keep their previous behavior. There is no process-wide AllowInjectingJavaScript call, test-only API, user-gesture/autoplay exemption or all-site injection permission.
+
+The marked candidate payload is checked at the Android entry point before frame initialization/dispatch. An ineligible/detached/navigated frame returns without a CHECK or script; a candidate never initializes a non-live frame. This uses existing files/targets and the existing public Java/JNI signature; no new JNI binding is introduced. The helper APIs and includes were matched to real pinned source. Seventeen cases execute the actual predicate body against model objects; this does NOT replace Chromium C++ object compilation. This native exception is security-sensitive review scope, and actual native compilation remains a build-readiness blocker.
+
 ## Zoom backup specification
 
 Accessibility adds English/Japanese Export/Import preferences through SAF CreateDocument/OpenDocument. No storage permission was added. UTF-8 JSON format `versanium-environment-zoom`, version=1, unit=`log-base-1.2-exponent`; MOBILE/DEX each contain absolute default and explicit site map. Exponents round-trip as doubles; percent is preview/UI only. A saved value equal to a default stays explicit.
@@ -60,6 +68,7 @@ Confirmed locally:
 
 - migration tests 13, recovery/fresh-workspace checks 8, revision rejection cases 5 PASS.
 - JVM policy 481 assertions (real file roundtrip), bridge 41 assertions (Android/JNI/renderer mocked), persistence 18 (queue/failure/replace), backup 25 (real Android JsonReader/Writer, no SAF UI) PASS.
+- Native execution scope 17 model cases PASS (actual predicate body, model API objects; not Chromium typing/ABI).
 - YouTube DOM-model checks 22 PASS: host/frame scope, independent flags, manual stop remains stopped, mobile→DeX fallback. This is not an actual YouTube/Chromium test.
 - Exact-source selected integration: real 156 files + selected Vanadium hunks + zoom/SAF source/resource copies + F11 anchors + existing renderer policy + PiP hooks/flags PASS. Changed-anchor rejection still fails before writes as intended.
 - Actual pinned jni_zero generated HostZoomMapImpl headers/source jar. No C++ body/toolchain compile was performed.

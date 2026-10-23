@@ -9,6 +9,7 @@ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source-tree',ty
 spec=importlib.util.spec_from_file_location('zoom_patch_test',repo/'tools/environment_zoom/tests/check_patch.py');zoom=importlib.util.module_from_spec(spec);spec.loader.exec_module(zoom)
 zoom.run(a.source_tree,repo/'vanadium/patches',a.output_dir)
 paths=[line[6:] for line in (repo/'tools/youtube_pip/diagnostics.patch').read_text().splitlines() if line.startswith('--- a/')]
+paths += [line[6:] for line in (repo/'tools/youtube_pip/execution_scope.patch').read_text().splitlines() if line.startswith('--- a/')]
 paths+=['chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java','content/public/renderer/render_frame_media_playback_options.cc','chrome/android/java/AndroidManifest.xml']
 for relative in paths:
  target=a.output_dir/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(a.source_tree/relative,target)
@@ -32,5 +33,11 @@ for name in ('versanium-youtube-diagnostics','versanium-youtube-pip-candidate','
  record=re.search(r'\{[^{}]*"name": "'+name+r'"[^{}]*\}',flags).group()
  assert json.loads(record)['expiry_milestone']==157
 assert 'void applyVersaniumYoutubeCandidate(String stage)' in (a.output_dir/'chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java').read_text()
+native=(a.output_dir/'content/browser/renderer_host/render_frame_host_impl.cc').read_text()
+assert 'CanExecuteJavaScript() || IsVersaniumYoutubeScopeAllowed(this)' in native
+assert 'candidate_context->IsOffTheRecord()' in native
+assert 'candidate_context->ShutdownStarted()' in native
+assert 'frame->GetParentOrOuterDocumentOrEmbedder()' in native
+assert 'AllowInjectingJavaScript();' not in (repo/'tools/youtube_pip/execution_scope.patch').read_text()
 print('Pinned 156 + selected Vanadium + zoom/SAF + F11 + inherited media policy + PiP hooks/flags PASS')
 print('No full patch.sh execution, GN, AndroidX/UI inflation or Chromium native compilation')
