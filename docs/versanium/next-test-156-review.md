@@ -59,7 +59,7 @@ Current Windows account, WSL distribution, physical memory/free space and duplic
 Confirmed locally:
 
 - migration tests 13, recovery/fresh-workspace checks 8, revision rejection cases 5 PASS.
-- JVM policy 481 assertions (real file roundtrip), bridge 39 assertions (Android/JNI/renderer mocked), persistence 18 (queue/failure/replace), backup 25 (real Android JsonReader/Writer, no SAF UI) PASS.
+- JVM policy 481 assertions (real file roundtrip), bridge 41 assertions (Android/JNI/renderer mocked), persistence 18 (queue/failure/replace), backup 25 (real Android JsonReader/Writer, no SAF UI) PASS.
 - YouTube DOM-model checks 22 PASS: host/frame scope, independent flags, manual stop remains stopped, mobile→DeX fallback. This is not an actual YouTube/Chromium test.
 - Exact-source selected integration: real 156 files + selected Vanadium hunks + zoom/SAF source/resource copies + F11 anchors + existing renderer policy + PiP hooks/flags PASS. Changed-anchor rejection still fails before writes as intended.
 - Actual pinned jni_zero generated HostZoomMapImpl headers/source jar. No C++ body/toolchain compile was performed.

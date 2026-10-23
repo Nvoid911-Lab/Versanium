@@ -85,7 +85,10 @@ final class EnvironmentZoomTransfer {
                         MAIN.post(() -> confirm(fragment,browser,policy,backup,app));
                     });
                 });
-        export.setOnPreferenceClickListener(p -> { create.launch("Versanium-zoom.json");return true; });
+        export.setOnPreferenceClickListener(p -> {
+            if (!policy.isReplacing()) create.launch("Versanium-zoom.json");
+            return true;
+        });
         restore.setOnPreferenceClickListener(p -> {
             if (!policy.isReplacing()) open.launch(new String[]{"application/json","text/plain"});
             return true;

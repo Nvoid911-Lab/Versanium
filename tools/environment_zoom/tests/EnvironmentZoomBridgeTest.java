@@ -102,6 +102,9 @@ public final class EnvironmentZoomBridgeTest {
         settle();check(importedDone[0]&&!during.isReplacing());
         pct(during.defaultFactor(EnvironmentZoomPolicy.Environment.MOBILE),110);
         check(during.displayMode(42,"auto").equals("dex"));
+        Map<String,?> priorPrivateImport=file.getAll();final boolean[] privateAccepted={true};
+        EnvironmentZoom.importSnapshot(nextPrivate,imported,"auto",0,ok->privateAccepted[0]=ok);
+        check(!privateAccepted[0]);check(priorPrivateImport.equals(file.getAll()));
         System.out.println("EnvironmentZoomBridge: "+checks+" assertions passed with MOCK Android/JNI renderer");
     }
 }

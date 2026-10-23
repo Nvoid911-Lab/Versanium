@@ -75,6 +75,8 @@ final class EnvironmentZoomSettings {
         policy.observeTransfer(fragment, () -> {
             PreferenceFragmentCompat active = weak.get();
             if (active == null || !active.isAdded() || active.getPreferenceScreen() == null) return;
+            android.app.Activity owner = active.getActivity();
+            if (owner == null || owner.isFinishing() || owner.isDestroyed()) return;
             for (String key : new String[]{"titanium_zoom_mobile","titanium_zoom_dex",
                     "titanium_zoom_mobile_sites","titanium_zoom_dex_sites","titanium_zoom_display",
                     "titanium_zoom_export","titanium_zoom_import"}) {
