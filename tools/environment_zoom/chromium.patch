@@ -94,7 +94,7 @@
  // static
 @@ -431,6 +444,17 @@
      GlobalRenderFrameHostId rfh_id) {
-   DCHECK_CURRENTLY_ON(BrowserThread::UI);
+   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M160);
  
 +#if BUILDFLAG(IS_ANDROID)
 +  // Read the committed RFH URL, not a Java pending URL or a profile-global value.
@@ -112,7 +112,7 @@
  
 @@ -451,6 +475,15 @@
      double level) {
-   DCHECK_CURRENTLY_ON(BrowserThread::UI);
+   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M160);
  
 +#if BUILDFLAG(IS_ANDROID)
 +  auto* environment_rfh = RenderFrameHost::FromID(rfh_id);
