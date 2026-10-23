@@ -15,8 +15,8 @@ def apply(root,repository):
     for anchor in (marker,show,hide):
         if source.count(anchor)!=1:raise RuntimeError('YouTube TabImpl hook changed')
     script=(repository/'tools/youtube_pip/candidate.js').read_text()
-    if not script.startswith('/*versanium-youtube-candidate-v1*/'):
-        raise RuntimeError('Marked YouTube payload required for fail-closed native execution')
+    if script.count('__VERSANIUM_OPTIONS__') != 1 or ')VERSANIUM"' in script:
+        raise RuntimeError('Invalid fixed native payload template')
     method='''    private void applyVersaniumYoutubeCandidate(String stage) {
         if (isDestroyed() || mNativeTabAndroid == 0 || mProfile.getNativeBrowserContextPointer() == 0
                 || getWebContents() == null || getWebContents().isDestroyed() || isOffTheRecord()
@@ -32,11 +32,8 @@ def apply(root,repository):
                 || "www.youtube.com".equals(address.getHost())
                 || "m.youtube.com".equals(address.getHost()))) return;
         boolean mobile = EnvironmentZoom.isMobileDisplay(contents);
-        String options = "{\\"mobile\\":" + mobile + ",\\"pip\\":" + pip
-                + ",\\"background\\":" + background + ",\\\"diagnostics\\\":" + diagnostics + "}";
-        String script = SCRIPT_LITERAL.replace("__VERSANIUM_OPTIONS__", options);
         if (diagnostics) Log.i("VersaniumYT", "stage=%s injection_requested mobile=%b", stage,mobile);
-        contents.evaluateJavaScript(script, result -> {
+        contents.applyVersaniumYoutubeCandidate(mobile, result -> {
             if (diagnostics && result != null && result.length() < 512) {
                 try {
                     org.json.JSONObject record = new org.json.JSONObject(result);
@@ -57,11 +54,18 @@ def apply(root,repository):
             if (active != null) active.applyVersaniumYoutubeCandidate("environment");
         });
     }
-'''.replace('SCRIPT_LITERAL',json.dumps(script,ensure_ascii=True))
+'''
     source=source.replace(marker,method+'\n'+marker+'        applyVersaniumYoutubeCandidate("load");\n')
     source=source.replace(show,show+'        applyVersaniumYoutubeCandidate("show");\n')
     source=source.replace(hide,hide+'        applyVersaniumYoutubeCandidate("hide");\n')
+    header = root/'content/browser/renderer_host/versanium_youtube_candidate.h'
+    if header.exists():raise RuntimeError('Candidate header already exists; refuse stale reuse')
     subprocess.run(['git','apply',str(execution)],cwd=root,check=True)
+    header.write_text('// Generated from reviewed candidate.js; no page or Java supplied script.\n'
+            '#ifndef CONTENT_BROWSER_RENDERER_HOST_VERSANIUM_YOUTUBE_CANDIDATE_H_\n'
+            '#define CONTENT_BROWSER_RENDERER_HOST_VERSANIUM_YOUTUBE_CANDIDATE_H_\n'
+            'namespace content {\ninline constexpr char16_t kVersaniumYoutubeCandidate[] = uR"VERSANIUM('
+            + script + ')VERSANIUM";\n}\n#endif\n')
     subprocess.run(['git','apply',str(diagnostics)],cwd=root,check=True)
     tab.write_text(source)
     flags=root/'chrome/browser/about_flags.cc'

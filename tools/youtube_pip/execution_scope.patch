@@ -1,31 +1,63 @@
 --- a/content/browser/renderer_host/render_frame_host_impl.h
 +++ b/content/browser/renderer_host/render_frame_host_impl.h
-@@ -523,6 +523,10 @@
+@@ -523,6 +523,12 @@
                                 const std::u16string& method_name,
                                 base::ListValue arguments,
                                 JavaScriptResultCallback callback) override;
 +#if BUILDFLAG(IS_ANDROID)
-+  // Opt-in normal YouTube main-frame scope. Does not enable process-wide injection.
++  // Fixed compiled candidate only. No caller-provided script or CHECK exception.
 +  static bool IsVersaniumYoutubeScopeAllowed(RenderFrameHost* frame);
++  void ExecuteVersaniumYoutubeCandidate(bool mobile,
++                                       JavaScriptResultCallback callback);
 +#endif
    void ExecuteJavaScript(const std::u16string& javascript,
                           JavaScriptResultCallback callback) override;
    void ExecuteJavaScriptInIsolatedWorld(const std::u16string& javascript,
 --- a/content/browser/renderer_host/render_frame_host_impl.cc
 +++ b/content/browser/renderer_host/render_frame_host_impl.cc
-@@ -3859,7 +3859,11 @@
- void RenderFrameHostImpl::ExecuteJavaScript(const std::u16string& javascript,
-                                             JavaScriptResultCallback callback) {
-   CHECK_CURRENTLY_ON(BrowserThread::UI);
+@@ -19,6 +19,9 @@
+ #include "base/check.h"
+ #include "base/check_op.h"
+ #include "base/command_line.h"
 +#if BUILDFLAG(IS_ANDROID)
-+  CHECK(CanExecuteJavaScript() || IsVersaniumYoutubeScopeAllowed(this));
-+#else
-   CHECK(CanExecuteJavaScript());
++#include "content/browser/renderer_host/versanium_youtube_candidate.h"
 +#endif
-   AssertFrameWasCommitted();
+ #include "base/containers/flat_set.h"
+ #include "base/containers/span_reader.h"
+ #include "base/debug/crash_logging.h"
+@@ -3867,6 +3870,31 @@
+                                                       std::move(callback));
+ }
  
-   const bool wants_result = !callback.is_null();
-@@ -14268,6 +14272,31 @@
++#if BUILDFLAG(IS_ANDROID)
++void RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate(
++    bool mobile, JavaScriptResultCallback callback) {
++  CHECK_CURRENTLY_ON(BrowserThread::UI);
++  if (!IsVersaniumYoutubeScopeAllowed(this))
++    return;
++  AssertFrameWasCommitted();
++  const auto* command = base::CommandLine::ForCurrentProcess();
++  std::u16string options = u"{\"mobile\":";
++  options += mobile ? u"true" : u"false";
++  options += u",\"pip\":";
++  options += command->HasSwitch("versanium-youtube-pip-candidate") ? u"true" : u"false";
++  options += u",\"background\":";
++  options += command->HasSwitch("versanium-youtube-background-candidate") ? u"true" : u"false";
++  options += u",\"diagnostics\":";
++  options += command->HasSwitch("versanium-youtube-diagnostics") ? u"true" : u"false";
++  options += u"}";
++  std::u16string script = kVersaniumYoutubeCandidate;
++  base::ReplaceSubstringsAfterOffset(&script, 0, u"__VERSANIUM_OPTIONS__", options);
++  const bool wants_result = !callback.is_null();
++  GetAssociatedLocalFrame()->JavaScriptExecuteRequest(script, wants_result,
++                                                     std::move(callback));
++}
++#endif
++
+ void RenderFrameHostImpl::ExecuteJavaScriptInIsolatedWorld(
+     const std::u16string& javascript,
+     JavaScriptResultCallback callback,
+@@ -14268,6 +14296,31 @@
            this));
    return bypass_redirect_checks;
  }
@@ -57,6 +89,18 @@
  
  bool RenderFrameHostImpl::CanExecuteJavaScript() {
    if (g_allow_injecting_javascript) {
+--- a/content/browser/web_contents/web_contents_android.h
++++ b/content/browser/web_contents/web_contents_android.h
+@@ -125,6 +125,9 @@
+   void EvaluateJavaScript(JNIEnv* env,
+                           const base::android::JavaRef<jstring>& script,
+                           const base::android::JavaRef<jobject>& callback);
++  void ApplyVersaniumYoutubeCandidate(
++      JNIEnv* env, bool mobile,
++      const base::android::JavaRef<jobject>& callback);
+   void EvaluateJavaScriptForTests(
+       JNIEnv* env,
+       const base::android::JavaRef<jstring>& script,
 --- a/content/browser/web_contents/web_contents_android.cc
 +++ b/content/browser/web_contents/web_contents_android.cc
 @@ -27,6 +27,7 @@
@@ -67,40 +111,76 @@
  #include "content/browser/renderer_host/render_view_host_impl.h"
  #include "content/browser/renderer_host/render_widget_host_view_android.h"
  #include "content/browser/renderer_host/view_transition_opt_in_state.h"
-@@ -603,16 +604,25 @@
- void WebContentsAndroid::EvaluateJavaScript(JNIEnv* env,
-                                             const JavaRef<jstring>& script,
-                                             const JavaRef<jobject>& callback) {
-+  const std::u16string candidate_script = ConvertJavaStringToUTF16(env, script);
-+  const bool scoped_candidate =
-+      candidate_script.starts_with(u"/*versanium-youtube-candidate-v1*/");
-+  if (scoped_candidate &&
-+      (!web_contents_->GetRenderViewHost() ||
-+       !RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(
-+           web_contents_->GetPrimaryMainFrame()))) {
-+    return;  // Detached/navigated/private/disabled: no CHECK and no script execution.
-+  }
-   RenderViewHost* rvh = web_contents_->GetRenderViewHost();
-   CHECK(rvh, base::NotFatalUntil::M158);
- 
--  if (!InitializeRenderFrameForJavaScript())
-+  if (!scoped_candidate && !InitializeRenderFrameForJavaScript())
-     return;
- 
-   if (!callback) {
-     // No callback requested.
-     web_contents_->GetPrimaryMainFrame()->ExecuteJavaScript(
--        ConvertJavaStringToUTF16(env, script), base::NullCallback());
-+        candidate_script, base::NullCallback());
-     return;
-   }
- 
-@@ -622,7 +632,7 @@
-   j_callback.Reset(env, callback);
- 
-   web_contents_->GetPrimaryMainFrame()->ExecuteJavaScript(
--      ConvertJavaStringToUTF16(env, script),
-+      candidate_script,
+@@ -626,6 +627,23 @@
        base::BindOnce(&JavaScriptResultCallback, j_callback));
  }
  
++void WebContentsAndroid::ApplyVersaniumYoutubeCandidate(
++    JNIEnv* env, bool mobile, const JavaRef<jobject>& callback) {
++  auto* frame = web_contents_->GetPrimaryMainFrame();
++  if (!web_contents_->GetRenderViewHost() ||
++      !RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(frame)) {
++    return;  // No frame initialization, user gesture, or generic JS permission.
++  }
++  ScopedJavaGlobalRef<jobject> j_callback;
++  RenderFrameHost::JavaScriptResultCallback result_callback;
++  if (callback) {
++    j_callback.Reset(env, callback);
++    result_callback = base::BindOnce(&JavaScriptResultCallback, j_callback);
++  }
++  static_cast<RenderFrameHostImpl*>(frame)->ExecuteVersaniumYoutubeCandidate(
++      mobile, std::move(result_callback));
++}
++
+ void WebContentsAndroid::EvaluateJavaScriptForTests(
+     JNIEnv* env,
+     const JavaRef<jstring>& script,
+--- a/content/public/android/java/src/org/chromium/content_public/browser/WebContents.java
++++ b/content/public/android/java/src/org/chromium/content_public/browser/WebContents.java
+@@ -378,6 +378,10 @@
+      */
+     void evaluateJavaScript(String script, @Nullable JavaScriptCallback callback);
+ 
++    /** Runs only the compiled opt-in YouTube candidate. No caller-supplied JavaScript. */
++    default void applyVersaniumYoutubeCandidate(boolean mobile, @Nullable JavaScriptCallback callback) {}
++
++
+     /**
+      * Injects the passed Javascript code in the current page and evaluates it.
+      * If a result is required, pass in a callback.
+--- a/content/public/android/java/src/org/chromium/content/browser/webcontents/WebContentsImpl.java
++++ b/content/public/android/java/src/org/chromium/content/browser/webcontents/WebContentsImpl.java
+@@ -749,6 +749,13 @@
+     }
+ 
+     @Override
++    public void applyVersaniumYoutubeCandidate(boolean mobile, @Nullable JavaScriptCallback callback) {
++        ThreadUtils.assertOnUiThread();
++        if (isDestroyed()) return;
++        WebContentsImplJni.get().applyVersaniumYoutubeCandidate(mNativeWebContentsAndroid, mobile, callback);
++    }
++
++    @Override
+     public void evaluateJavaScriptForTests(String script, @Nullable JavaScriptCallback callback) {
+         ThreadUtils.assertOnUiThread();
+         if (script == null) return;
+@@ -1446,6 +1453,9 @@
+                 String script,
+                 @Nullable JavaScriptCallback callback);
+ 
++        void applyVersaniumYoutubeCandidate(
++                long nativeWebContentsAndroid, boolean mobile, @Nullable JavaScriptCallback callback);
++
+         void evaluateJavaScriptForTests(
+                 long nativeWebContentsAndroid,
+                 String script,
+--- a/content/browser/BUILD.gn
++++ b/content/browser/BUILD.gn
+@@ -3314,6 +3314,7 @@
+       "web_contents/view_structure_builder_android.cc",
+       "web_contents/view_structure_builder_android.h",
+       "web_contents/web_contents_android.cc",
++      "renderer_host/versanium_youtube_candidate.h",
+       "web_contents/web_contents_android.h",
+       "web_contents/web_contents_view_android.cc",
+       "web_contents/web_contents_view_android.h",

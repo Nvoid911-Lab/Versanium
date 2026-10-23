@@ -34,10 +34,38 @@ for name in ('versanium-youtube-diagnostics','versanium-youtube-pip-candidate','
  assert json.loads(record)['expiry_milestone']==157
 assert 'void applyVersaniumYoutubeCandidate(String stage)' in (a.output_dir/'chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java').read_text()
 native=(a.output_dir/'content/browser/renderer_host/render_frame_host_impl.cc').read_text()
-assert 'CanExecuteJavaScript() || IsVersaniumYoutubeScopeAllowed(this)' in native
+assert 'CanExecuteJavaScript() ||' not in native
+assert 'void RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate(' in native
+assert 'kVersaniumYoutubeCandidate' in native
+# Generic permission and complete generic execution bodies remain byte-for-byte pinned.
+original=(a.source_tree/'content/browser/renderer_host/render_frame_host_impl.cc').read_text()
+for name,end in [('ExecuteJavaScript','ExecuteJavaScriptInIsolatedWorld')]:
+ start='void RenderFrameHostImpl::'+name+'('
+ baseline=original.split(start,1)[1].split('\n}\n',1)[0]
+ actual=native.split(start,1)[1].split('\n}\n',1)[0]
+ assert actual==baseline
+assert native.split('bool RenderFrameHostImpl::CanExecuteJavaScript() {',1)[1].split('\n}',1)[0] == original.split('bool RenderFrameHostImpl::CanExecuteJavaScript() {',1)[1].split('\n}',1)[0]
+header=(a.output_dir/'content/browser/renderer_host/versanium_youtube_candidate.h').read_text()
+assert (repo/'tools/youtube_pip/candidate.js').read_text() in header
+assert 'versanium-youtube-candidate-v1' not in (repo/'tools/youtube_pip/execution_scope.patch').read_text()
+entry=(a.output_dir/'content/browser/web_contents/web_contents_android.cc').read_text()
+baseline=(a.source_tree/'content/browser/web_contents/web_contents_android.cc').read_text()
+assert entry.split('void WebContentsAndroid::EvaluateJavaScript(',1)[1].split('\n}\n',1)[0] == baseline.split('void WebContentsAndroid::EvaluateJavaScript(',1)[1].split('\n}\n',1)[0]
 assert 'candidate_context->IsOffTheRecord()' in native
 assert 'candidate_context->ShutdownStarted()' in native
 assert 'frame->GetParentOrOuterDocumentOrEmbedder()' in native
+# Fixed-payload API has no Java/native script argument; generic callers keep old CHECKs.
+assert 'ApplyVersaniumYoutubeCandidate(\n    JNIEnv* env, bool mobile, const JavaRef<jobject>& callback)' in entry
+fixed=native.split('void RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate(',1)[1].split('\n}\n',1)[0]
+assert 'if (!IsVersaniumYoutubeScopeAllowed(this))' in fixed
+assert 'std::u16string script = kVersaniumYoutubeCandidate;' in fixed
+assert 'JavaScriptExecuteRequest(script, wants_result' in fixed
+assert 'ExecuteJavaScript(' not in fixed and 'ForTests' not in fixed
+java=(a.output_dir/'content/public/android/java/src/org/chromium/content/browser/webcontents/WebContentsImpl.java').read_text()
+assert 'long nativeWebContentsAndroid, boolean mobile, @Nullable JavaScriptCallback callback);' in java
+assert 'renderer_host/versanium_youtube_candidate.h' in (a.output_dir/'content/browser/BUILD.gn').read_text()
+assert 'contents.applyVersaniumYoutubeCandidate(mobile, result ->' in (repo/'tools/apply_youtube_candidates.py').read_text()
+assert 'contents.evaluateJavaScript(' not in (repo/'tools/apply_youtube_candidates.py').read_text()
 assert 'AllowInjectingJavaScript();' not in (repo/'tools/youtube_pip/execution_scope.patch').read_text()
 print('Pinned 156 + selected Vanadium + zoom/SAF + F11 + inherited media policy + PiP hooks/flags PASS')
 print('No full patch.sh execution, GN, AndroidX/UI inflation or Chromium native compilation')
