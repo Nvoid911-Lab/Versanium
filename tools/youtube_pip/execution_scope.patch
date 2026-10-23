@@ -75,9 +75,9 @@
 +  }
 +  const GURL& candidate_url = frame->GetLastCommittedURL();
 +  if (!candidate_url.SchemeIs("https") ||
-+      !(candidate_url.host_piece() == "youtube.com" ||
-+        candidate_url.host_piece() == "www.youtube.com" ||
-+        candidate_url.host_piece() == "m.youtube.com")) {
++      !(candidate_url.host() == "youtube.com" ||
++        candidate_url.host() == "www.youtube.com" ||
++        candidate_url.host() == "m.youtube.com")) {
 +    return false;
 +  }
 +  const auto* candidate_command = base::CommandLine::ForCurrentProcess();

@@ -10,7 +10,7 @@ spec=importlib.util.spec_from_file_location('zoom_patch_test',repo/'tools/enviro
 zoom.run(a.source_tree,repo/'vanadium/patches',a.output_dir)
 paths=[line[6:] for line in (repo/'tools/youtube_pip/diagnostics.patch').read_text().splitlines() if line.startswith('--- a/')]
 paths += [line[6:] for line in (repo/'tools/youtube_pip/execution_scope.patch').read_text().splitlines() if line.startswith('--- a/')]
-paths+=['chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java','content/public/renderer/render_frame_media_playback_options.cc','chrome/android/java/AndroidManifest.xml']
+paths+=['url/gurl.h','chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java','content/public/renderer/render_frame_media_playback_options.cc','chrome/android/java/AndroidManifest.xml']
 for relative in paths:
  target=a.output_dir/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(a.source_tree/relative,target)
 for patch in sorted((repo/'vanadium/patches').glob('*.patch')):
