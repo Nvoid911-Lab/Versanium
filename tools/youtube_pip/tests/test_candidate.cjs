@@ -63,9 +63,12 @@ m.run({mobile:false,pip:true});assert.equal(m.video.getAttribute('disablepicture
 m=model();m.run({mobile:true,pip:true});m.run({mobile:true,pip:false});
 assert.equal(m.video.getAttribute('disablepictureinpicture'),'original');checks++;
 m=model();m.run({mobile:true,pip:true});m.video.isConnected=false;m.run({mobile:false,pip:true});
-assert.equal(m.video.disablePictureInPicture,false);checks++;
+assert.equal(m.video.disablePictureInPicture,true);checks++;
 m=model();Object.defineProperty(m.video,'disablePictureInPicture',{value:true,writable:true});
 m.run({mobile:true,pip:true});assert.equal(m.video.disablePictureInPicture,true);checks++;
 m=model('www.youtube.com',true,true,false);m.run({mobile:true,pip:true});
 assert.equal(m.video.disablePictureInPicture,true);checks++;
+m=model();m.run({mobile:true,pip:true});m.video.isConnected=false;m.mutation();
+assert.equal(m.video.getAttribute('disablepictureinpicture'),'original');checks++;
+m.video.isConnected=true;m.run({mobile:false,pip:true});assert.equal(m.video.disablePictureInPicture,true);checks++;
 console.log(`YouTube candidate: ${checks} DOM-model checks PASS; real playback/PiP unverified`);

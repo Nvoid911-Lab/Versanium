@@ -58,7 +58,7 @@
       drainExternal();
       if (!state.mobile || !state.pip) {
         for (const [video, original] of owned) {
-          if (video.isConnected && !Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') && video.disablePictureInPicture === false &&
+          if (!Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') && video.disablePictureInPicture === false &&
               !video.hasAttribute('disablepictureinpicture')) {
             ownWrite(video, () => video.setAttribute('disablepictureinpicture',original));
           }
@@ -66,7 +66,15 @@
         owned.clear();
         if (!state.mobile) return;
       }
-      for (const video of owned.keys()) { if (!video.isConnected) owned.delete(video); }
+      for (const [video, original] of owned) {
+        if (!video.isConnected) {
+          if (!Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') &&
+              video.disablePictureInPicture === false && !video.hasAttribute('disablepictureinpicture')) {
+            ownWrite(video, () => video.setAttribute('disablepictureinpicture',original));
+          }
+          owned.delete(video);
+        }
+      }
       for (const video of document.querySelectorAll('video')) {
         if (state.diagnostics && !watched.has(video) && typeof video.pause === 'function' &&
             Object.isExtensible(video) && !Object.getOwnPropertyDescriptor(video,'pause')) {
@@ -80,7 +88,7 @@
             return Reflect.apply(pause,this,args);
           };
         }
-        if (state.pip && observer && !video.paused && !video.ended && !Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') && 'disablePictureInPicture' in video && video.disablePictureInPicture === true && (attempts.get(video) || 0) < 8) {
+        if (state.pip && observer && video.isConnected && !video.paused && !video.ended && !Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') && 'disablePictureInPicture' in video && video.disablePictureInPicture === true && (attempts.get(video) || 0) < 8) {
           attempts.set(video,(attempts.get(video) || 0)+1);
           // The standardized reflected boolean must match the DOM attribute contract.
           if (!video.hasAttribute('disablepictureinpicture')) continue;
