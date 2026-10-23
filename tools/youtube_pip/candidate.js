@@ -4,6 +4,10 @@
   if (window.top !== window || location.protocol !== 'https:' ||
       !['youtube.com','www.youtube.com','m.youtube.com'].includes(location.hostname)) return null;
   const options = __VERSANIUM_OPTIONS__;
+  const isPlaying = () => {
+    const video = document.querySelector('video');
+    return !!video && !video.paused && !video.ended;
+  };
   let state = window.__versaniumYoutubeState;
   if (state && (typeof state.adjust !== 'function' || typeof state.mobile !== 'boolean')) return null;
   if (!state && !Object.isExtensible(window)) return null;
@@ -18,15 +22,15 @@
         Object.isExtensible(document) && !Object.getOwnPropertyDescriptor(document,'hidden') &&
         !Object.getOwnPropertyDescriptor(document,'visibilityState')) {
       Object.defineProperty(document,'hidden',{configurable:true,get(){
-        return state.mobile && state.background ? false : nativeHidden.get.call(this);
+        return state.mobile && state.background && isPlaying() ? false : nativeHidden.get.call(this);
       }});
       Object.defineProperty(document,'visibilityState',{configurable:true,get(){
-        return state.mobile && state.background ? 'visible' : nativeVisibility.get.call(this);
+        return state.mobile && state.background && isPlaying() ? 'visible' : nativeVisibility.get.call(this);
       }});
       state.backgroundInstalled = true;
       document.addEventListener('visibilitychange', event => {
         state.visibilityEvents++;
-        if (state.mobile && state.background) event.stopImmediatePropagation();
+        if (state.mobile && state.background && isPlaying()) event.stopImmediatePropagation();
       },true);
     }
     const attempts = new WeakMap();
@@ -46,7 +50,7 @@
             return Reflect.apply(pause,this,args);
           };
         }
-        if (state.pip && 'disablePictureInPicture' in video && video.disablePictureInPicture === true && (attempts.get(video) || 0) < 8) {
+        if (state.pip && !video.paused && !video.ended && 'disablePictureInPicture' in video && video.disablePictureInPicture === true && (attempts.get(video) || 0) < 8) {
           attempts.set(video,(attempts.get(video) || 0)+1);
           video.disablePictureInPicture = false;
           video.removeAttribute('disablepictureinpicture');
@@ -58,6 +62,7 @@
       new MutationObserver(adjust).observe(document,{subtree:true,childList:true,
         attributes:true,attributeFilter:['disablepictureinpicture']});
     }
+    document.addEventListener('play',adjust,true);
     document.addEventListener('pause',event => {
       if (event.target instanceof HTMLVideoElement) state.pauses++;
     },true);
@@ -70,7 +75,7 @@
   state.adjust();
   // Fixed booleans/counts only; no URL/title/config/video ID or page-provided strings.
   return {mobile:!!state.mobile,pip:!!state.pip,background:!!state.background,
-    pipAdjusted:!!state.pipAdjusted,backgroundApplied:!!(state.mobile && state.background && state.backgroundInstalled),pauseObserved:state.pauses>0,
+    pipAdjusted:!!state.pipAdjusted,backgroundApplied:!!(state.mobile && state.background && state.backgroundInstalled && isPlaying()),pauseObserved:state.pauses>0,
     visibilityObserved:state.visibilityEvents>0,pauseMethodObserved:!!state.pauseMethodObserved,
     pauseWithActivation:!!state.pauseWithActivation,
     paused:!!document.querySelector('video')?.paused};

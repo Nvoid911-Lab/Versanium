@@ -23,6 +23,8 @@ assert.equal(m.doc.hidden,false);assert.equal(m.doc.visibilityState,'visible');c
 m.video.paused=true;m.listeners.pause({target:m.video});
 assert.equal(m.run({mobile:true,pip:true,background:true}).pauseObserved,true);checks++;
 assert.equal(m.video.plays,0);assert.equal(m.video.paused,true);checks+=2;
+assert.equal(m.doc.hidden,true);checks++; // A paused video never gets a fake-visible document.
+m.video.paused=false;
 let stopped=false;m.listeners.visibilitychange({stopImmediatePropagation(){stopped=true;}});assert(stopped);checks++;
 m.run({mobile:false,pip:true,background:true});assert.equal(m.doc.hidden,true);checks++;
 stopped=false;m.listeners.visibilitychange({stopImmediatePropagation(){stopped=true;}});assert(!stopped);checks++;
@@ -36,4 +38,7 @@ m=model('www.youtube.com',true,false);m.run({mobile:true,pip:false,background:tr
 m=model();m.run({mobile:true,pip:false,background:false,diagnostics:true});m.video.pause();
 assert.equal(m.run({mobile:true,pip:false,background:false,diagnostics:true}).pauseMethodObserved,true);checks++;
 assert.equal(m.video.paused,true);assert.equal(m.video.plays,0);checks+=2;
+m=model();m.video.paused=true;m.run({mobile:true,pip:true,background:true});
+assert.equal(m.video.disablePictureInPicture,true);checks++;
+m.video.paused=false;m.listeners.play();assert.equal(m.video.disablePictureInPicture,false);checks++;
 console.log(`YouTube candidate: ${checks} DOM-model checks PASS; real playback/PiP unverified`);
