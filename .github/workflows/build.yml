@@ -42,7 +42,7 @@ jobs:
     concurrency:
       group: ${{ inputs.runner_provider == 'ideapad' && 'versanium-ideapad-workspace' || format('versanium-cloud-{0}', github.run_id) }}
       cancel-in-progress: false
-    timeout-minutes: ${{ inputs.runner_provider == 'ideapad' && inputs.resume_ideapad && 1200 || 360 }}
+    timeout-minutes: ${{ inputs.runner_provider == 'ideapad' && 1200 || 360 }}
     steps:
       - name: Validate recovery selection before checkout
         env:
@@ -130,6 +130,7 @@ jobs:
           # Retain the existing build/signing path; isolate only the Test delivery.
           F11_TEST_BUILD: '1'
           VERSANIUM_TEST_BUILD: ${{ inputs.f11_test_build && '1' || '0' }}
+          VERSANIUM_BUILD_JOBS: ${{ inputs.runner_provider == 'ideapad' && '6' || '' }}
         run: ./build.sh
 
       - name: Upload reviewed build provenance
