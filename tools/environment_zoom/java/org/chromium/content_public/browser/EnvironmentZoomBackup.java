@@ -78,7 +78,7 @@ public final class EnvironmentZoomBackup {
                             while (reader.hasNext()) {
                                 String host = reader.nextName();
                                 if (host.isEmpty() || host.length() > 2048 || !hosts.add(host)
-                                        || host.chars().anyMatch(c -> c < 32 || c == 127)
+                                        || host.codePoints().anyMatch(c -> c < 32 || c == 127 || (c >= 0xd800 && c <= 0xdfff))
                                         || ++total > MAX_SITES) throw new IOException("Invalid host/count");
                                 result.put("site." + key + "." + host, number(reader));
                             }

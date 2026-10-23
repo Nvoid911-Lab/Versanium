@@ -14,6 +14,7 @@ public final class EnvironmentZoomPersistence implements EnvironmentZoomPolicy.S
         void background(Runnable task);
         void main(Runnable task);
         void failure();
+        default void replacementFailure(boolean priorSnapshotCommitted) {}
     }
     private final Writer writer;
     private final Dispatch dispatch;
@@ -21,6 +22,8 @@ public final class EnvironmentZoomPersistence implements EnvironmentZoomPolicy.S
     private Map<String, String> memory;
     private Map<String, String> pending;
     private boolean running;
+    private boolean replacing;
+    @Override public boolean isReplacing() { return replacing; }
     private int failures;
     public EnvironmentZoomPersistence(Map<String, String> initial, Writer writer, Dispatch dispatch) {
         memory = new LinkedHashMap<>(initial);
@@ -37,15 +40,26 @@ public final class EnvironmentZoomPersistence implements EnvironmentZoomPolicy.S
     @Override public void replace(Map<String, String> values, java.util.function.Consumer<Boolean> done) {
         if (hasPendingWrite()) { done.accept(false);return; } // Never race a queued ordinary save.
         Map<String, String> batch = Collections.unmodifiableMap(new LinkedHashMap<>(values));
+        Map<String,String> previous = memory;
         running = true;
+        replacing = true;
         dispatch.background(() -> {
             boolean success;
             try { success = writer.write(batch); }
             catch (RuntimeException error) { success = false; }
+            boolean restored = true;
+            if (!success) {
+                // SharedPreferences.commit(false) can already update its in-process cache.
+                // Restore that cache/old snapshot before publishing failure; worker only.
+                try { restored = writer.write(previous); }
+                catch (RuntimeException error) { restored = false; }
+            }
+            final boolean restoredResult = restored;
             final boolean result = success;
             dispatch.main(() -> {
-                running = false;
+                running = false;replacing = false;
                 if (result) memory = batch;
+                if (!result) dispatch.replacementFailure(restoredResult);
                 done.accept(result); // Import UI owns failure feedback; no uncommitted retry snapshot.
             });
         });

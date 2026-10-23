@@ -70,6 +70,26 @@ final class EnvironmentZoomSettings {
             return true;
         });
         EnvironmentZoomTransfer.add(fragment,context,policy);
+        final boolean allowTransfer = !EnvironmentZoom.isPrivateContext(context);
+        java.lang.ref.WeakReference<PreferenceFragmentCompat> weak = new java.lang.ref.WeakReference<>(fragment);
+        policy.observeTransfer(fragment, () -> {
+            PreferenceFragmentCompat active = weak.get();
+            if (active == null || !active.isAdded() || active.getPreferenceScreen() == null) return;
+            for (String key : new String[]{"titanium_zoom_mobile","titanium_zoom_dex",
+                    "titanium_zoom_mobile_sites","titanium_zoom_dex_sites","titanium_zoom_display",
+                    "titanium_zoom_export","titanium_zoom_import"}) {
+                Preference control = active.findPreference(key);
+                if (control != null) control.setEnabled(!policy.isReplacing()
+                        && (allowTransfer || (!key.endsWith("_export") && !key.endsWith("_import"))));
+            }
+            for (EnvironmentZoomPolicy.Environment env : EnvironmentZoomPolicy.Environment.values()) {
+                SeekBarPreference slider = active.findPreference("titanium_zoom_" +
+                        (env == EnvironmentZoomPolicy.Environment.MOBILE ? "mobile" : "dex"));
+                if (slider != null) slider.setValue(EnvironmentZoomPolicy.percent(policy.defaultFactor(env)));
+            }
+            ListPreference display = active.findPreference("titanium_zoom_display");
+            if (display != null) display.setValue(EnvironmentZoom.displayMode(active.requireContext(),policy));
+        });
     }
     private static void showSites(Context activity, EnvironmentZoomPolicy policy,
             EnvironmentZoomPolicy.Environment env) {

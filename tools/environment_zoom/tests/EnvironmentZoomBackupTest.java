@@ -29,7 +29,10 @@ public final class EnvironmentZoomBackupTest {
   restored.setSite(EnvironmentZoomPolicy.Environment.MOBILE,"removed.test",0);
   restored.setDisplayMode(17,"dex");
   final boolean[] done={false};
+  Object observerOwner=new Object();List<Boolean> states=new ArrayList<>();
+  restored.observeTransfer(observerOwner,()->states.add(restored.isReplacing()));
   restored.importSnapshot(backup.values,backup.displayMode,42,success->done[0]=success);
+  check(states.equals(List.of(false,true,false)));
   check(done[0]&&!restored.hasSite(EnvironmentZoomPolicy.Environment.MOBILE,"removed.test"));
   check(restored.resolve(EnvironmentZoomPolicy.Environment.MOBILE,"same.test")==0);
   check(restored.resolve(EnvironmentZoomPolicy.Environment.DEX,"same.test")==EnvironmentZoomPolicy.factor(80));
@@ -52,6 +55,13 @@ public final class EnvironmentZoomBackupTest {
   reject(json+" {}");reject(json.substring(0,json.length()-1));
   reject(json.replace("\"MOBILE\"","\"OTHER\""));
   reject(" ".repeat(EnvironmentZoomBackup.MAX_BYTES+1));
+  reject(json.replace("\"same.test\":0.0","\"same.test\":0.0,\"same.test\":0.0"));
+  reject(json.replace("same.test","bad\\ud800"));
+  StringBuilder excessive=new StringBuilder();
+  for(int i=0;i<EnvironmentZoomBackup.MAX_SITES+1;i++){
+    if(i>0)excessive.append(',');excessive.append("\"host").append(i).append("\":0.0");
+  }
+  reject(json.replace("\"same.test\":0.0",excessive.toString()));
   check(before.equals(restored.snapshot())); // Decode failure/cancel never applies anything.
   System.out.println("EnvironmentZoomBackup: "+checks+" checks PASS (real Android JSON classes; no SAF UI)");
  }

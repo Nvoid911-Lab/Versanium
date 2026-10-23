@@ -78,7 +78,7 @@ public class BrowserContextHandle {public boolean privateProfile;public String k
 'org/chromium/content_public/browser/WebContents.java': '''package org.chromium.content_public.browser;
 public class WebContents {public String host="example.test";public boolean destroyed;public double rendered;
  public org.chromium.ui.base.WindowAndroid window;
- public boolean isDestroyed(){return destroyed;}public org.chromium.ui.base.WindowAndroid getTopLevelNativeWindow(){return window;}}''',
+ public boolean isFinishing(){return false;} public boolean isDestroyed(){return destroyed;}public org.chromium.ui.base.WindowAndroid getTopLevelNativeWindow(){return window;}}''',
 'org/chromium/content_public/browser/HostZoomMap.java': '''package org.chromium.content_public.browser;import java.util.*;
 public class HostZoomMap {public static double getDefaultZoomLevel(BrowserContextHandle c){return 0;}
  public static Map<String,Double> getAllHostZoomLevels(BrowserContextHandle c){return Map.of();}

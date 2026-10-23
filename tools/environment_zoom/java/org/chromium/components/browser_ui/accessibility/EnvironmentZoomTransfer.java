@@ -10,8 +10,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SeekBarPreference;
-import androidx.preference.ListPreference;
 import org.chromium.content_public.browser.BrowserContextHandle;
 import org.chromium.content_public.browser.EnvironmentZoom;
 import org.chromium.content_public.browser.EnvironmentZoomPolicy;
@@ -35,8 +33,10 @@ final class EnvironmentZoomTransfer {
         Context app = fragment.requireContext().getApplicationContext();
         Preference export = new Preference(fragment.requireContext());
         export.setTitle(R.string.titanium_zoom_export);
+        export.setKey("titanium_zoom_export");
         Preference restore = new Preference(fragment.requireContext());
         restore.setTitle(R.string.titanium_zoom_import);
+        restore.setKey("titanium_zoom_import");
         export.setPersistent(false);restore.setPersistent(false);
         fragment.getPreferenceScreen().addPreference(export);
         fragment.getPreferenceScreen().addPreference(restore);
@@ -44,7 +44,7 @@ final class EnvironmentZoomTransfer {
         export.setEnabled(regular);restore.setEnabled(regular);
         ActivityResultLauncher<String> create = fragment.registerForActivityResult(
                 new ActivityResultContracts.CreateDocument("application/json"), uri -> {
-                    if (uri == null || !fragment.isAdded() || EnvironmentZoom.isPrivateContext(browser)) return;
+                    if (uri == null || !available(fragment) || EnvironmentZoom.isPrivateContext(browser)) return;
                     final String json;
                     try { json = EnvironmentZoomBackup.encode(policy,
                             EnvironmentZoom.displayMode(fragment.requireContext(),policy)); }
@@ -62,7 +62,7 @@ final class EnvironmentZoomTransfer {
                 });
         ActivityResultLauncher<String[]> open = fragment.registerForActivityResult(
                 new ActivityResultContracts.OpenDocument(), uri -> {
-                    if (uri == null || !fragment.isAdded() || EnvironmentZoom.isPrivateContext(browser)) return;
+                    if (uri == null || !available(fragment) || EnvironmentZoom.isPrivateContext(browser)) return;
                     IO.execute(() -> {
                         EnvironmentZoomBackup backup;
                         try (InputStream in = app.getContentResolver().openInputStream(uri)) {
@@ -93,7 +93,7 @@ final class EnvironmentZoomTransfer {
     }
     private static void confirm(PreferenceFragmentCompat fragment, BrowserContextHandle browser,
             EnvironmentZoomPolicy policy, EnvironmentZoomBackup backup, Context app) {
-        if (!fragment.isAdded() || EnvironmentZoom.isPrivateContext(browser)) return;
+        if (!available(fragment) || EnvironmentZoom.isPrivateContext(browser)) return;
         int sites = (int)backup.values.keySet().stream().filter(k -> k.startsWith("site.")).count();
         String summary = fragment.getString(R.string.titanium_zoom_import_confirm,
                 EnvironmentZoomPolicy.percent(Double.parseDouble(backup.values.get("default.MOBILE"))),
@@ -102,24 +102,17 @@ final class EnvironmentZoomTransfer {
         new AlertDialog.Builder(fragment.requireContext()).setTitle(R.string.titanium_zoom_import)
                 .setMessage(summary).setNegativeButton(android.R.string.cancel,null)
                 .setPositiveButton(android.R.string.ok,(dialog,button) -> {
-                    if (!fragment.isAdded() || EnvironmentZoom.isPrivateContext(browser)) return;
-                    policy.importSnapshot(backup.values,backup.displayMode,
+                    if (!available(fragment) || EnvironmentZoom.isPrivateContext(browser)) return;
+                    EnvironmentZoom.importSnapshot(browser,backup.values,backup.displayMode,
                             EnvironmentZoom.displayId(fragment.requireContext()), success -> {
-                        if (success) {
-                            EnvironmentZoom.refreshAll();
-                            if (fragment.isAdded()) {
-                                for (EnvironmentZoomPolicy.Environment env : EnvironmentZoomPolicy.Environment.values()) {
-                                    SeekBarPreference pref = fragment.findPreference("titanium_zoom_" +
-                                            (env==EnvironmentZoomPolicy.Environment.MOBILE?"mobile":"dex"));
-                                    if (pref != null) pref.setValue(EnvironmentZoomPolicy.percent(policy.defaultFactor(env)));
-                                }
-                                ListPreference mode = fragment.findPreference("titanium_zoom_display");
-                                if (mode != null) mode.setValue(EnvironmentZoom.displayMode(fragment.requireContext(),policy));
-                            }
-                        }
+                        if (success) EnvironmentZoom.refreshAll();
                         message(app,success);
                     });
                 }).show();
+    }
+    private static boolean available(PreferenceFragmentCompat fragment) {
+        android.app.Activity activity = fragment.getActivity();
+        return fragment.isAdded() && activity != null && !activity.isFinishing() && !activity.isDestroyed();
     }
     private static void message(Context context, boolean success) {
         Toast.makeText(context, success ? R.string.titanium_zoom_transfer_ok

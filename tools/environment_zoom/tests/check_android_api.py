@@ -51,5 +51,5 @@ for path,package,name,methods,imports in records:
 production=Path(__file__).resolve().parents[1]/'java/org/chromium/content_public/browser'
 cmd=['java','-jar',str(args.ecj),'-21','-cp',str(platform),'-d',str(output/'classes')]
 subprocess.run(cmd+[str(p) for p in out.rglob('*.java')]+[str(p) for p in production.glob('*.java')],check=True)
-print('Actual Android API + 3 production content Java classes: limited type compile PASS')
+print('Actual Android API + production content Java classes: limited type compile PASS')
 print('Chromium dependencies are declaration-only projections from pinned source; NOT full Chromium/NullAway type checking')

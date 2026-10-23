@@ -67,12 +67,37 @@ public final class EnvironmentZoom {
         ThreadUtils.assertOnUiThread();
         return context.getNativeBrowserContextPointer() == 0 || HostZoomMapImpl.isEnvironmentPrivate(context);
     }
+    public static void importSnapshot(BrowserContextHandle context, Map<String,String> imported,
+            String mode, int displayId, java.util.function.Consumer<Boolean> done) {
+        ThreadUtils.assertOnUiThread();
+        if (isPrivateContext(context)) { done.accept(false);return; }
+        EnvironmentZoomPolicy policy = store(context);
+        EnvironmentZoomPersistence persistence = WRITES.get(context);
+        String profileKey = PROFILE_KEYS.get(context);
+        policy.importSnapshot(imported,mode,displayId,success -> {
+            // A profile may be recreated while the worker commits. Refresh only regular
+            // handles sharing this exact persistence object, never private snapshots.
+            for (Map.Entry<BrowserContextHandle,EnvironmentZoomPolicy> entry : STORES.entrySet()) {
+                if (entry.getValue()!=policy && WRITES.get(entry.getKey())==persistence
+                        && profileKey.equals(PROFILE_KEYS.get(entry.getKey()))) {
+                    if (success) entry.getValue().adoptCommittedSnapshot(policy.snapshot());
+                    else entry.getValue().notifyTransferState();
+                }
+            }
+            done.accept(success);
+        });
+    }
     public static void setEnvironmentListener(WebContents contents, Runnable listener) {
+        ThreadUtils.assertOnUiThread();
         ENVIRONMENT_LISTENERS.put(contents,listener);
     }
     public static boolean isMobileDisplay(WebContents contents) {
-        Binding binding = binding(contents);
-        return binding != null && binding.lastEnvironment == EnvironmentZoomPolicy.Environment.MOBILE;
+        ThreadUtils.assertOnUiThread();
+        if (contents.isDestroyed() || RETIRED.containsKey(contents)) return false;
+        Activity owner = activity(contents);
+        if (owner == null || owner.isFinishing() || owner.isDestroyed()) return false;
+        // PiP candidate scope is physical display, independent of manual zoom overrides.
+        return displayId(owner) == Display.DEFAULT_DISPLAY;
     }
     public static EnvironmentZoomPolicy store(BrowserContextHandle context) {
         ThreadUtils.assertOnUiThread();
@@ -119,6 +144,9 @@ public final class EnvironmentZoom {
                 @Override public void cancel(Runnable task) { HANDLER.removeCallbacks(task); }
                 @Override public void background(Runnable task) { WRITER.execute(task); }
                 @Override public void main(Runnable task) { HANDLER.post(task); }
+                @Override public void replacementFailure(boolean restored) {
+                    Log.e("TitaniumZoom", "Zoom import failed; prior snapshot durably restored=" + restored);
+                }
                 @Override public void failure() {
                     Log.e("TitaniumZoom", "Zoom settings could not be saved; pending snapshot retained for retry");
                     for (WebContents contents : new ArrayList<>(CONTENTS.keySet())) {
