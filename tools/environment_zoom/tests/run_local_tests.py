@@ -103,6 +103,7 @@ def run(ecj=None, android_json=None):
         sources += list((bundle/'java/org/chromium/content_public/browser').glob('*.java'))
         sources += list((bundle/'tests').glob('*Test.java'))
         if android_json is None:
+            print('SKIPPED EnvironmentZoomBackupTest: supply --android-json with real Android JSON classes; backup validation was not performed.',flush=True)
             sources=[s for s in sources if s.name not in ('EnvironmentZoomBackup.java','EnvironmentZoomBackupTest.java')]
         command = ['java', '-jar', str(ecj), '-21'] if ecj else ['javac', '--release', '21']
         subprocess.run(command+(['-cp',str(android_json)] if android_json else [])+['-d',str(root/'classes')]+[str(s) for s in sources],check=True)

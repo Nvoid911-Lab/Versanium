@@ -52,7 +52,7 @@ This revision rejects `resume_ideapad=true`. The successful old 155 tree and out
 
 After fresh pinned fetch/hooks/patches and GN, build-provenance.json records repository and patched Chromium commits, exact upstream pins, actual Java/resource overlays, patch inputs, GN hash, extension index, DEPS and clang binary hash. A separate artifact preserves it. Existing key generation/signing and Test identity stay unchanged. New IdeaPad builds retain the 20-hour IdeaPad timeout and compiles use -j6 initially, with validation of the numeric limit; this is a conservative tuning candidate, not an ETA or proof of current available memory.
 
-Current Windows account, WSL distribution, physical memory/free space and duplicate runner state cannot be inspected from this cloud container. Only the run's actual `versanium-ideapad` label was verified. `tools/versanium/inspect_build_host.sh` is a read-only local inspection helper; it starts/stops no runner. Before authorizing a build, verify host/service ownership, disk capacity for a second full tree, swap pressure and no duplicate listeners/compilers. Current cloud has about 30GiB free; a full Chromium checkout/build was not attempted. Existing successful artifacts remain untouched.
+Current Windows account, WSL distribution, physical memory/free space and duplicate runner state cannot be inspected from this cloud container. Only the run's actual `versanium-ideapad` label was verified. GET /repos/Nvoid911-Lab/Versanium/actions/runners returned GitHub HTTP403 Resource not accessible by integration, so current runner online/busy/duplicate registration state is also unverified; no auth changes or alternate access were attempted. `tools/versanium/inspect_build_host.sh` is a read-only local inspection helper; it starts/stops no runner. Before authorizing a build, verify host/service ownership, disk capacity for a second full tree, swap pressure and no duplicate listeners/compilers. Current cloud has about 30GiB free; a full Chromium checkout/build was not attempted. Existing successful artifacts remain untouched.
 
 ## Validation and limits
 
@@ -109,3 +109,19 @@ PROJECT_STATUS/ARCHITECTURE/DECISIONS are updated on this review branch with suc
 - Existing reviewed integration d64b78be40b15dee889c24c67ba689777e090ca7 was fast-forwarded from Lab to personal Secondary after ancestry verification. Both migration branches remain at d64b78b until PR review; no prototype was directly merged.
 - The next-test feature branch is mirrored without force to Secondary, so the same reviewed commits can be compared there. Its exact final SHA is reported in the PR and delivery message.
 - No GitHub Actions run/dispatch/rerun, Release/tag, main merge or runner operation was performed. Current default-main content stays unchanged until the user reviews and merges its separate PR.
+
+## Reproduction inputs and manual dispatch UI caveat
+
+Local JVM checks used JDK21, ECJ3.40.0 and Android14 `org.robolectric:android-all:14-robolectric-10818077`. Published Maven digests were checked (ECJ SHA1, android-all SHA512). The JSON test jar contains the unchanged android/util/Json*.class, android/util/MalformedJsonException.class and com/android/internal/util/StringPool.class extracted from that actual jar; excluding Android's java.lang shadow classes avoids boot-classpath conflicts. Run:
+
+```
+python tools/environment_zoom/tests/run_local_tests.py --ecj /path/to/ecj.jar --android-json /path/to/android-json.jar
+python tools/youtube_pip/tests/check_source_integration.py --source-tree /path/to/pristine-pinned-selected-files --output-dir /new/output/path
+node tools/youtube_pip/tests/test_candidate.cjs
+python tools/versanium/tests/test_migration.py
+python tools/versanium/tests/test_resume.py
+```
+
+The selected-files checker explicitly lists its extra files in addition to the overlay's patch paths. All input files must come from the exact Chromium SHA above. The checker mutates only a new output directory. Its intentional changed-anchor negative test emits a git-apply error before the positive test passes; that output is not an ignored integration failure.
+
+Current default-main Workflow still exposes legacy `runner` input, whereas the review/migration definition uses `runner_provider` and `resume_ideapad`. PR6 deliberately does not promote Workflow/app code. The actual authenticated GitHub web-form behavior for a selected non-default ref was not verified here. Before any later UI-only dispatch, select the reviewed ref and confirm the correct provider/Test/fresh-mode fields; if they are unavailable, stop and prepare a separate reviewed default-branch dispatch-interface alignment. Do not guess the values or start a main/old-run build to test the form. No dispatch was used to probe this behavior.
