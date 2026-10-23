@@ -15,4 +15,5 @@
     <string name="titanium_zoom_transfer_ok">ズーム設定の転送が完了しました。</string>
     <string name="titanium_zoom_transfer_failed">転送に失敗したか、保存処理が待機中です。置換の完了は確認できていません。ストレージと保存処理を確認して再試行してください。</string>
     <string name="titanium_zoom_import_confirm">両環境の設定を置換しますか？ モバイル既定: %1$d%%、DeX既定: %2$d%%、サイト設定: %3$d件。表示モード %4$s は現在の画面だけに適用します。両環境の既存サイト設定を統合せず置換します。他のローカル画面の指定は保持します。</string>
+    <string name="titanium_zoom_export_scope">両環境のズームと現在の画面の表示モードを保存します。画面IDは含めません。</string>
 </resources>

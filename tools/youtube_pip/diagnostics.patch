@@ -14,7 +14,7 @@
 +                || !LibraryLoader.getInstance().isInitialized()) return;
 +        Tab tab = mActivityTabProvider.get();
 +        WebContents contents = getWebContents();
-+        if (tab == null || tab.isOffTheRecord() || contents == null || contents.isDestroyed()) return;
++        if (tab == null || tab.isDestroyed() || contents == null || contents.isDestroyed() || tab.isOffTheRecord()) return;
 +        org.chromium.url.GURL url = contents.getLastCommittedUrl();
 +        String host = url.getHost();
 +        if (!"https".equals(url.getScheme()) || !("youtube.com".equals(host)

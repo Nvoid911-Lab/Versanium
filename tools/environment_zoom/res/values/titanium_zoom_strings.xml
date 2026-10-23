@@ -15,4 +15,5 @@
     <string name="titanium_zoom_transfer_ok">Zoom settings transfer completed.</string>
     <string name="titanium_zoom_transfer_failed">Transfer failed or a save is pending. No replacement was confirmed. Check storage and retry after pending saves complete.</string>
     <string name="titanium_zoom_import_confirm">Replace both environments? Mobile default: %1$d%%; DeX default: %2$d%%; saved sites: %3$d. Display mode: %4$s will apply to THIS screen only. Existing site overrides in both environments will be replaced, not merged. Other local screen overrides are preserved.</string>
+    <string name="titanium_zoom_export_scope">Both zoom environments and the current screen mode; no display IDs.</string>
 </resources>

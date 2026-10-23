@@ -33,6 +33,7 @@ final class EnvironmentZoomTransfer {
         Context app = fragment.requireContext().getApplicationContext();
         Preference export = new Preference(fragment.requireContext());
         export.setTitle(R.string.titanium_zoom_export);
+        export.setSummary(R.string.titanium_zoom_export_scope);
         export.setKey("titanium_zoom_export");
         Preference restore = new Preference(fragment.requireContext());
         restore.setTitle(R.string.titanium_zoom_import);
