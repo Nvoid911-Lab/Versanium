@@ -1,5 +1,6 @@
 # Next Test 156 review — 2026-10-23 JST
 
+**Run9 follow-up:** Run39951209951 attempted this156 revision at7d9102f and failed native compilation on the invented GURL::host_piece() API. The user's log reports GN/chrome_java success. The original pre-build classifications below are historical, not a claim that Run9 succeeded or that Java was never attempted. The current three-call host() correction, exact-header/model limits, preserved-tree/provenance gates and actual-object-first manual steps are in [Run9 incremental recovery](run9-incremental-recovery.md). No resumption has been executed by this correction.
 Status: **candidates implemented; limited local validation; NOT built or device-verified**. Review target is migration/versanium through a feature PR. No Actions dispatch/rerun, production Release/tag or main merge is authorized/performed.
 
 ## Source hierarchy and baseline

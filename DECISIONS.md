@@ -145,3 +145,12 @@ Verification / evidence:
 **Environment movement:** Restore only the candidate-owned PiP attribute; observed intervening site mutations revoke ownership even when the final value is again false. Restore still-owned detached elements before releasing references. Retain bounded attempts and opt-in/mobile-only changes.
 
 **Readiness:** Cloud CIPD CONNECT403 and runner-list API authorization403 are separate failures, neither evidence of host capacity or actual build-host dependency failure. Exact156 AndroidX snapshot metadata and local inspection/manual-ref steps are recorded in docs/versanium/next-test-156-review.md. No build, main merge, tag or Release is authorized by these changes; PR6 remains separate.
+
+
+## Run9 — Correct real GURL API and retain a strictly bounded156 recovery path
+
+**Correction:** At fixed Chromium1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775, GURL has std::string_view host() const, no host_piece(). Prior model success did not establish API compatibility; our earlier source review missed this. Replace only three calls and require real-header digest/declaration comparison before model tests. Actual failed-object compilation remains the next validation gate.
+
+**Recovery decision:** Do not rerun normal fresh-build logic, relax155 recovery, regenerate GN, resync/repatch/reset/clean/move the saved Run9 tree. Prepare a new156-specific manual validation/apply/recheck helper, pinned to Run39951209951/repository7d9102f and its original provenance artifact digest. Only after host validation and separate authorization may the real failed object be requested using the preserved Ninja/Siso graph; a subsequent full APK target requires a separate decision. Retain original provenance plus correction controller/diff/hash evidence. No cache-count/time promises.
+
+**Evidence limits:** Run metadata/provenance-artifact metadata are readable; log/artifact bytes are blocked in this cloud. GN/chrome_java success comes from the user's log. Actual host object compilation/APK/runtime remain unverified. Update information-source files before resumption; preserve PR6, signing/Secrets/package isolation/runner policies and main/migration refs. No Actions or build is authorized in this work unit.

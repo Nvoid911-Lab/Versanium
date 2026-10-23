@@ -2,7 +2,7 @@
 
 > Authoritative operational status for the Versanium project. Update this file whenever repository roles, active branches, build policy, current milestones, or blockers change.
 
-Last reviewed: 2026-10-23 JST (next-Test review branch; successful 155 recovery recorded, new candidates unbuilt)
+Last reviewed: 2026-10-23 JST (Run9 native compilation failure; limited156 correction/recovery prepared, not executed)
 
 ## Project
 
@@ -157,3 +157,12 @@ Notion/Project Sources were unavailable to this workspace and have not been mark
 ### PR5 follow-up review (unmerged)
 
 The review branch now preserves legacy finite zoom values in backups, explicitly rejects numerically unsafe SAF restores without changing current data, and restores only owned PiP attributes across same-document display moves. The frame-wide native CHECK exception has been replaced by a dedicated fixed-payload JNI route; generic JavaScript APIs retain pinned upstream restrictions. Migration/root branch state remains unchanged pending PR5 review. Exact AndroidX snapshots, cloud403 classification, unverified SAF/native/device conditions and read-only build-host/ref/input steps are in the review report. PR6 remains a separate unmerged main presentation change. No Actions/build/Release/tag/main merge was performed.
+
+
+## Run9 — actual156 build failure and limited recovery preparation
+
+Run39951209951 / #9 used7d9102f4f0e35dec9f69425de44cd889836a88ac and failed. API confirms Build failure/provenance upload; the user's log reports GN generation and chrome_java success, then native failure because the fixed GURL API has host(), not host_piece(). The old model's invented API and our incomplete real-header review did not detect it. The Run9 task counts are not an ETA/reuse guarantee.
+
+This branch corrects exactly three calls, preserves every scope restriction and adds pinned-header comparison. A NEW156 manual preflight/apply/verify helper validates the original artifact digest and provenance, existing source/output paths, GN arguments/toolchain/state, then can change only that native scope's accessors. It never compiles or cleans/syncs/repatches/moves the tree. Old155 recovery and the Workflow remain untouched. See [Run9 recovery](docs/versanium/run9-incremental-recovery.md) for the actual-object-first future command, evidence links and STOP conditions.
+
+The cloud could not download the original artifact/log payload; actual host provenance/state/object target verification and object compilation have NOT occurred here. The helper's temporary-fixture tests are not a host recovery. This information-source update precedes any future resumption. No Actions/build/main merge/Release/tag has been executed as part of this correction. The former 'unbuilt156' text above is historical; Run9 attempted156, with no successful APK established. PR6 remains separate.
