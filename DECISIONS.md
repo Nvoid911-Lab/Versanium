@@ -134,3 +134,14 @@ Verification / evidence:
 **Remaining review blockers:** AndroidX package access and real preference UI/type validation, whole native/GN/renderer integration, inline PiP fullscreen limitations, native-vs-page pause diagnosis and actual Windows/WSL capacity. Notion/Project Sources need a verified refresh after reviewed integration, not before. A separate main documentation PR does not authorize code promotion or Release.
 
 **Pre-build correction to the October23 proposal:** Real-source review identified the WebUI-only JavaScript API gate. The draft must not be built with an unadapted normal-page call. A separate shared native scope predicate and marked-payload guard replace that invalid assumption, with no process-global injection enablement or test-only API. The 17 policy-model cases pass; actual Chromium C++ compilation/security review is still required.
+
+
+## 2026-10-23 — PR5 review: archive compatibility and fixed-payload native route
+
+**Supersedes:** The pre-build correction's original marked-payload/frame-wide CHECK exception, not upstream JavaScript restrictions. Keep generic JavaScript APIs byte-for-byte at the pinned Chromium implementation. Add a separate JNI route with no script argument, using only a compiled reviewed payload and natively checked flags/frame/profile/domain scope. A script marker is not authentication. Limited tests/JNI generation do not constitute a native build or security audit.
+
+**Legacy zoom:** Preserve all finite stored exponents in the archive; do not use slider limits as storage/schema limits. Before SAF replacement, reject an entire numerically unsafe restore explicitly while preserving its source file/current data. Do not silently clamp/delete entries. Slider summaries distinguish stored out-of-range defaults from its bounded thumb; renderer limits remain upstream behavior. Literal old-key fixtures and the pre-v1 migration path cover lossless double round trips without collecting user data.
+
+**Environment movement:** Restore only the candidate-owned PiP attribute; observed intervening site mutations revoke ownership even when the final value is again false. Restore still-owned detached elements before releasing references. Retain bounded attempts and opt-in/mobile-only changes.
+
+**Readiness:** Cloud CIPD CONNECT403 and runner-list API authorization403 are separate failures, neither evidence of host capacity or actual build-host dependency failure. Exact156 AndroidX snapshot metadata and local inspection/manual-ref steps are recorded in docs/versanium/next-test-156-review.md. No build, main merge, tag or Release is authorized by these changes; PR6 remains separate.

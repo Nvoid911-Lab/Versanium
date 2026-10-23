@@ -152,3 +152,8 @@ The 156 revision rejects old resume mode. It preserves the old successful tree/o
 Outstanding before calling it build-ready: pinned AndroidX package access (network proxy HTTP403), actual SAF preference screen/type/lifecycle verification, complete JNI/native/GN integration checks where feasible, local Windows/WSL/account/capacity evidence, and review of the limited inline-PiP candidate. Main still has old Titanium-facing presentation; a separate documentation-only main PR is proposed without promoting code or releasing an APK.
 
 Notion/Project Sources were unavailable to this workspace and have not been marked updated. At least the October 19 context described above is historical. After reviewed integration and Primary→Secondary synchronization settle, verify/refresh the canonical context following RULES; do not label this unmerged proposal a settled release.
+
+
+### PR5 follow-up review (unmerged)
+
+The review branch now preserves legacy finite zoom values in backups, explicitly rejects numerically unsafe SAF restores without changing current data, and restores only owned PiP attributes across same-document display moves. The frame-wide native CHECK exception has been replaced by a dedicated fixed-payload JNI route; generic JavaScript APIs retain pinned upstream restrictions. Migration/root branch state remains unchanged pending PR5 review. Exact AndroidX snapshots, cloud403 classification, unverified SAF/native/device conditions and read-only build-host/ref/input steps are in the review report. PR6 remains a separate unmerged main presentation change. No Actions/build/Release/tag/main merge was performed.
