@@ -262,6 +262,7 @@ python3 "$SCRIPT_DIR/tools/apply_environment_zoom.py" || {
     exit 1
 }
 
+python3 "$SCRIPT_DIR/tools/apply_youtube_candidates.py" || exit 1
 python3 "$SCRIPT_DIR/tools/versanium/apply.py" --root "$PWD" || exit 1
 
 export PATCHED=1
