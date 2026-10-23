@@ -1,4 +1,3 @@
-/*versanium-youtube-candidate-v1*/
 (() => {
   'use strict';
   if (window.top !== window || location.protocol !== 'https:' ||
@@ -35,8 +34,39 @@
     }
     const attempts = new WeakMap();
     const watched = new WeakSet();
+    // Ownership ends on ANY observed site attribute mutation, including true->false.
+    // A comparison of the final boolean alone would lose those intervening writes.
+    const owned = new Map();
+    let observer;
+    const reconcile = records => {
+      for (const record of records) {
+        if (record.type === 'attributes' && record.attributeName === 'disablepictureinpicture') {
+          owned.delete(record.target);
+        }
+      }
+    };
+    const drainExternal = () => { if (observer) reconcile(observer.takeRecords()); };
+    const ownWrite = (video, write) => {
+      drainExternal();
+      write();
+      // Drop only our own reflected attribute records; retain other targets' site changes.
+      if (observer) reconcile(observer.takeRecords().filter(record =>
+        record.target !== video || record.type !== 'attributes' ||
+        record.attributeName !== 'disablepictureinpicture'));
+    };
     const adjust = () => {
-      if (!state.mobile) return;
+      drainExternal();
+      if (!state.mobile || !state.pip) {
+        for (const [video, original] of owned) {
+          if (video.isConnected && !Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') && video.disablePictureInPicture === false &&
+              !video.hasAttribute('disablepictureinpicture')) {
+            ownWrite(video, () => video.setAttribute('disablepictureinpicture',original));
+          }
+        }
+        owned.clear();
+        if (!state.mobile) return;
+      }
+      for (const video of owned.keys()) { if (!video.isConnected) owned.delete(video); }
       for (const video of document.querySelectorAll('video')) {
         if (state.diagnostics && !watched.has(video) && typeof video.pause === 'function' &&
             Object.isExtensible(video) && !Object.getOwnPropertyDescriptor(video,'pause')) {
@@ -50,16 +80,21 @@
             return Reflect.apply(pause,this,args);
           };
         }
-        if (state.pip && !video.paused && !video.ended && 'disablePictureInPicture' in video && video.disablePictureInPicture === true && (attempts.get(video) || 0) < 8) {
+        if (state.pip && observer && !video.paused && !video.ended && !Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') && 'disablePictureInPicture' in video && video.disablePictureInPicture === true && (attempts.get(video) || 0) < 8) {
           attempts.set(video,(attempts.get(video) || 0)+1);
-          video.disablePictureInPicture = false;
-          video.removeAttribute('disablepictureinpicture');
+          // The standardized reflected boolean must match the DOM attribute contract.
+          if (!video.hasAttribute('disablepictureinpicture')) continue;
+          const original = video.getAttribute('disablepictureinpicture');
+          ownWrite(video, () => { video.disablePictureInPicture = false; });
+          if (video.disablePictureInPicture !== false || video.hasAttribute('disablepictureinpicture')) continue;
+          owned.set(video,original);
           state.pipAdjusted = true;
         }
       }
     };
     if (typeof MutationObserver === 'function') {
-      new MutationObserver(adjust).observe(document,{subtree:true,childList:true,
+      observer = new MutationObserver(records => { reconcile(records);adjust(); });
+      observer.observe(document,{subtree:true,childList:true,
         attributes:true,attributeFilter:['disablepictureinpicture']});
     }
     document.addEventListener('play',adjust,true);
