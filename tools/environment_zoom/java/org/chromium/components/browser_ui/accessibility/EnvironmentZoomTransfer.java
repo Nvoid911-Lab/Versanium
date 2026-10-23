@@ -87,11 +87,17 @@ final class EnvironmentZoomTransfer {
                     });
                 });
         export.setOnPreferenceClickListener(p -> {
-            if (!policy.isReplacing()) create.launch("Versanium-zoom.json");
+            if (!policy.isReplacing() && available(fragment) && !EnvironmentZoom.isPrivateContext(browser)) {
+                try { create.launch("Versanium-zoom.json"); }
+                catch (android.content.ActivityNotFoundException | SecurityException error) { message(app,false); }
+            }
             return true;
         });
         restore.setOnPreferenceClickListener(p -> {
-            if (!policy.isReplacing()) open.launch(new String[]{"application/json","text/plain"});
+            if (!policy.isReplacing() && available(fragment) && !EnvironmentZoom.isPrivateContext(browser)) {
+                try { open.launch(new String[]{"application/json","text/plain"}); }
+                catch (android.content.ActivityNotFoundException | SecurityException error) { message(app,false); }
+            }
             return true;
         });
     }
