@@ -1,37 +1,45 @@
-name: Report
-description: Report a bug or suggest a feature
+name: Versanium report
+description: Report a bug or suggest an improvement for Versanium.
 body:
   - type: markdown
     attributes:
       value: |
-        ### Important
-        Before reporting a new issue, please check if it already exists [upstream](https://crbug.com/) or in the [issue tracker](https://github.com/jqssun/android-titanium-browser/issues).
-        
-        We aim to keep things lightweight. The scope of accepted bugs is limited to current patches. If a feature can be achieved via an extension or a user script, please refrain from opening a report.
-
+        Report a bug or suggest an improvement for Versanium.
+        Please check the [Versanium issue tracker](https://github.com/Nvoid911-Lab/Versanium/issues) for duplicates.
+        You do not need to determine whether a problem originates in Chromium or Titanium Browser.
   - type: checkboxes
     id: checklist
     attributes:
       label: Verification
-      description: Please verify the following before submitting.
       options:
-        - label: I have checked upstream at crbug.com and I confirm this is NOT a known issue from Chromium.
+        - label: I have checked the Versanium issue tracker and confirmed that this issue has not already been reported.
           required: true
-        - label: I have checked the issue tracker and I confirm this is NOT a known issue in this project.
-          required: true
-
-  - type: textarea
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: Galaxy S23
+  - type: input
+    id: android-version
+    attributes:
+      label: Android version
+      placeholder: Android 16 / One UI 8.5
+  - type: input
+    id: versanium-version
+    attributes:
+      label: Versanium version
+  - type: dropdown
     id: environment
     attributes:
       label: Environment
-      description: Please provide the applicable device model, operating system version, and app version.
-    validations:
-      required: false
-
+      options:
+        - Smartphone
+        - Samsung DeX
+        - Other
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: A clear and concise description of what the issue is.
+      description: Describe the problem or improvement, and steps to reproduce where applicable. Do not include passwords, tokens, or private browsing information.
     validations:
       required: true
