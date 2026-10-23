@@ -2,7 +2,7 @@
 
 > Authoritative operational status for the Versanium project. Update this file whenever repository roles, active branches, build policy, current milestones, or blockers change.
 
-Last reviewed: 2026-10-22 JST (IdeaPad recovery proposal; not yet device/build validated)
+Last reviewed: 2026-10-23 JST (next-Test review branch; successful 155 recovery recorded, new candidates unbuilt)
 
 ## Project
 
@@ -138,3 +138,17 @@ PR #3 was merged into migration/versanium at 630c950c8e6cc940a85c9a5cf4aad5a7c04
 At about 10h53m, the user reported 1951/37342 tasks. A naive task-count extrapolation is not a reliable completion forecast. Longer vmstat samples showed repeated swap-in/out, swap-out peaks around 27MB/s, free memory dipping to about 80MB, and kernel CPU up to 52%. Twelve clang++ processes were present. This supports reducing concurrency to relieve memory pressure; it does not exclude sleep, power or thermal limits.
 
 Proposed change: pass -j 6 to both recovery autoninja targets. Preserve source paths, GN args, existing outputs, signing isolation, guards and the 20-hour timeout. There is no clean/reset or new build dispatch. Actual improvement must be measured after review/merge and explicit Test execution. Validation: 21 migration/recovery unit checks, inline shell syntax, bash -n and git diff --check. General persistent provisioning and Secondary/Notion/Project Sources refresh remain pending; do not interpret earlier proposal snapshots as current build success.
+
+## 2026-10-23 — Successful 155 recovery and next-Test review
+
+This section supersedes the *current-state* wording of the October 22 proposal snapshots above; their historical evidence remains intact. Live Primary integration before this work was `d64b78be40b15dee889c24c67ba689777e090ca7`.
+
+Run [39765620887](https://github.com/Nvoid911-Lab/Versanium/actions/runs/39765620887) is **success**, using the saved original 155 source through the IdeaPad recovery route. It did not reapply a new PiP fix. The user confirmed F11, smartphone YouTube PiP/tab-background failures and working DeX playback/PiP. Mobile/DeX zoom is in use; backup/restore is now required. APK binary inclusion has not been independently inspected.
+
+A review branch `next-test/156-zoom-transfer-pip` proposes the official stable Titanium 156.0.8078.47 input, native patch adaptation, SAF zoom backup/restore, opt-in YouTube-only candidates/diagnostics and an isolated fresh IdeaPad tree with provenance. These are **implemented review candidates with limited local checks, not built or device-verified**. See [next-Test review](docs/versanium/next-test-156-review.md) for exact revisions, test scopes and the device matrix.
+
+The 156 revision rejects old resume mode. It preserves the old successful tree/output and uses a new run-ID directory for a fresh build. Do not reinterpret old state as a new source version. No Test Build is authorized in this work unit: review comes first and the user controls later manual execution.
+
+Outstanding before calling it build-ready: pinned AndroidX package access (network proxy HTTP403), actual SAF preference screen/type/lifecycle verification, complete JNI/native/GN integration checks where feasible, local Windows/WSL/account/capacity evidence, and review of the limited inline-PiP candidate. Main still has old Titanium-facing presentation; a separate documentation-only main PR is proposed without promoting code or releasing an APK.
+
+Notion/Project Sources were unavailable to this workspace and have not been marked updated. At least the October 19 context described above is historical. After reviewed integration and Primary→Secondary synchronization settle, verify/refresh the canonical context following RULES; do not label this unmerged proposal a settled release.

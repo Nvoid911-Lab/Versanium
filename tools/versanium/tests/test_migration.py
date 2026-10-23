@@ -107,14 +107,14 @@ class MigrationTests(unittest.TestCase):
     def test_packaging_bytes_and_only_arm64(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);source=root/'release';source.mkdir();payload=b'NOT-AN-APK: filename/copy fixture only'
-            (source/'155.0.8059.79-arm64-v8a.apk').write_bytes(payload)
-            (source/'155.0.8059.79-armeabi-v7a.apk').write_bytes(b'not for release')
-            test=package_apk.package(source,root/'test','155.0.8059.79',True)
-            prod=package_apk.package(source,root/'production-name-fixture','155.0.8059.79',False)
-            self.assertEqual(test.name,'Versanium-155.0.8059.79_Test.apk');self.assertEqual(prod.name,'Versanium-155.0.8059.79_arm64-v8a.apk')
+            (source/'156.0.8078.47-arm64-v8a.apk').write_bytes(payload)
+            (source/'156.0.8078.47-armeabi-v7a.apk').write_bytes(b'not for release')
+            test=package_apk.package(source,root/'test','156.0.8078.47',True)
+            prod=package_apk.package(source,root/'production-name-fixture','156.0.8078.47',False)
+            self.assertEqual(test.name,'Versanium-156.0.8078.47_Test.apk');self.assertEqual(prod.name,'Versanium-156.0.8078.47_arm64-v8a.apk')
             self.assertEqual(test.read_bytes(),payload);self.assertEqual(prod.read_bytes(),payload)
             with self.assertRaises(ValueError):package_apk.package(source,root/'bad','155.0.8059.39',True)
-            with self.assertRaises(ValueError):package_apk.package(source,root/'bad','155.0.8059.79\nINJECT',True)
+            with self.assertRaises(ValueError):package_apk.package(source,root/'bad','156.0.8078.47\nINJECT',True)
     def test_workflow_release_guard_and_no_auto_trigger(self):
         w=yaml.load((REPO/'.github/workflows/build.yml').read_text(),Loader=yaml.BaseLoader)
         self.assertEqual(set(w['on']),{'workflow_dispatch'});self.assertEqual(w['name'],'Versanium Build')

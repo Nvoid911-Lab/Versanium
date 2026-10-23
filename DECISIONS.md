@@ -122,3 +122,13 @@ Verification / evidence:
 **Reason:** User-supplied long-duration vmstat measurements show recurring memory pressure and swap traffic on the 12GB WSL instance. The default execution had twelve concurrent clang++ processes and very slow progress.
 
 **Proposed change:** Use autoninja -j 6 for chrome_java and chrome_public_apk in recovery only. Scheduling is changed without changing GN inputs or cleaning incremental state. Six is an initial measured tuning candidate, not a promise of six-hour completion. Keep telemetry for comparison. Production remains blocked; Run 39624481319 is cancelled and a new Test dispatch requires user selection.
+
+## 2026-10-23 — Propose 156 Test with explicit candidate and recovery separation
+
+**Evidence:** Primary d64b78b and successful recovery Run39765620887 reuse the 155 tree from original source6e7517e. User confirmed F11 and persistent smartphone YouTube problems with working DeX. This was not a test of newly applied independent playback fixes. Official latest stable at work start is v156.0.8078.47.
+
+**Review proposal:** Preserve upstream merge history/exact pins; adapt the zoom overlay's context to retain Chromium's newer CHECK. Add confirmed SAF backup/restore of absolute zoom values, retaining internal keys/migration marker and profile privacy. Add separately switchable, bounded YouTube-only PiP-attribute/background-visibility candidates and minimal non-content diagnostics. Keep these statuses distinct from build/device success.
+
+**Build boundary:** Reject old resume mode on the new revision. Use an isolated fresh IdeaPad directory and explicit source/GN/toolchain provenance. Keep six local jobs as an initial conservative cap, with the 20-hour IdeaPad timeout and a required local host-capacity check. Do not clean/relabel/repatch the prior tree or dispatch a build. All production/main/tag gates remain unchanged.
+
+**Remaining review blockers:** AndroidX package access and real preference UI/type validation, whole native/GN/renderer integration, inline PiP fullscreen limitations, native-vs-page pause diagnosis and actual Windows/WSL capacity. Notion/Project Sources need a verified refresh after reviewed integration, not before. A separate main documentation PR does not authorize code promotion or Release.
