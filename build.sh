@@ -74,6 +74,8 @@ PY
 gclient runhooks || { echo "ERROR: gclient runhooks failed; stopping before patch.sh."; exit 1; }
 ./build/install-build-deps.sh --no-prompt
 
+# Freeze the tool coordinator after dependency hooks, before GN/compilation/provenance.
+export DEPOT_TOOLS_UPDATE=0
 source $SCRIPT_DIR/patch.sh
 cp $SCRIPT_DIR/args.gn out/Default/args.gn
 if [ "$F11_TEST_BUILD" = "1" ]; then
