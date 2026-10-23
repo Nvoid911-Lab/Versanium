@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 /** UI-thread-only bridge; no application-wide host/default zoom switching. */
 public final class EnvironmentZoom {
     private static final Map<BrowserContextHandle, EnvironmentZoomPolicy> STORES = new WeakHashMap<>();
+    private static final Map<WebContents, Runnable> ENVIRONMENT_LISTENERS = new WeakHashMap<>();
     private static final Map<WebContents, Binding> CONTENTS = new WeakHashMap<>();
     private static final Map<BrowserContextHandle, Boolean> LEGACY_DEFAULTS = new WeakHashMap<>();
     private static final Map<String, WeakReference<EnvironmentZoomPolicy>> REGULAR = new LinkedHashMap<>();
@@ -61,6 +62,17 @@ public final class EnvironmentZoom {
 
     public static void registerLegacyDefaultPresence(BrowserContextHandle context, boolean present) {
         LEGACY_DEFAULTS.put(context, present);
+    }
+    public static boolean isPrivateContext(BrowserContextHandle context) {
+        ThreadUtils.assertOnUiThread();
+        return context.getNativeBrowserContextPointer() == 0 || HostZoomMapImpl.isEnvironmentPrivate(context);
+    }
+    public static void setEnvironmentListener(WebContents contents, Runnable listener) {
+        ENVIRONMENT_LISTENERS.put(contents,listener);
+    }
+    public static boolean isMobileDisplay(WebContents contents) {
+        Binding binding = binding(contents);
+        return binding != null && binding.lastEnvironment == EnvironmentZoomPolicy.Environment.MOBILE;
     }
     public static EnvironmentZoomPolicy store(BrowserContextHandle context) {
         ThreadUtils.assertOnUiThread();
@@ -190,13 +202,23 @@ public final class EnvironmentZoom {
         return window == null ? null : window.getActivity().get();
     }
     public static EnvironmentZoomPolicy.Environment environment(Context context) {
-        int displayId = DisplayAndroid.getNonMultiDisplay(context).getDisplayId();
+        return environment(context, null);
+    }
+    private static EnvironmentZoomPolicy.Environment environment(Context context, EnvironmentZoomPolicy policy) {
+        int displayId = displayId(context);
         // Override is display-scoped. It changes classification, never the zoom values themselves.
         String mode = ContextUtils.getAppSharedPreferences().getString(
                 "titanium.zoom.display." + displayId, "auto");
+        if (policy != null) mode = policy.displayMode(displayId, mode);
         boolean dex = "dex".equals(mode) || ("auto".equals(mode)
                 && displayId != Display.DEFAULT_DISPLAY);
         return dex ? EnvironmentZoomPolicy.Environment.DEX : EnvironmentZoomPolicy.Environment.MOBILE;
+    }
+    public static int displayId(Context context) {
+        return DisplayAndroid.getNonMultiDisplay(context).getDisplayId();
+    }
+    public static String displayMode(Context context, EnvironmentZoomPolicy policy) {
+        return policy.displayMode(displayId(context),displayMode(context));
     }
     public static String displayMode(Context context) {
         int displayId = DisplayAndroid.getNonMultiDisplay(context).getDisplayId();
@@ -219,7 +241,7 @@ public final class EnvironmentZoom {
     private static void updateEnvironment(WebContents contents, Binding binding) {
         Activity owner = activity(contents);
         if (owner == null || owner.isDestroyed()) return;
-        binding.lastEnvironment = environment(owner);
+        binding.lastEnvironment = environment(owner, binding.policy);
         binding.lastFont = HostZoomMap.shouldAdjustForOSLevel()
                 ? owner.getResources().getConfiguration().fontScale : 1.0f;
     }
@@ -294,6 +316,10 @@ public final class EnvironmentZoom {
         } finally { refreshing = false; }
     }
     private static void refresh(WebContents contents) {
-        if (!contents.isDestroyed() && activity(contents) != null) HostZoomMapImpl.refreshEnvironmentZoom(contents);
+        if (!contents.isDestroyed() && activity(contents) != null) {
+            HostZoomMapImpl.refreshEnvironmentZoom(contents);
+            Runnable listener = ENVIRONMENT_LISTENERS.get(contents);
+            if (listener != null) listener.run(); // Outside native zoom lookup; no JNI->Java->JS recursion.
+        }
     }
 }

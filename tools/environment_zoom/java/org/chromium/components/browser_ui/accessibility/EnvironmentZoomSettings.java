@@ -43,6 +43,7 @@ final class EnvironmentZoomSettings {
             pref.setValue(EnvironmentZoomPolicy.percent(policy.defaultFactor(env)));
             pref.setSummary(activity.getString(R.string.titanium_zoom_default_summary));
             pref.setOnPreferenceChangeListener((p, value) -> {
+                if (policy.isReplacing()) return false;
                 policy.setDefault(env, EnvironmentZoomPolicy.factor((Integer) value));
                 EnvironmentZoom.refreshAll();
                 return true;
@@ -60,12 +61,15 @@ final class EnvironmentZoomSettings {
         mode.setEntries(new CharSequence[] {activity.getString(R.string.titanium_zoom_auto),
                 activity.getString(R.string.titanium_zoom_mobile), activity.getString(R.string.titanium_zoom_dex)});
         mode.setEntryValues(new CharSequence[] {"auto", "mobile", "dex"});
-        mode.setValue(EnvironmentZoom.displayMode(activity));
+        mode.setValue(EnvironmentZoom.displayMode(activity, policy));
         mode.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
         mode.setOnPreferenceChangeListener((p, value) -> {
-            EnvironmentZoom.setDisplayMode(activity, (String) value);
+            if (policy.isReplacing()) return false;
+            policy.setDisplayMode(EnvironmentZoom.displayId(activity), (String) value);
+            EnvironmentZoom.refreshAll();
             return true;
         });
+        EnvironmentZoomTransfer.add(fragment,context,policy);
     }
     private static void showSites(Context activity, EnvironmentZoomPolicy policy,
             EnvironmentZoomPolicy.Environment env) {

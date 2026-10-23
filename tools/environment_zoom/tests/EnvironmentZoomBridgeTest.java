@@ -82,6 +82,11 @@ public final class EnvironmentZoomBridgeTest {
         settle();
         check(EnvironmentZoom.save(secret,"retired.test",EnvironmentZoomPolicy.factor(90)));
         check(!EnvironmentZoom.store(restarted).hasSite(EnvironmentZoomPolicy.Environment.DEX,"retired.test"));
+        WebContents importedDisplay=tab(dex,restarted);
+        EnvironmentZoom.store(restarted).setDisplayMode(dex.displayId,"mobile");
+        EnvironmentZoom.refreshAll();
+        check(EnvironmentZoom.displayMode(dex,EnvironmentZoom.store(restarted)).equals("mobile"));
+        check(EnvironmentZoom.isMobileDisplay(importedDisplay));
         System.out.println("EnvironmentZoomBridge: "+checks+" assertions passed with MOCK Android/JNI renderer");
     }
 }

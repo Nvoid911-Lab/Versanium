@@ -10,4 +10,9 @@
     <string formatted="false" name="titanium_zoom_sites_summary">Select a site to remove its override in this environment.</string>
     <string formatted="false" name="titanium_zoom_no_sites">No site overrides saved in this environment.</string>
     <string formatted="false" name="titanium_zoom_reset_confirm">Use the environment default for this site? The other environment stays unchanged.</string>
+    <string name="titanium_zoom_export">Export zoom settings</string>
+    <string name="titanium_zoom_import">Import zoom settings</string>
+    <string name="titanium_zoom_transfer_ok">Zoom settings transfer completed.</string>
+    <string name="titanium_zoom_transfer_failed">Transfer failed or a save is pending. Settings were not replaced; retry after pending saves complete.</string>
+    <string name="titanium_zoom_import_confirm">Replace both environments? Mobile default: %1$d%%; DeX default: %2$d%%; saved sites: %3$d. Display mode: %4$s will apply to THIS screen only. Existing site overrides in both environments will be replaced, not merged. Other local screen overrides are preserved.</string>
 </resources>

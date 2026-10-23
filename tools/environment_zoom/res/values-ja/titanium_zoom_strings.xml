@@ -10,4 +10,9 @@
     <string formatted="false" name="titanium_zoom_sites_summary">サイトを選ぶと、この環境の個別設定を解除できます。</string>
     <string formatted="false" name="titanium_zoom_no_sites">この環境に保存済みのサイト設定はありません。</string>
     <string formatted="false" name="titanium_zoom_reset_confirm">このサイトを環境のデフォルトに戻しますか？もう一方の環境には影響しません。</string>
+    <string name="titanium_zoom_export">ズーム設定をエクスポート</string>
+    <string name="titanium_zoom_import">ズーム設定をインポート</string>
+    <string name="titanium_zoom_transfer_ok">ズーム設定の転送が完了しました。</string>
+    <string name="titanium_zoom_transfer_failed">転送に失敗したか、保存処理が待機中です。設定は置換していません。保存完了後に再試行してください。</string>
+    <string name="titanium_zoom_import_confirm">両環境の設定を置換しますか？ モバイル既定: %1$d%%、DeX既定: %2$d%%、サイト設定: %3$d件。表示モード %4$s は現在の画面だけに適用します。両環境の既存サイト設定を統合せず置換します。他のローカル画面の指定は保持します。</string>
 </resources>

@@ -175,12 +175,13 @@
  static void JNI_HostZoomMapImpl_SetZoomLevelForHost(
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -400,6 +400,9 @@
+@@ -400,6 +400,10 @@
      "java/src/org/chromium/content_public/browser/GestureStateListener.java",
      "java/src/org/chromium/content_public/browser/GlobalRenderFrameHostId.java",
      "java/src/org/chromium/content_public/browser/HostZoomMap.java",
 +    "java/src/org/chromium/content_public/browser/EnvironmentZoom.java",
 +    "java/src/org/chromium/content_public/browser/EnvironmentZoomPolicy.java",
++    "java/src/org/chromium/content_public/browser/EnvironmentZoomBackup.java",
 +    "java/src/org/chromium/content_public/browser/EnvironmentZoomPersistence.java",
      "java/src/org/chromium/content_public/browser/ImageDownloadCallback.java",
      "java/src/org/chromium/content_public/browser/ImeAdapter.java",
@@ -467,11 +468,12 @@
          }
 --- a/components/browser_ui/accessibility/android/BUILD.gn
 +++ b/components/browser_ui/accessibility/android/BUILD.gn
-@@ -39,6 +39,7 @@
+@@ -39,6 +39,8 @@
    srcjar_deps = [ ":accessibility_jni_headers" ]
    sources = [
      "java/src/org/chromium/components/browser_ui/accessibility/AccessibilitySettings.java",
 +    "java/src/org/chromium/components/browser_ui/accessibility/EnvironmentZoomSettings.java",
++    "java/src/org/chromium/components/browser_ui/accessibility/EnvironmentZoomTransfer.java",
      "java/src/org/chromium/components/browser_ui/accessibility/AccessibilitySettingsDelegate.java",
      "java/src/org/chromium/components/browser_ui/accessibility/DeviceAccessibilitySettingsHandler.java",
      "java/src/org/chromium/components/browser_ui/accessibility/FontSizePrefs.java",
@@ -559,3 +561,10 @@
  
          // Re-use the main control layout, but remove extra padding and background.
          LinearLayout container = (LinearLayout) holder.findViewById(R.id.page_zoom_view_container);
+--- a/components/browser_ui/accessibility/android/BUILD.gn
++++ b/components/browser_ui/accessibility/android/BUILD.gn
+@@ -85,3 +85,4 @@
+     "//third_party/androidx:androidx_annotation_annotation_java",
++    "//third_party/androidx:androidx_activity_activity_java",
+     "//third_party/androidx:androidx_core_core_java",
+     "//third_party/androidx:androidx_fragment_fragment_java",

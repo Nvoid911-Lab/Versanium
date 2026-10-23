@@ -10,7 +10,11 @@ public final class EnvironmentZoomPolicy {
     public interface Storage {
         Map<String, String> read();
         void write(Map<String, String> values);
+        default void replace(Map<String, String> values, java.util.function.Consumer<Boolean> done) {
+            done.accept(false); // Private/in-memory stores never import into regular data.
+        }
     }
+    private boolean replacing;
     private final Storage storage;
     private final Map<String, String> values;
 
@@ -57,12 +61,14 @@ public final class EnvironmentZoomPolicy {
         return values.containsKey(siteKey(env, host));
     }
     public void setDefault(Environment env, double factor) {
+        if (replacing) return;
         requireFinite(factor);
         if (Double.compare(defaultFactor(env), factor) == 0) return;
         values.put("default." + env.name(), Double.toString(factor));
         persist(); // Deliberately do not prune site entries equal to the default.
     }
     public void setSite(Environment env, String host, double factor) {
+        if (replacing) return;
         requireFinite(factor);
         if (host.isEmpty()) return;
         if (hasSite(env, host) && Double.compare(resolve(env, host), factor) == 0) return;
@@ -70,6 +76,7 @@ public final class EnvironmentZoomPolicy {
         persist(); // Explicitly saving the default is still an explicit site choice.
     }
     public void resetSite(Environment env, String host) {
+        if (replacing) return;
         if (values.remove(siteKey(env, host)) != null) persist();
     }
     public Map<String, Double> sites(Environment env) {
@@ -81,6 +88,29 @@ public final class EnvironmentZoomPolicy {
             }
         }
         return sites;
+    }
+    public boolean isReplacing() { return replacing; }
+    public String displayMode(int id, String fallback) {
+        return values.getOrDefault("display." + id, fallback);
+    }
+    public void setDisplayMode(int id, String mode) {
+        if (replacing) return;
+        values.put("display." + id, mode);persist();
+    }
+    public void importSnapshot(Map<String, String> imported, String mode, int currentDisplay,
+            java.util.function.Consumer<Boolean> done) {
+        if (replacing) { done.accept(false);return; }
+        Map<String, String> replacement = new LinkedHashMap<>(imported);
+        // Preserve this device's OTHER display overrides; never restore foreign display IDs.
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            if (entry.getKey().startsWith("display.")) replacement.put(entry.getKey(),entry.getValue());
+        }
+        replacement.put("display." + currentDisplay,mode);
+        replacing = true;
+        storage.replace(replacement, success -> {
+            if (success) { values.clear();values.putAll(replacement); }
+            replacing = false;done.accept(success);
+        });
     }
     public Map<String, String> snapshot() { return new LinkedHashMap<>(values); }
     private void persist() { storage.write(snapshot()); }

@@ -91,7 +91,7 @@ public class HostZoomMapImpl {public static String getEnvironmentProfileKey(Brow
 }
 
 
-def run(ecj=None):
+def run(ecj=None, android_json=None):
     bundle = Path(__file__).resolve().parents[1]
     with tempfile.TemporaryDirectory(prefix='titanium-zoom-jvm-') as temporary:
         root = Path(temporary)
@@ -102,17 +102,20 @@ def run(ecj=None):
         sources = list((root/'stubs').rglob('*.java'))
         sources += list((bundle/'java/org/chromium/content_public/browser').glob('*.java'))
         sources += list((bundle/'tests').glob('*Test.java'))
+        if android_json is None:
+            sources=[s for s in sources if s.name not in ('EnvironmentZoomBackup.java','EnvironmentZoomBackupTest.java')]
         command = ['java', '-jar', str(ecj), '-21'] if ecj else ['javac', '--release', '21']
-        subprocess.run(command+['-d',str(root/'classes')]+[str(s) for s in sources],check=True)
-        for test in ['EnvironmentZoomPolicyTest','EnvironmentZoomBridgeTest','EnvironmentZoomPersistenceTest']:
-            subprocess.run(['java','-cp',str(root/'classes'),test],check=True)
+        subprocess.run(command+(['-cp',str(android_json)] if android_json else [])+['-d',str(root/'classes')]+[str(s) for s in sources],check=True)
+        for test in ['EnvironmentZoomPolicyTest','EnvironmentZoomBridgeTest','EnvironmentZoomPersistenceTest']+(['EnvironmentZoomBackupTest'] if android_json else []):
+            subprocess.run(['java','-cp',str(root/'classes')+(':'+str(android_json) if android_json else ''),test],check=True)
         print('Renderer / JNI / Android lifecycle are MOCKED in bridge test; APK verification is still required.')
 
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--ecj',type=Path)
+    parser.add_argument('--android-json',type=Path)
     args=parser.parse_args()
     if not args.ecj and not shutil.which('javac'):
         parser.error('Install JDK 21, or supply --ecj with a trusted ECJ 3.40.0 jar')
-    run(args.ecj)
+    run(args.ecj,args.android_json)

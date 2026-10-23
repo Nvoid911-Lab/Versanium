@@ -34,6 +34,22 @@ public final class EnvironmentZoomPersistence implements EnvironmentZoomPolicy.S
         failures = 0;
         if (!running) schedule(200);
     }
+    @Override public void replace(Map<String, String> values, java.util.function.Consumer<Boolean> done) {
+        if (hasPendingWrite()) { done.accept(false);return; } // Never race a queued ordinary save.
+        Map<String, String> batch = Collections.unmodifiableMap(new LinkedHashMap<>(values));
+        running = true;
+        dispatch.background(() -> {
+            boolean success;
+            try { success = writer.write(batch); }
+            catch (RuntimeException error) { success = false; }
+            final boolean result = success;
+            dispatch.main(() -> {
+                running = false;
+                if (result) memory = batch;
+                done.accept(result); // Import UI owns failure feedback; no uncommitted retry snapshot.
+            });
+        });
+    }
     public void flush() {
         dispatch.cancel(launchTask);
         failures = 0;

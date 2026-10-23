@@ -32,6 +32,15 @@ public final class EnvironmentZoomPersistenceTest {
   Dispatch exceptionDispatch=new Dispatch();EnvironmentZoomPersistence exception=new EnvironmentZoomPersistence(Map.of(),values->{throw new IllegalStateException();},exceptionDispatch);
   exception.write(Map.of("keep","pending"));exception.flush();exceptionDispatch.complete();
   check(exception.hasFailure() && exception.read().get("keep").equals("pending"));
+  boolean[] replaced={false};
+  p.replace(Map.of("zoom","imported"),ok->replaced[0]=ok);
+  check(!replaced[0]&&p.read().get("zoom").equals("latest"));
+  d.complete();check(replaced[0]&&p.read().get("zoom").equals("imported"));
+  fail[0]=true;replaced[0]=true;p.replace(Map.of("zoom","rejected"),ok->replaced[0]=ok);
+  d.complete();check(!replaced[0]&&p.read().get("zoom").equals("imported"));
+  p.write(Map.of("zoom","pending"));replaced[0]=true;
+  p.replace(Map.of("zoom","must.not.race"),ok->replaced[0]=ok);
+  check(!replaced[0]&&p.read().get("zoom").equals("pending"));
   System.out.println("EnvironmentZoomPersistence: "+checks+" checks PASS (1000 changes coalesced; serial writes, failures and retry)");
  }
 }
