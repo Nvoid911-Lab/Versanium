@@ -1,5 +1,14 @@
 # Versanium Project Status
 
+Latest Forward② evidence (2026-10-25 JST): restart confirmed; PiP briefly
+visible/audio stopped/no crash. Wrapper→ExclusiveAccess forwarding precedes
+accepted exit; normal Activity branch absent, downstream FullscreenManager not
+excluded. Fixed156 EAM JNI→FullscreenController→context→Java Base path and
+recursive WebContents exit chain verified in source. First native requester
+remains unknown. See config-a-origin-forward2-review.md and complete device log.
+Native diagnostic scope/lifetime/JNI/target design documented; no product fix,
+saved-host changes or build. Existing67 tests/source audits remain bounded checks.
+
 Latest preparation: prepare_config_a_origin_forward.py adds independent
 read-only/explicit3-file apply/precompile verify against completed AOrigin
 LfbK0s evidence (not A/installed). Pinned43 manifest, fixed-source reconstruction,

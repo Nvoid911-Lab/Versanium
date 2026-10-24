@@ -1,5 +1,14 @@
 # Versanium Architecture
 
+Fixed156 EAM path: Java native-pointer gate→ExclusiveAccessManagerAndroid JNI→
+FullscreenController→Android NotifyTabExclusiveAccessLost (clears exclusive tab
+then WebContents exit)→context native/Java→FullscreenManager.onExitFullscreen.
+Base cleanup can call WebContents.exitFullscreen again. Repeated forwarding can
+be reentry/chain, not independent root requests. PiP persistent screen-state
+preserves fullscreen; Base multiwindow PiP guard is disabled when EAM enabled.
+No blanket bypass follows from these facts. Native scope/JNI/dependency/lifetime
+review is documented in docs/versanium/config-a-origin-forward2-review.md.
+
 AOriginForward transaction is separate from historical apply controllers:
 require built AOrigin updated provenance == after-apk == current recorder;
 43 selected hashes, scratch reconstruction of3 Java from fixed source/pinned

@@ -222,3 +222,14 @@ inventory. Default read-only, explicit apply with external backups/intent,
 post-verify before compilation. Partial failure retains evidence without rollback.
 Plan real Java/NullAway then APK/same-key signing to distinct ConfigAOriginForward
 filename; do not execute. Java forwarding only; native requester remains unknown.
+
+## 2026-10-25 — Forward② narrows route to EAM, not initial cause
+
+Preserve full log and brief-visible-PiP/audio-stop/no-crash/restart report.
+Observed ExclusiveAccess forwarding before Base acceptance narrows Java route;
+it does not establish JNI/native guard or first caller. Fixed source admits EAM
+reentry and context→FullscreenManager output. Do not infer independent requests
+from repetitions, renderer completion from persistent return, or no downstream
+FullscreenManager from absent normal Activity label. Defer behavior changes;
+document safe scoped native ingress/guard/context diagnostics and lifetime/JNI/
+GN gates. No feature force-off, blanket exit suppression or grace-only fix.
