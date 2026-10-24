@@ -54,6 +54,8 @@ def apply(root,repository):
     subprocess.run(['git','apply',str(diagnostics)],cwd=root,check=True)
     from apply_fullscreen_origin import apply as apply_origins
     apply_origins(root)
+    from apply_fullscreen_delegate_origin import apply as apply_delegate_origins
+    apply_delegate_origins(root)
     tab.write_text(source)
     flags=root/'chrome/browser/about_flags.cc'
     text=flags.read_text();anchor='    {"versanium-youtube-diagnostics",'

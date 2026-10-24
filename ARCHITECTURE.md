@@ -1,5 +1,11 @@
 # Versanium Architecture
 
+AOriginForward uses existing UI-thread PiP controller registry/current Tab
+identity to route fixed forwarding labels into the existing scoped logger.
+It introduces no window-to-Activity inference, retained native pointer or JNI.
+Wrapper entry and existing Activity delegate branches distinguish Java routes;
+native renderer/browser/security origin remains a separate unimplemented bridge.
+
 AOrigin② source trace: native WebContentsDelegateAndroid can forward through
 TabWebContentsDelegateAndroidImpl and ActivityTabWebContentsDelegateAndroid
 directly to FullscreenManager.onExitFullscreen, without Base-local request labels.

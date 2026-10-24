@@ -205,3 +205,11 @@ Trace the fixed156 native/Java delegate forwarding gap; propose branch-local
 labels before changing behavior. Recorded STOPPED/hidden follow first accepted
 exit; do not bypass all fullscreen exits/onStop or extend grace as a substitute.
 No product/apply-manifest changes; no B or host operations are authorized.
+
+## 2026-10-24 — Implement Java forwarding diagnosis on AOrigin baseline
+
+Adopt only fixed wrapper/selected Activity-branch labels and scoped tab reporter.
+Preserve feature reads, eligibility, manager calls and lifecycle behavior. Use
+built AOrigin evidence LfbK0s and43-input before/after manifest, never A/installed.
+Keep old apply helpers unchanged. Native origin remains unresolved; defer native
+implementation until a scoped lifetime-safe JNI bridge is reviewed. No B/apply/build.

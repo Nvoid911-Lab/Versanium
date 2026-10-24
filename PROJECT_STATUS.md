@@ -1,5 +1,13 @@
 # Versanium Project Status
 
+Latest candidate: AOriginForward adds wrapper-entry and existing Activity
+delegate-branch fixed labels, plus a scoped current-tab controller bridge.
+Baseline is built/signed AOrigin evidence config-a-origin-evidence-LfbK0s,
+NOT A or installed60b.43-input selection changes3 Java files, retains other40
+and excludes B. New diagnostic does not establish the initial native caller;
+scoped native follow-up is considered but deferred pending bridge/lifetime review.
+See docs/versanium/config-a-origin-forward-review.md. No saved-host apply/build.
+
 Latest AOrigin② device evidence (2026-10-24 JST): restart directly confirmed;
 no visible PiP, audio stopped, no crash. Framework entry precedes accepted exit
 104ms, successful move-to-back108ms, SYSTEM suspend205ms; STOPPED/tab hidden
