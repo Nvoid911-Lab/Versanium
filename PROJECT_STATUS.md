@@ -1,5 +1,12 @@
 # Versanium Project Status
 
+Latest preparation: prepare_config_a_origin_forward.py adds independent
+read-only/explicit3-file apply/precompile verify against completed AOrigin
+LfbK0s evidence (not A/installed). Pinned43 manifest, fixed-source reconstruction,
+other40/B exclusion, external backup/intent/provenance/full output checks;
+partial failure stops without rollback. See config-a-origin-forward-apply.md.
+Java転送経路の確認用。native要求元は未確定。No saved-host apply/compile.
+
 Latest candidate: AOriginForward adds wrapper-entry and existing Activity
 delegate-branch fixed labels, plus a scoped current-tab controller bridge.
 Baseline is built/signed AOrigin evidence config-a-origin-evidence-LfbK0s,

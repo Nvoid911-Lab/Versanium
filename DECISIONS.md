@@ -213,3 +213,12 @@ Preserve feature reads, eligibility, manager calls and lifecycle behavior. Use
 built AOrigin evidence LfbK0s and43-input before/after manifest, never A/installed.
 Keep old apply helpers unchanged. Native origin remains unresolved; defer native
 implementation until a scoped lifetime-safe JNI bridge is reviewed. No B/apply/build.
+
+## 2026-10-24 — Prepare AOriginForward independent three-file transaction
+
+Require completed AOrigin LfbK0s evidence, not A/installed; reconstruct pinned
+before/after bytes and check43 inputs. Preserve other40/B exclusion and output
+inventory. Default read-only, explicit apply with external backups/intent,
+post-verify before compilation. Partial failure retains evidence without rollback.
+Plan real Java/NullAway then APK/same-key signing to distinct ConfigAOriginForward
+filename; do not execute. Java forwarding only; native requester remains unknown.

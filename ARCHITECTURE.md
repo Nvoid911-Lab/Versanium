@@ -1,5 +1,11 @@
 # Versanium Architecture
 
+AOriginForward transaction is separate from historical apply controllers:
+require built AOrigin updated provenance == after-apk == current recorder;
+43 selected hashes, scratch reconstruction of3 Java from fixed source/pinned
+transforms; retain other40 and all generated output. Verify is precompile-only.
+No old helper gate changes, automatic rollback or build execution.
+
 AOriginForward uses existing UI-thread PiP controller registry/current Tab
 identity to route fixed forwarding labels into the existing scoped logger.
 It introduces no window-to-Activity inference, retained native pointer or JNI.
