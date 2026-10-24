@@ -15,6 +15,9 @@ import subprocess
 import sys
 import zipfile
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from flag_metadata_pipeline import apply_candidate_entries, reproduce, patch_sh_flags, EXPIRY_FLAGS
+
 sys.dont_write_bytecode = True
 
 BASE = "7d9102f4f0e35dec9f69425de44cd889836a88ac"
@@ -51,8 +54,13 @@ UNCHANGED_INTEGRATION = {
     "content/public/android/java/src/org/chromium/content/browser/webcontents/WebContentsImpl.java": "98d03d135bf6128d9324f3c5eff31525ef15d0cd2a643b3da47f11dcc0571484",
     "content/public/android/java/src/org/chromium/content_public/browser/WebContents.java": "7cb95e10b38e55a1b1007e590eb8fd0dbe946f12fb28fb5954a5cae42a30c246",
     "content/browser/BUILD.gn": "7242bd860e255c600996413d12bdd494cca9c192e7dee285c8e7ebeb6f77b193",
-    "chrome/browser/flag-metadata.json": "293f70fc5fb06168611389d93af5f99f70a3adcb77d9cea3d432a4de2d5f199c",
+    "chrome/browser/flag-metadata.json": "dc5a9275719afa3bfdd89a1a1f199f524a701d3bdb4c512f4ab8bb0841abb88b",
 }
+
+FLAG_HEAD_SHA = "c1550b2a0dd287a23e85714d387f46ab624735d92e0822f61760a4a02830c271"
+FLAG_CANDIDATE_ONLY_SHA = "293f70fc5fb06168611389d93af5f99f70a3adcb77d9cea3d432a4de2d5f199c"
+FLAG_EXPIRY_SHA = "47fce4ac41d035f49136b4a636455504f76a622a92f675ccc0b93e730094556d"
+FLAG_FINAL_SHA = UNCHANGED_INTEGRATION["chrome/browser/flag-metadata.json"]
 
 
 def sha(data):
@@ -252,7 +260,9 @@ def validate(workspace, control, archive, prior_evidence, current, expected_hash
     require(not git(control, "status", "--porcelain"), "Controller must be clean")
     subprocess.run(["git", "-C", str(control), "merge-base", "--is-ancestor", TARGET_CONTROLLER, "HEAD"], check=True)
     allowed = {"PROJECT_STATUS.md", "ARCHITECTURE.md", "DECISIONS.md", "RULES.md",
-               "tools/versanium/prepare_diagnostic_update.py"}
+               "tools/versanium/prepare_diagnostic_update.py",
+               "tools/versanium/flag_metadata_pipeline.py",
+               "tools/youtube_pip/tests/check_source_integration.py"}
     for name in git(control, "diff", "--name-only", TARGET_CONTROLLER, "HEAD").splitlines():
         require(name in allowed or name.startswith(("docs/", "tools/versanium/tests/test_diagnostic_update")),
                 "Post-target build input changed: " + name)
@@ -297,6 +307,18 @@ def validate(workspace, control, archive, prior_evidence, current, expected_hash
         require(file_sha(source / name) == pair[expected_hashes], "Changed-file baseline mismatch: " + name)
     for name, digest in UNCHANGED_INTEGRATION.items():
         require(file_sha(source / name) == digest, "Unchanged integration file drifted: " + name)
+    metadata_name = "chrome/browser/flag-metadata.json"
+    metadata_head = subprocess.check_output(["git", "-C", str(source), "show", "HEAD:" + metadata_name])
+    require(sha(metadata_head) == FLAG_HEAD_SHA, "Saved Chromium HEAD flag metadata changed")
+    require(sha(apply_candidate_entries(metadata_head)) == FLAG_CANDIDATE_ONLY_SHA,
+            "Candidate-only historical fixture stage changed")
+    require(patch_sh_flags(git_blob(control, TARGET_CONTROLLER, "patch.sh").decode("utf-8")) == EXPIRY_FLAGS,
+            "Target patch.sh expiry list changed")
+    expiry_metadata, final_metadata = reproduce(metadata_head)
+    require(sha(expiry_metadata) == FLAG_EXPIRY_SHA, "Expiry-only metadata reproduction changed")
+    require(sha(final_metadata) == FLAG_FINAL_SHA, "Final metadata reproduction changed")
+    require((source / metadata_name).read_bytes() == final_metadata,
+            "Saved flag metadata is not the byte-exact Run9 pipeline output")
     rfh = object_for_source(output, "content/browser/renderer_host/render_frame_host_impl.cc",
                             "obj/content/browser/browser/render_frame_host_impl.o")
     flags = object_for_source(output, "chrome/browser/about_flags.cc")

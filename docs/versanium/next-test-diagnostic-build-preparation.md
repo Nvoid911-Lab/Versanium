@@ -42,13 +42,45 @@ and reject an already-applied or drifted source.
 
 These integration inputs are byte-identical before/after and are pinned by the
 helper: fixed JS UTF-16 header, WebContents JNI C++/Java interface and
-implementation, `content/browser/BUILD.gn`, flag metadata, and public
-WebContents API. Therefore no JNI signature or GN source-list change is part of
-60b0037. GN regeneration, JNI regeneration as a manually requested target, and
-patch.sh reapplication are not preparation steps. `chrome_java` is still
+implementation, `content/browser/BUILD.gn`, generated final flag metadata, and
+public WebContents API. Therefore no JNI signature or GN source-list change is
+part of 60b0037. GN regeneration, JNI regeneration as a manually requested target,
+and patch.sh reapplication are not preparation steps. `chrome_java` is still
 required because two actual Java consumers changed. The two actual C++ objects
 must compile before the APK target. `chrome_public_apk` is the later link/package
 integration gate.
+
+### Corrected flag-metadata provenance
+
+The first real-host read-only preflight at controller b401856 stopped before
+source mutation/compilation because its expected flag-metadata hash was wrong.
+Evidence directory:
+`/home/takuma/versanium/diagnostic-preflight-b401856-A0I5mG`.
+Expected was `293f70fc...4556d`; saved reality was
+`dc5a9275...b88b`. The user compared HEAD to the saved file and found only the
+11 patch.sh expiry overrides plus the three Versanium flags.
+
+The error was in this preparation's selected-source fixture. It applied the
+three candidate records but omitted patch.sh lines36–38. Thus `293f...` is the
+fixed HEAD plus only three candidate records—an intermediate state that never
+represented the completed Run9 pipeline. It is no longer an allowed hash.
+
+`tools/versanium/flag_metadata_pipeline.py` now reproduces the real order while
+preserving every unrelated byte:
+
+1. fixed saved Chromium HEAD: `c1550b2a...c271`;
+2. exact ordered11 numeric expiry replacements from target60b patch.sh:
+   `47fce4ac...556d`;
+3. exact three-record insertion order/format from target60b
+   apply_youtube_candidates.py: `dc5a9275...b88b`.
+
+The final reproduced SHA256 exactly equals the user-reported saved-file SHA256.
+The actual saved bytes were not uploaded here, so the evidence is an exact
+pipeline reproduction plus SHA256 equality, not an independent byte-for-byte
+`cmp` performed by this cloud. The next host preflight compares the saved bytes
+directly against the reproduced bytes, rather than adding its hash to an
+allowlist. Any patch.sh flag-list, HEAD input, intermediate hash, insertion
+format, final hash, or direct byte mismatch stops.
 
 ## New helper and old-helper boundary
 
@@ -71,6 +103,8 @@ The new helper checks, before any source write:
   and tracked cleanliness, clang/clang++ hash, output directory and required
   Ninja/Siso state;
 - all four pre-update source hashes and seven unchanged JNI/GN/payload hashes;
+- fixed HEAD flag metadata, exact patch.sh 11-name list, expiry-only intermediate
+  hash, final three-record generation hash, and direct final-byte equality;
 - exact RFH object from the Run9 log, the main-toolchain `about_flags.cc` C++
   object derived from the saved byte-parsed Ninja graph, and exactly one
   `chrome_java` graph target.
@@ -194,10 +228,15 @@ preserving manual stop, DeX, Twitch/private and background tab playback.
 ## Validation performed in this preparation
 
 - Exact selected pinned156 old→target transformation of all four files: PASS.
+- Full flag-metadata pipeline from fixed HEAD through ordered11 expiry changes and
+  exact three candidate insertions: final `dc5a9275...b88b` PASS. This matches
+  the reported real file hash; cloud-side direct `cmp` against host bytes was not
+  possible. The former `293f...` candidate-only fixture is identified/rejected.
 - Repeated application, unrelated source drift, wrong/duplicate native edges,
   implicit-only source, other toolchain and duplicate chrome_java tests: PASS.
 - Seven unchanged generated/JNI/GN/payload inputs: exact SHA256 PASS.
-- Existing source integration, passive logger9 Java-double cases, native scope17
+- Existing source integration now includes the real expiry-before-candidate
+  order; passive logger9 Java-double cases, native scope17
   MODEL cases, DOM37 MODEL cases, migration/recovery39 and the new preparation
   tests: PASS locally. Models/doubles are not Chromium or device integration.
 - actionlint, YAML/inline shell, bash/documented command syntax and diff checks:

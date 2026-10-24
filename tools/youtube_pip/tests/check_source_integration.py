@@ -23,9 +23,13 @@ media=a.output_dir/'content/public/renderer/render_frame_media_playback_options.
 text=media.read_text();assert text.count('#if BUILDFLAG(IS_ANDROID)')==2
 media.write_text(text.replace('#if BUILDFLAG(IS_ANDROID)','#if 0')) # Existing unchanged Titanium policy.
 sys.path.insert(0,str(repo/'tools'))
+from versanium.flag_metadata_pipeline import apply_expiry_overrides,patch_sh_flags,EXPIRY_FLAGS
+assert patch_sh_flags((repo/'patch.sh').read_text())==EXPIRY_FLAGS
+metadata=a.output_dir/'chrome/browser/flag-metadata.json'
+metadata.write_bytes(apply_expiry_overrides(metadata.read_bytes()))
 from apply_youtube_candidates import apply
 apply(a.output_dir,repo)
-flags=(a.output_dir/'chrome/browser/flag-metadata.json').read_text()
+flags=metadata.read_text()
 names=re.findall(r'"name": "([^"\n]+)"',flags)
 assert len(names)==len(set(names))
 for name in ('versanium-youtube-diagnostics','versanium-youtube-pip-candidate','versanium-youtube-background-candidate'):

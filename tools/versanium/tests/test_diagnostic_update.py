@@ -41,9 +41,29 @@ class DiagnosticUpdateTests(unittest.TestCase):
         if not OLD.is_dir() or not NEW.is_dir():
             self.skipTest("selected pinned156 comparison trees unavailable")
         for name, digest in d.UNCHANGED_INTEGRATION.items():
+            if name == "chrome/browser/flag-metadata.json":
+                continue
             with self.subTest(name=name):
                 self.assertEqual(d.file_sha(OLD / name), digest)
                 self.assertEqual(d.file_sha(NEW / name), digest)
+
+    def test_flag_metadata_exact_pipeline(self):
+        from tools.versanium import flag_metadata_pipeline as pipeline
+        head = Path("/tmp/versanium156/source/chrome/browser/flag-metadata.json")
+        if not head.is_file():
+            self.skipTest("fixed Chromium156 metadata unavailable")
+        data = head.read_bytes()
+        expiry, final = pipeline.reproduce(data)
+        self.assertEqual(d.sha(data), d.FLAG_HEAD_SHA)
+        self.assertEqual(d.sha(pipeline.apply_candidate_entries(data)), d.FLAG_CANDIDATE_ONLY_SHA)
+        self.assertEqual(d.sha(expiry), d.FLAG_EXPIRY_SHA)
+        self.assertEqual(d.sha(final), d.FLAG_FINAL_SHA)
+        self.assertEqual(pipeline.patch_sh_flags((ROOT / "patch.sh").read_text()), pipeline.EXPIRY_FLAGS)
+        for name in pipeline.EXPIRY_FLAGS:
+            start = final.index(('"name": "' + name + '"').encode())
+            self.assertIn(b'"expiry_milestone": -1', final[start:final.index(b"}", start)])
+        for name in pipeline.CANDIDATE_FLAGS:
+            self.assertEqual(final.count(('"name": "' + name + '"').encode()), 1)
 
     def test_native_edges_and_other_toolchain(self):
         with tempfile.TemporaryDirectory() as directory:
