@@ -1,5 +1,14 @@
 # Versanium Project Status
 
+Latest native preparation: standalone prepare_native_diagnostic.py and new
+post-GN audit_native_graph.py, no historical helper imports/changes. Baseline
+built Forward lnxJen applied/after-apk/current provenance + distribution APK
+0264aec7… exact hash.50 before/header absent→51 source-only after; other43/B,
+tools/args/signing source/output preserved. Source apply and manual GN generation
+are separate gates. GN required for modified BUILD.gn; objects resolved from
+actual loaded bytes graph + GN source/rule/toolchain, no guessed target names.
+See native-diagnostic-build-preparation.md. No real-host apply/GN/compile.
+
 Latest candidate (2026-10-25 JST): EAM JNI entry/controller selected-branch/
 context-output native diagnostics and synchronous nesting depth implemented.
 Normal non-shutdown profile, HTTPS exact YouTube, diagnosis ON and live actual

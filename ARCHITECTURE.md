@@ -1,5 +1,12 @@
 # Versanium Architecture
 
+Native preparation is independent of old helpers: Forward50/source-only51 with
+unchanged generated outputs, external source+graph/state backup and provenance.
+Graph regeneration is a separate manual authorization/command; post-GN read-only
+audit allows only graph byte differences and resolves actual default-toolchain
+cxx objects from loaded Ninja edges and GN metadata. Non-UTF8 irrelevant Ninja
+bytes are preserved, never errors-ignore decoded. No old gate relaxation.
+
 Native diagnostic uses a default no-op ExclusiveAccessContext hook overridden
 only by Android, through existing Java context generated JNI. Actual contents
 identity is checked before routing to unchanged current-tab scoped logger.

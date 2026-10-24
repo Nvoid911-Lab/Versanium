@@ -244,3 +244,14 @@ generator relaxation. Root content renderer/browser/security remains unmeasured:
 do not introduce content→chrome dependency or infer original cause from EAM entry.
 Keep all43 Forward inputs/B unmodified; new50/51 selection needs a new reviewed
 transaction/GN plan before any host apply/build. Old helper gates remain unchanged.
+
+## 2026-10-25 — Separate native source apply from graph regeneration
+
+Require completed Forward lnxJen evidence and exact installed-distribution APK
+hash. Add standalone source-only transaction and post-GN byte/metadata audit,
+without importing any historical preflight/apply helper. Preserve50 inputs/new
+header absence and51 outputs/Forward43/B exclusion; external graph and histories
+backup precedes writes, partial failure retains evidence without rollback.
+Modified BUILD.gn requires GN gen with saved binary/args; no implicit regeneration
+via autoninja. Resolve actual objects by loaded source/rule/toolchain, not names.
+All actual host apply/GN/compile remain outside current authorization.
