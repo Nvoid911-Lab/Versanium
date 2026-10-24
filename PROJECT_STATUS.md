@@ -1,5 +1,7 @@
 # Versanium Project Status
 
+Current 2026-10-24 JST follow-up: user checkpoint confirms Diagnostic APK d01c7633… built/signed/installed with the same certificate; diagnosis-only smartphone/DeX playback and restart show no crash in reported conditions. Video fullscreen size tracks page zoom with diagnosis ON/OFF and also in old Titanium F11 Test (corrected comparison). New zoom correction defers to temporary zoom, avoids saving temporary setter changes, and applies a rendering-only100% override for DOM fullscreen plus effective video, restoring current environment zoom on exit. It is NOT compiled/device-tested. See [video zoom review](docs/versanium/video-fullscreen-zoom-review.md). Prior unbuilt-diagnostics status below is historical. Neither saved Run9 nor the four-file diagnostic recovery helper is modified/reused. PiP remains unresolved; no build/Actions/merge/Release authorized by this update.
+
 > Authoritative operational status for the Versanium project. Update this file whenever repository roles, active branches, build policy, current milestones, or blockers change.
 
 Last reviewed: 2026-10-24 JST (manual156 APK/device evidence; diagnostic CHECK hazard corrected, new APK unbuilt)
