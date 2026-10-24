@@ -51,11 +51,20 @@
              Log.d(TAG, "Block pip due to recent app tasks.");
              return false;
          }
-@@ -253,6 +253,31 @@
+@@ -253,6 +253,40 @@
          return true;
      }
  
 +    // Opt-in diagnosis only. Do not log URLs, titles, config, or private tabs.
++    /** Fixed internal event labels only; reuses normal-profile/YouTube diagnostic gates. */
++    public static void reportFullscreenExitOrigin(Activity activity, @Nullable Tab originTab, String origin) {
++        FullscreenVideoPictureInPictureController controller = sControllers.get(activity);
++        if (controller != null && originTab != null && !originTab.isDestroyed()
++                && !originTab.isOffTheRecord() && originTab == controller.mActivityTabProvider.get()) {
++            controller.reportTitaniumYoutubePip(origin);
++        }
++    }
++
 +    private String mLastTitaniumPipDiagnostic = "";
 +
 +    private void reportTitaniumYoutubePip(String stage) {

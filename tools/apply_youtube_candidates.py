@@ -52,6 +52,8 @@ def apply(root,repository):
             'namespace content {\ninline constexpr char16_t kVersaniumYoutubeCandidate[] = uR"VERSANIUM('
             + script + ')VERSANIUM";\n}\n#endif\n')
     subprocess.run(['git','apply',str(diagnostics)],cwd=root,check=True)
+    from apply_fullscreen_origin import apply as apply_origins
+    apply_origins(root)
     tab.write_text(source)
     flags=root/'chrome/browser/about_flags.cc'
     text=flags.read_text();anchor='    {"versanium-youtube-diagnostics",'

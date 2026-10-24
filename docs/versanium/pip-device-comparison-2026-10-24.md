@@ -1,5 +1,11 @@
 # Smartphone PiP comparison — 2026-10-24 JST
 
+Historical Diagnostic-APK comparison below remains intact. New ConfigA logs
+confirm real reason6 moveTaskToBack(true) success and later returned SYSTEM
+suspend for the ON trial, and video permission denial for OFF. See
+[ConfigA source-origin follow-up](config-a-pip-origin-review.md). Earlier
+uncertainty about actual calls applies only to the old log range, not new A.
+
 These are user-provided results/logs from the installed Diagnostic APK, NOT the
 unbuilt video-fullscreen-zoom candidate at3452edd. Both conditions use Galaxy S23
 phone display, YouTube zoom100%, diagnostics ON and background candidate ON.
