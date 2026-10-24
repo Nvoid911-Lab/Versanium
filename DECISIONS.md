@@ -122,3 +122,146 @@ Verification / evidence:
 **Reason:** User-supplied long-duration vmstat measurements show recurring memory pressure and swap traffic on the 12GB WSL instance. The default execution had twelve concurrent clang++ processes and very slow progress.
 
 **Proposed change:** Use autoninja -j 6 for chrome_java and chrome_public_apk in recovery only. Scheduling is changed without changing GN inputs or cleaning incremental state. Six is an initial measured tuning candidate, not a promise of six-hour completion. Keep telemetry for comparison. Production remains blocked; Run 39624481319 is cancelled and a new Test dispatch requires user selection.
+
+## 2026-10-23 — Propose 156 Test with explicit candidate and recovery separation
+
+**Evidence:** Primary d64b78b and successful recovery Run39765620887 reuse the 155 tree from original source6e7517e. User confirmed F11 and persistent smartphone YouTube problems with working DeX. This was not a test of newly applied independent playback fixes. Official latest stable at work start is v156.0.8078.47.
+
+**Review proposal:** Preserve upstream merge history/exact pins; adapt the zoom overlay's context to retain Chromium's newer CHECK. Add confirmed SAF backup/restore of absolute zoom values, retaining internal keys/migration marker and profile privacy. Add separately switchable, bounded YouTube-only PiP-attribute/background-visibility candidates and minimal non-content diagnostics. Keep these statuses distinct from build/device success.
+
+**Build boundary:** Reject old resume mode on the new revision. Use an isolated fresh IdeaPad directory and explicit source/GN/toolchain provenance. Keep six local jobs as an initial conservative cap, with the 20-hour IdeaPad timeout and a required local host-capacity check. Do not clean/relabel/repatch the prior tree or dispatch a build. All production/main/tag gates remain unchanged.
+
+**Remaining review blockers:** AndroidX package access and real preference UI/type validation, whole native/GN/renderer integration, inline PiP fullscreen limitations, native-vs-page pause diagnosis and actual Windows/WSL capacity. Notion/Project Sources need a verified refresh after reviewed integration, not before. A separate main documentation PR does not authorize code promotion or Release.
+
+**Pre-build correction to the October23 proposal:** Real-source review identified the WebUI-only JavaScript API gate. The draft must not be built with an unadapted normal-page call. A separate shared native scope predicate and marked-payload guard replace that invalid assumption, with no process-global injection enablement or test-only API. The 17 policy-model cases pass; actual Chromium C++ compilation/security review is still required.
+
+
+## 2026-10-23 — PR5 review: archive compatibility and fixed-payload native route
+
+**Supersedes:** The pre-build correction's original marked-payload/frame-wide CHECK exception, not upstream JavaScript restrictions. Keep generic JavaScript APIs byte-for-byte at the pinned Chromium implementation. Add a separate JNI route with no script argument, using only a compiled reviewed payload and natively checked flags/frame/profile/domain scope. A script marker is not authentication. Limited tests/JNI generation do not constitute a native build or security audit.
+
+**Legacy zoom:** Preserve all finite stored exponents in the archive; do not use slider limits as storage/schema limits. Before SAF replacement, reject an entire numerically unsafe restore explicitly while preserving its source file/current data. Do not silently clamp/delete entries. Slider summaries distinguish stored out-of-range defaults from its bounded thumb; renderer limits remain upstream behavior. Literal old-key fixtures and the pre-v1 migration path cover lossless double round trips without collecting user data.
+
+**Environment movement:** Restore only the candidate-owned PiP attribute; observed intervening site mutations revoke ownership even when the final value is again false. Restore still-owned detached elements before releasing references. Retain bounded attempts and opt-in/mobile-only changes.
+
+**Readiness:** Cloud CIPD CONNECT403 and runner-list API authorization403 are separate failures, neither evidence of host capacity or actual build-host dependency failure. Exact156 AndroidX snapshot metadata and local inspection/manual-ref steps are recorded in docs/versanium/next-test-156-review.md. No build, main merge, tag or Release is authorized by these changes; PR6 remains separate.
+
+
+## Run9 — Correct real GURL API and retain a strictly bounded156 recovery path
+
+**Correction:** At fixed Chromium1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775, GURL has std::string_view host() const, no host_piece(). Prior model success did not establish API compatibility; our earlier source review missed this. Replace only three calls and require real-header digest/declaration comparison before model tests. Actual failed-object compilation remains the next validation gate.
+
+**Recovery decision:** Do not rerun normal fresh-build logic, relax155 recovery, regenerate GN, resync/repatch/reset/clean/move the saved Run9 tree. Prepare a new156-specific manual validation/apply/recheck helper, pinned to Run39951209951/repository7d9102f and its original provenance artifact digest. Only after host validation and separate authorization may the real failed object be requested using the preserved Ninja/Siso graph; a subsequent full APK target requires a separate decision. Retain original provenance plus correction controller/diff/hash evidence. No cache-count/time promises.
+
+**Evidence limits:** Run metadata/provenance-artifact metadata are readable; log/artifact bytes are blocked in this cloud. GN/chrome_java success comes from the user's log. Actual host object compilation/APK/runtime remain unverified. Update information-source files before resumption; preserve PR6, signing/Secrets/package isolation/runner policies and main/migration refs. No Actions or build is authorized in this work unit.
+
+### Run9 — Match the logged object without requiring UTF-8 graph files
+
+**Evidence:** Read-only host preflight on controller093f787 stopped on non-UTF-8 bytes in an unrelated rust lib.ninja before mutation/compilation. Other toolchains define objects with the same basename. The user confirms the original log's failed target is obj/content/browser/browser/render_frame_host_impl.o.
+
+**Correction:** Parse ASCII build syntax as bytes, including Ninja continuation handling; do not silently delete undecodable characters or re-encode graph files. Require exactly one definition of the full logged target, rule cxx and its exact explicit .cc input. Do not conflate different toolchain prefixes or deduplicate repeated exact definitions. Retain all provenance and preserved-state gates. Retry only read-only preflight from the separate corrected controller with new evidence; this helper correction does not authorize apply, build or Actions. Fixture tests do not establish real host preflight/native success.
+
+## 2026-10-24 — Remove unsafe diagnostic probes; separate PiP exit investigation
+
+Context v1.9 records successful manual156 build/sign/install and diagnostic-only crash loops. Real pinned MediaWebContentsObserver requires fullscreen_player_ and picture_in_picture_allowed_in_fullscreen_ for the permission getter; our unconditional diagnostic query violated that contract. Remove the probe rather than weakening CHECKs. No stack means user root cause remains unconfirmed. Make diagnostics passive Java stage logging, exclude it from both candidate gates and always disable page diagnostic instrumentation. Retain candidate DOM behavior that improved tab playback. Do not alter PiP dismissal/MediaSession without event-order evidence. Persisted diagnosis should no longer reach this hazard after a future compatible update; no data-deletion/reproduction request or tested recovery claim. Keep saved Run9 untouched; its narrow recovery gate must reject this wider change.
+
+## 2026-10-24 — Prepare a separate evidence-gated reuse path for target60b0037
+
+The completed Run9 output contains useful real156 work but predates four applied source changes. Do not relax or repurpose `prepare_run9.py`. Add a distinct read-only-first controller which authenticates the original ZIP, ebfc correction evidence, saved post-build provenance, exact source hashes, unchanged generated/JNI/GN inputs, toolchain and current graph. A future apply needs separate authorization and may alter only the four reviewed files with external backups/evidence. Require chrome_java and the two graph-derived native objects before any separately approved APK continuation. Saved output implies neither reuse nor completion. The next APK tests diagnostic crash removal and collects PiP event order; it is not a PiP-fix APK.
+
+### Correct flag-metadata expectation from the actual patch order
+
+The b401856 host preflight exposed that selected-source testing had omitted the 11 patch.sh expiry edits before adding the three candidate records. Reject the resulting candidate-only293f hash as a pipeline expectation. Reproduce fixed HEADc155 → expiry-only47f → candidatesdc5 with exact patch.sh names/order and candidate formatting, then compare saved bytes directly. The reported real hash equals reproduceddc5, but cloud-side direct comparison is unavailable without the host file. Do not treat a newly observed digest as an allowlist or bypass provenance. The stopped preflight made no source/output change and does not authorize apply/build.
+
+## 2026-10-24 — Video fullscreen rendering candidate (unbuilt)
+
+Keep persisted default/site/environment values and backup formats. Restore upstream temporary zoom priority before environment lookup/save; temporary JNI adjustments must not persist. Render exponent0 only for outermost DOM fullscreen with a media fullscreen-player ID, preserving existing temporary entries. Re-evaluate on media fullscreen entry/exit and existing refresh. F11 alone is excluded and pause does not remove the override. Actual visual resolution/root cause and rotation/media ordering remain unverified; see docs/versanium/video-fullscreen-zoom-review.md. Prior diagnostic APK is user-confirmed working in diagnosis-only tests. Do not reuse/relax the four-file apply controller for this wider native change.
+
+## 2026-10-24 — Preserve both PiP comparison outcomes; instrument existing branches
+
+Candidate OFF is a blocked-entry observation; ON confirms entry then exit. The latter demonstrates a conditional eligibility/transition difference, superseding blanket "ineffective" interpretations. At +88ms the fixed50ms dismissal grace has elapsed, but old dismiss/stop logs precede real branch actions. Add actual branch and suspend-completion diagnostics, preserving getter counts/short circuit and all playback/exit rules. Do not ignore fullscreen6/7 or disable onStop based only on timing. Trace persistent-video, browser fullscreen origins and renderer effective state as hypotheses; no causal stack is present. Retain video zoom work and report its not-yet-built status separately.
+
+## 2026-10-24 — Correct common selected-source pipeline coverage for A/B
+
+Host provenance matched but three manifest files exposed six omitted inherited patch.sh operations. Reproduce exact commands and require reported host hashes from fixed inputs, rather than skipping files or accepting alternatives. Apply corrected coverage tooling to installed/A/B, regenerate B native hash/diff, and test omission of each operation plus order equivalence. Selected fixture PASS is not real-host40/40 or Chromium success. Old helpers remain strict and unchanged; corrected read-only comparison precedes any later authorization.
+
+## 2026-10-24 — Prepare executable A-only transaction after reported host40/40
+
+User confirms b341 host40/40 and applied/after-apk/current provenance match without apply/compile. Add an independent one-Java-file controller with default read-only, explicit apply, and precompile verify. Reconstruct fixed-source installed→A bytes via exact historical patches, retain external backup/intent/provenance/full Ninja-Siso-generated-output hashes, reject drift/repetition and preserve partial evidence without automatic rollback. No old helper relaxation or B application. Next narrow build gate is chrome_java before separately authorized APK/signing; A device evidence precedes B.
+
+## 2026-10-24 — ConfigA confirms actual exit; trace request origins before changing policy
+
+User A logs establish OFF video permission denial and ON reason6 move success/cleanup, later inactive7, returned SYSTEM suspend then media stop/framework exit. Update old execution uncertainty for this A trial only. Existing PiP guard is conditional multiwindow behavior, not a global protection. Add fixed same-tab safe labels at actual Base handler request/dispatch sites to identify the first caller; preserve condition evaluation/getter counts and all exit/stop rules. No grace-only fix or blanket suppression without a transition/user-intent distinction. Do not treat persistent-video call return as renderer completion or new A logs as evidence for unapplied B. Restart/current display/candidate settings for new posts remain instructed rather than fully re-reported.
+
+## 2026-10-24 — Prepare AOrigin against completed A, without B
+
+Add a new41-file selection (A40 plus Base) and independent explicit two-file apply controller. Require A applied.updated_provenance and after-apk equality/current reconstruction, not pre-A diagnostic inputs. Preserve original A helpers/manifests and B exclusion. Test fixed-source recipes, repeated/mismatched state and second-file failure without automatic rollback. Real chrome_java/NullAway then APK/signing remain later authorization gates, with a distinct ConfigAOrigin artifact and retained A distributions. Filtered origin-log absence never proves absence of the underlying event.
+
+## 2026-10-24 — AOrigin② external exit remains unproven
+
+Preserve user-visible failure and framework-entry evidence together. Do not infer
+multiwindow causality from callback alone or from missing filtered request logs.
+Trace the fixed156 native/Java delegate forwarding gap; propose branch-local
+labels before changing behavior. Recorded STOPPED/hidden follow first accepted
+exit; do not bypass all fullscreen exits/onStop or extend grace as a substitute.
+No product/apply-manifest changes; no B or host operations are authorized.
+
+## 2026-10-24 — Implement Java forwarding diagnosis on AOrigin baseline
+
+Adopt only fixed wrapper/selected Activity-branch labels and scoped tab reporter.
+Preserve feature reads, eligibility, manager calls and lifecycle behavior. Use
+built AOrigin evidence LfbK0s and43-input before/after manifest, never A/installed.
+Keep old apply helpers unchanged. Native origin remains unresolved; defer native
+implementation until a scoped lifetime-safe JNI bridge is reviewed. No B/apply/build.
+
+## 2026-10-24 — Prepare AOriginForward independent three-file transaction
+
+Require completed AOrigin LfbK0s evidence, not A/installed; reconstruct pinned
+before/after bytes and check43 inputs. Preserve other40/B exclusion and output
+inventory. Default read-only, explicit apply with external backups/intent,
+post-verify before compilation. Partial failure retains evidence without rollback.
+Plan real Java/NullAway then APK/same-key signing to distinct ConfigAOriginForward
+filename; do not execute. Java forwarding only; native requester remains unknown.
+
+## 2026-10-25 — Forward② narrows route to EAM, not initial cause
+
+Preserve full log and brief-visible-PiP/audio-stop/no-crash/restart report.
+Observed ExclusiveAccess forwarding before Base acceptance narrows Java route;
+it does not establish JNI/native guard or first caller. Fixed source admits EAM
+reentry and context→FullscreenManager output. Do not infer independent requests
+from repetitions, renderer completion from persistent return, or no downstream
+FullscreenManager from absent normal Activity label. Defer behavior changes;
+document safe scoped native ingress/guard/context diagnostics and lifetime/JNI/
+GN gates. No feature force-off, blanket exit suppression or grace-only fix.
+
+## 2026-10-25 — Adopt bounded EAM native diagnostics, defer content ingress
+
+Instrument actual EAM exit JNI and existing controller branches/context output,
+with fixed enums/current scoped contents and TLS depth. Preserve all original
+conditions/getter counts/CHECKs; WeakPtr callbacks suppress destroyed owners.
+JNI generator private-callback error corrected via package-private method, no
+generator relaxation. Root content renderer/browser/security remains unmeasured:
+do not introduce content→chrome dependency or infer original cause from EAM entry.
+Keep all43 Forward inputs/B unmodified; new50/51 selection needs a new reviewed
+transaction/GN plan before any host apply/build. Old helper gates remain unchanged.
+
+## 2026-10-25 — Separate native source apply from graph regeneration
+
+Require completed Forward lnxJen evidence and exact installed-distribution APK
+hash. Add standalone source-only transaction and post-GN byte/metadata audit,
+without importing any historical preflight/apply helper. Preserve50 inputs/new
+header absence and51 outputs/Forward43/B exclusion; external graph and histories
+backup precedes writes, partial failure retains evidence without rollback.
+Modified BUILD.gn requires GN gen with saved binary/args; no implicit regeneration
+via autoninja. Resolve actual objects by loaded source/rule/toolchain, not names.
+All actual host apply/GN/compile remain outside current authorization.
+
+## 2026-10-25 — Repair escaped Ninja tokens, retain source controller evidence
+
+User-host source/GN success does not imply compile success; parser failure is
+separate. Decode $:/space/dollar and continuations as bytes; inspect decoded
+explicit/implicit output duplicates, reject unknown variable syntax. Keep source/
+rule/toolchain and old/new object identity gates. Permit old source-record SHA
+only via trusted ancestor and audit/test/Markdown-only delta plus product/manifest/
+source-helper invariance. Record proof under fresh re-audit evidence, never rewrite
+original controller or reapply/regenerate the saved tree to solve an audit bug.

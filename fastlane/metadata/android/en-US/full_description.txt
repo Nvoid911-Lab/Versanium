@@ -29,4 +29,4 @@ Titanium Browser for Android: https://github.com/jqssun/android-titanium-browser
 Vanadium: https://github.com/GrapheneOS/Vanadium
 Chromium: https://www.chromium.org/
 
-The main project license remains GPLv2. Original copyright, component licenses, and attribution continue to apply. Source: https://github.com/Nvoid911/Versanium
+The main project license remains GPLv2. Original copyright, component licenses, and attribution continue to apply. Source: https://github.com/Nvoid911-Lab/Versanium

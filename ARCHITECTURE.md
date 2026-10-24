@@ -1,5 +1,54 @@
 # Versanium Architecture
 
+Post-GN edge lexer uses bytes tokens: escaped colon/space/dollar are path bytes,
+unescaped colon/group operators are syntax. Duplicate checks cover decoded
+explicit+implicit outputs. Controller compatibility is a constrained ancestor/
+audit-test-Markdown diff proof with product/manifest/source-helper byte invariants,
+stored alongside unchanged original source-record hash; never edit that record.
+
+Native preparation is independent of old helpers: Forward50/source-only51 with
+unchanged generated outputs, external source+graph/state backup and provenance.
+Graph regeneration is a separate manual authorization/command; post-GN read-only
+audit allows only graph byte differences and resolves actual default-toolchain
+cxx objects from loaded Ninja edges and GN metadata. Non-UTF8 irrelevant Ninja
+bytes are preserved, never errors-ignore decoded. No old gate relaxation.
+
+Native diagnostic uses a default no-op ExclusiveAccessContext hook overridden
+only by Android, through existing Java context generated JNI. Actual contents
+identity is checked before routing to unchanged current-tab scoped logger.
+WeakPtr branch callback and pre-call contents snapshots avoid added post-destroy
+dereferences; trivial TLS RAII depth captures synchronous instrumented reentry
+without owner pointers/async attribution. Content imports no chrome dependency.
+New common header is listed in GN; a future graph-change review is required.
+
+Fixed156 EAM path: Java native-pointer gate→ExclusiveAccessManagerAndroid JNI→
+FullscreenController→Android NotifyTabExclusiveAccessLost (clears exclusive tab
+then WebContents exit)→context native/Java→FullscreenManager.onExitFullscreen.
+Base cleanup can call WebContents.exitFullscreen again. Repeated forwarding can
+be reentry/chain, not independent root requests. PiP persistent screen-state
+preserves fullscreen; Base multiwindow PiP guard is disabled when EAM enabled.
+No blanket bypass follows from these facts. Native scope/JNI/dependency/lifetime
+review is documented in docs/versanium/config-a-origin-forward2-review.md.
+
+AOriginForward transaction is separate from historical apply controllers:
+require built AOrigin updated provenance == after-apk == current recorder;
+43 selected hashes, scratch reconstruction of3 Java from fixed source/pinned
+transforms; retain other40 and all generated output. Verify is precompile-only.
+No old helper gate changes, automatic rollback or build execution.
+
+AOriginForward uses existing UI-thread PiP controller registry/current Tab
+identity to route fixed forwarding labels into the existing scoped logger.
+It introduces no window-to-Activity inference, retained native pointer or JNI.
+Wrapper entry and existing Activity delegate branches distinguish Java routes;
+native renderer/browser/security origin remains a separate unimplemented bridge.
+
+AOrigin② source trace: native WebContentsDelegateAndroid can forward through
+TabWebContentsDelegateAndroidImpl and ActivityTabWebContentsDelegateAndroid
+directly to FullscreenManager.onExitFullscreen, without Base-local request labels.
+Missing labels are inconclusive due to scope filters. See
+docs/versanium/config-a-origin2-review.md for fixed-source edges and proposed
+branch-local diagnostics; no exit/lifecycle behavior is changed.
+
 > High-level technical and repository architecture. This document describes boundaries and responsibilities, not every implementation detail.
 
 Last reviewed: 2026-10-19 JST
@@ -168,3 +217,43 @@ The manual Versanium Build workflow has an opt-in resume_ideapad mode solely for
 Recovery does not fetch Chromium, sync dependencies, run hooks, install packages, regenerate GN, or reapply patches. Ninja/Siso still decides which actions are valid for reuse. The controller validates original repository HEAD, reviewed Chromium/Vanadium ancestry and version, expected patched HEAD, exact generated GN arguments, and required state files. These checks establish the reported prepared-tree provenance, not a full cryptographic attestation of all modified source files. Local source modifications are expected from the original patch pipeline.
 
 Signed output and staging live only under the fresh controller checkout. Signing material uses a private RUNNER_TEMP directory, removed on normal exit and handled termination; force-kill/power loss can leave residue there. No production publishing path is added. Dependencies and toolchain are reused as already provisioned. General persistent source storage outside the checkout remains a later migration, after recovery validation.
+
+## 2026-10-23 proposed next-Test boundaries
+
+The review branch upgrades exact Titanium/Vanadium/Chromium inputs to 156.0.8078.47 with the original ancestry/ref gates retained. Current successful 155 recovery remains historical and cannot supply a new156/candidate APK.
+
+Zoom portable data uses a separate versioned UTF-8 JSON protocol; internal version=1 preferences/profile identifiers remain unchanged. SAF grants per-document access. The import replaces both environment maps after validation/confirmation and an off-thread single-file commit, without re-migration or default/site pruning. A portable display mode maps to the current local display ID; no foreign IDs are restored. Local per-profile display overrides fall back to previous global overrides. A shared persistence transaction flag protects recreated regular handles; private stores are excluded. Screen generation/provider I/O still needs Android validation.
+
+YouTube candidates are separate opt-in flags for standard PiP suppression and background document visibility. HTTPS main-document host allowlist, normal-profile gating and actual display classification limit execution. No play()/autoplay relaxation is added. Existing native PiP/fullscreen gates remain. Pause/visibility diagnostics do not prove a native suspension cause. A weak tab listener updates candidates outside native zoom callbacks, avoiding JNI→zoom→script recursion and strong lifecycle retention.
+
+Fresh IdeaPad source/output uses a unique run-ID child directory, never the retained 155 tree. The same reviewed provider labels/concurrency and manual-only policy remain. Fresh IdeaPad uses an initial six-job cap and 20-hour timeout; cloud paths keep existing defaults. Build provenance includes actual overlays, source commits/patch diff, GN, extension index and toolchain hashes. Real Windows/WSL resource availability remains a local verification prerequisite. See docs/versanium/next-test-156-review.md for experimental limitations and required device tests.
+
+The PR5 follow-up supersedes the original frame-scoped JavaScript CHECK exception. Generic ExecuteJavaScript/CanExecuteJavaScript/WebContentsAndroid::EvaluateJavaScript remain pinned upstream behavior. A dedicated boolean+callback WebContents JNI route runs only a compiled fixed candidate payload, with native flags and live/active/outermost/normal-profile/HTTPS YouTube checks. No script parameter or marker grants permission. Its generated UTF16 header is in the existing Android native target and provenance; the Java owner is already a content JNI source. Actual native body compilation, device behavior and independent security review remain unverified.
+
+Zoom archives preserve every finite double exponent, matching legacy storage; SAF restore explicitly rejects numerical overflow/underflow for the Android font envelope before submitting any replacement. Existing values are never rounded/dropped to force an import through. This differs from the50–300% slider UI and Blink rendering bounds; an exact legacy-value warning distinguishes the saved default from the bounded thumb. The PiP candidate owns only its own reflected attribute change and revokes that ownership on subsequent site mutations; it restores before DeX/option disable or releasing a detached video. Same-document movement remains model-tested only. See the PR5 report for exact artifact pins and the SAF/runner readiness checklist.
+
+### Run9 incremental correction boundary
+
+Run9's real native build exposed the invalid host_piece() accessor. Only host() is present in the fixed GURL header. The patch/model now use host(); the model checks the exact pinned header hash first, without claiming to compile that header. HTTPS/exact-host/profile/frame/native-flag predicates and the fixed-payload route remain intact.
+
+A separate156-only manual controller can validate the preserved Run9 repository7d9102f, authenticated-by-API-digest original provenance ZIP, pin/ancestry, exact old recorder/inputs/source diff, GN args/version, depot commit, clang/clang++ and output state. It records before/after hashes plus a separate source backup, makes only the three-call correction, and rechecks applied state before any separately authorized object compile. It does not touch old155 recovery, Workflow/signing, GN generation, dependency sync or existing outputs. Existing Ninja files are read as bytes to require a single definition of the log-confirmed obj/content/browser/browser/render_frame_host_impl.o, rule cxx and exact explicit source; different toolchain prefixes remain distinct and duplicate exact targets reject. No guessed target or all-APK-first retry is used. Current graph/GN-binary hashes cannot retroactively authenticate graph files absent from the original record. Updated host validation/compilation is still pending after the reported read-only parser failure; see the dedicated Run9 report.
+
+### 2026-10-24 — Passive diagnosis boundary
+
+Diagnostics only observes existing PiP controller stages in regular live HTTPS YouTube tabs and live Activity; no fullscreen permission/AppOps/recent-task probing, candidate authorization, JS pause wrapping or script-result callback. Both Java and native candidate entry require a PiP/background candidate flag. Native options force diagnostics=false. Fixed-payload JNI and generic JavaScript restrictions remain. Background/PiP DOM behavior is unchanged. User reports the prior156 manual APK works except diagnosis/PiP issues; the new correction still requires integration/device validation.
+
+### Preserved Run9 diagnostic-update boundary
+
+The APK-completed saved Run9 tree may only be considered for reuse through the new diagnostic-update helper, not by weakening the historical three-accessor helper. The new chain requires original provenance, prior applied evidence, saved post-correction provenance, exact four-file pre/post hashes, unchanged JNI/GN/payload hashes, existing arm64 Test GN/toolchain and byte-parsed saved targets. Its default is external-evidence-only. A future explicit apply may write those four sources while proving output bytes unchanged. Java and both native objects are separate compile gates before any APK target. GN regeneration, sync, patch/build scripts, cleaning and path movement are stop conditions, not recovery actions.
+
+Flag metadata is authenticated as a derivation, not an observed-hash exception: fixed Chromium HEAD bytes → the exact 11-name patch.sh expiry loop in order → the exact three candidate entries and formatting. HEAD, intermediate and final hashes are pinned, and the saved final bytes must equal the reproduced bytes. This corrects the earlier candidate-only fixture while retaining fail-closed behavior.
+
+Video fullscreen rendering now proposes a scoped exponent0 override in GetPendingZoomLevel after upstream temporary zoom priority. It requires native DOM fullscreen and a media fullscreen-player ID, leaving F11-only and stored environment/site values intact. Media fullscreen notifications refresh both entry and exit; current environment values are looked up on exit rather than replaying a cached value. Getter/setter/JNI temporary paths cannot enter environment persistence. Full native and device layout validation remains pending.
+
+PiP diagnosis additionally observes existing decision/dismiss branches and persistent-video call boundaries without duplicate permission/eligibility queries. stop_suspend remains pre-call; stop_suspend_called follows actual invocation. No exit/stop policy changes are made. Entry callbacks, app session activity, fullscreen observers, Activity stopping and actual MediaSession suspension are distinct evidence boundaries. Video zoom and PiP remain separate candidates with an unverified layout interaction.
+
+Configuration A transaction is independent of previous apply controllers. Its inputs are the user-validated diagnostic applied record and after-apk provenance, plus exact b341 installed/A40-file manifest. It reconstructs A Java from fixed HEAD and pinned patch selection, writes only that file after external backup/intent/full output inventory, and records a new source-diff provenance. Verify is pre-compilation-only; generated output changes after real builds require a new after-build provenance comparison. No B path is exposed.
+
+Origin diagnostic candidate adds fixed logging calls inside FullscreenHtmlApiHandlerBase's existing request/dispatch branches, routed via the existing PiP controller with same-tab/live/normal-profile/YouTube checks. Both classes are existing chrome_java sources. Conditions, getter counts and exit policy remain unchanged. A actual logs establish move/suspend execution but not the request origin. Old apply paths are not valid for this expanded two-file selection; B remains separately deferred.
+
+AOrigin has a separate41-file manifest and transaction controller. It reuses only immutable utility functions of the A helper, not its validation/apply conditions, and requires the actual completed A record plus after-apk provenance. Two fixed-source-reproduced Java files can be written only after external backup/intent/full output snapshot. AOrigin41, other source/tool/output and updated provenance are verified afterward; partial failure is retained for review. No B path exists in this controller.

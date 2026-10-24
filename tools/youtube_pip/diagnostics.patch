@@ -1,0 +1,243 @@
+--- a/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
+@@ -210,5 +210,6 @@
+         WebContents webContents = getWebContents();
+         if (webContents == null) {
++            reportTitaniumYoutubePip("decision_no_contents");
+             return false;
+         }
+
+@@ -217,6 +218,10 @@
+         // Only auto-PiP if there is a playing fullscreen video that allows PiP.
+-        if (!webContents.hasActiveEffectivelyFullscreenVideo()
+-                || !webContents.isPictureInPictureAllowedForFullscreenVideo()) {
++        if (!webContents.hasActiveEffectivelyFullscreenVideo()) {
++            reportTitaniumYoutubePip("decision_no_active_fullscreen");
++            return false;
++        }
++        if (!webContents.isPictureInPictureAllowedForFullscreenVideo()) {
++            reportTitaniumYoutubePip("decision_video_disallows");
+             return false;
+         }
+
+@@ -226,5 +232,6 @@
+                 .getPackageManager()
+                 .hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
++            reportTitaniumYoutubePip("decision_device_unsupported");
+             Log.d(TAG, "Activity does not have PiP feature.");
+             return false;
+         }
+@@ -234,4 +241,5 @@
+         if (checkCurrentMode && mActivity.isInPictureInPictureMode()) {
++            reportTitaniumYoutubePip("decision_already_in_pip");
+             Log.d(TAG, "Activity is already in PiP.");
+             return false;
+         }
+@@ -240,4 +248,5 @@
+         if (mActivity.isChangingConfigurations()) {
++            reportTitaniumYoutubePip("decision_changing");
+             Log.d(TAG, "Activity is being restarted.");
+             return false;
+         }
+@@ -246,4 +255,5 @@
+         if (mActivity.isFinishing()) {
++            reportTitaniumYoutubePip("decision_finishing");
+             Log.d(TAG, "Activity is finishing.");
+             return false;
+         }
+@@ -252,4 +262,5 @@
+         if (!canStartPipBasedOnRecentTasks()) {
++            reportTitaniumYoutubePip("decision_recent_task");
+             Log.d(TAG, "Block pip due to recent app tasks.");
+             return false;
+         }
+@@ -253,6 +253,40 @@
+         return true;
+     }
+ 
++    // Opt-in diagnosis only. Do not log URLs, titles, config, or private tabs.
++    /** Fixed internal event labels only; reuses normal-profile/YouTube diagnostic gates. */
++    public static void reportFullscreenExitOrigin(Activity activity, @Nullable Tab originTab, String origin) {
++        FullscreenVideoPictureInPictureController controller = sControllers.get(activity);
++        if (controller != null && originTab != null && !originTab.isDestroyed()
++                && !originTab.isOffTheRecord() && originTab == controller.mActivityTabProvider.get()) {
++            controller.reportTitaniumYoutubePip(origin);
++        }
++    }
++
++    private String mLastTitaniumPipDiagnostic = "";
++
++    private void reportTitaniumYoutubePip(String stage) {
++        if (!org.chromium.base.CommandLine.isInitialized()
++                || !org.chromium.base.CommandLine.getInstance().hasSwitch(
++                        "versanium-youtube-diagnostics")
++                || !LibraryLoader.getInstance().isInitialized()) return;
++        if (mActivity.isDestroyed() || mActivity.isFinishing()) return;
++        Tab tab = mActivityTabProvider.get();
++        WebContents contents = getWebContents();
++        if (tab == null || tab.isDestroyed() || contents == null || contents.isDestroyed() || tab.isOffTheRecord()) return;
++        org.chromium.url.GURL url = contents.getLastCommittedUrl();
++        String host = url.getHost();
++        if (!"https".equals(url.getScheme()) || !("youtube.com".equals(host)
++                || "www.youtube.com".equals(host) || "m.youtube.com".equals(host))) return;
++        String record = stage
++                + " inPip=" + mActivity.isInPictureInPictureMode()
++                + " changing=" + mActivity.isChangingConfigurations();
++        if (!record.equals(mLastTitaniumPipDiagnostic)) {
++            mLastTitaniumPipDiagnostic = record;
++            Log.i("VersaniumPiP", "%s", record);
++        }
++    }
++
+     private boolean canStartPipBasedOnRecentTasks() {
+         return AndroidTaskUtils.getRecentAppTasksMatchingComponentNames(
+                         mActivity, sNoPipComponentNames, /* matchTopAndBaseActivities= */ true)
+@@ -314,6 +343,7 @@
+     public void attemptPictureInPicture() {
+         // If there are already callbacks registered, then do nothing.
+         final boolean allowed = canDoPictureInPicture();
++        reportTitaniumYoutubePip(allowed ? "attempt_allowed" : "attempt_blocked");
+         Log.i(
+                 TAG,
+                 "Attempted picture-in-picture with result: " + (allowed ? "success" : "failure"));
+@@ -333,8 +363,13 @@
+         }
+ 
+         try {
+-            if (!mActivity.enterPictureInPictureMode(builder.build())) return;
++            if (!mActivity.enterPictureInPictureMode(builder.build())) {
++                reportTitaniumYoutubePip("api_false");
++                return;
++            }
++            reportTitaniumYoutubePip("api_true");
+         } catch (IllegalStateException | IllegalArgumentException e) {
++            reportTitaniumYoutubePip("api_exception");
+             Log.e(TAG, "Error entering PiP with bounds %s", bounds, e);
+         }
+     }
+@@ -397,6 +432,7 @@
+      * {@link #attemptPictureInPicture()} or because we auto-entered Picture in Picture.
+      */
+     public void onEnteredPictureInPictureMode() {
++        reportTitaniumYoutubePip("framework_entered");
+         Log.i(TAG, "Entered Picture-in-picture.");
+ 
+         mLastOnEnteredTimeMillis = SystemClock.elapsedRealtime();
+@@ -420,3 +420,5 @@
++        reportTitaniumYoutubePip("persistent_video_request");
+         webContents.setHasPersistentVideo(true);
++        reportTitaniumYoutubePip("persistent_video_returned");
+
+         mOnLeavePipCallbacks.add(
+@@ -459,6 +495,7 @@
+     // on large form factors (see IsBackgroundMediaSuspendEnabled), so suspend it here.
+     public void onStop() {
+         if (mShouldSuspendMediaOnStop) {
++            reportTitaniumYoutubePip("stop_suspend");
+             mShouldSuspendMediaOnStop = false;
+ 
+             final MediaSession mediaSession = getMediaSession();
+@@ -464,3 +464,6 @@
+             if (mediaSession != null && mIsPlaying) {
+                 mediaSession.suspend(SuspendType.SYSTEM);
++                reportTitaniumYoutubePip("stop_suspend_called");
++            } else {
++                reportTitaniumYoutubePip(mediaSession == null ? "stop_no_session" : "stop_not_playing");
+             }
+@@ -469,6 +506,7 @@
+     }
+ 
+     public void onResume() {
++        reportTitaniumYoutubePip("resume");
+         // Pip was restored rather than closed, so media should keep playing.
+         mShouldSuspendMediaOnStop = false;
+         // Unconditionally dismiss pip, because the activity has been resumed.  This can happen if
+@@ -518,6 +556,7 @@
+      * required. It's okay to call this even when we don't believe that we're in PiP mode.
+      */
+     public void onFrameworkExitedPictureInPicture() {
++        reportTitaniumYoutubePip("framework_exited");
+         Log.i(TAG, "Framework exited picture in picture");
+         onExitedPictureInPicture(MetricsEndReason.RESUME);
+     }
+@@ -619,6 +658,7 @@
+         // Do not check if we're in PiP mode or not, since we're called during transitions into and
+         // out of it.  The framework won't try to auto-enter if we're already there anyway.
+         final boolean allowed = canDoPictureInPicture(false);
++        reportTitaniumYoutubePip(allowed ? "auto_allowed" : "auto_blocked");
+         if (!allowed && !mIsAutoEnterAllowed) {
+             // Don't notify the framework if we were not and continue to be not allowed.  In the
+             // case where we're allowed, the bounds for the source rect can change even if we were
+@@ -667,6 +707,7 @@
+      * This will also update our auto-PiP preference with the framework, if it's changed.
+      */
+     private void dismissActivityIfNeeded(Activity activity, @MetricsEndReason int reason) {
++        reportTitaniumYoutubePip("dismiss_" + reason);
+         // Something interesting happened -- make sure we've updated our preference for auto-PiP
+         // with the framework, if applicable.
+         Log.i(TAG, "Dismiss activity with reason " + reason);
+@@ -676,3 +676,4 @@
+         if (!isPipSessionActive()) {
++            reportTitaniumYoutubePip("dismiss_inactive_" + reason);
+             return;
+         }
+@@ -686,2 +686,3 @@
+         if (SystemClock.elapsedRealtime() - mLastOnEnteredTimeMillis < MIN_EXIT_DELAY_MILLIS) {
++            reportTitaniumYoutubePip("dismiss_deferred_" + reason);
+             Log.i(TAG, "Posting deferred callback to dismiss activity.");
+@@ -697,2 +697,4 @@
+-            activity.moveTaskToBack(true);
++            reportTitaniumYoutubePip("dismiss_move_request_" + reason);
++            boolean moved = activity.moveTaskToBack(true);
++            reportTitaniumYoutubePip((moved ? "dismiss_move_true_" : "dismiss_move_false_") + reason);
+             onExitedPictureInPicture(reason);
+@@ -705,2 +705,3 @@
+             mIsSuspendedForStash = false;
++            reportTitaniumYoutubePip("dismiss_screen_off_" + reason);
+             mDismissPending = true;
+@@ -860,4 +860,5 @@
+         public void mediaStartedPlaying(int id, boolean hasAudio, boolean hasVideo) {
++            reportTitaniumYoutubePip("media_started");
+             // We have no idea if the effectively fullscreen video started playing, but this will
+             // check if we have an active one.
+             updateAutoPictureInPictureStatusIfNeeded();
+@@ -872,4 +872,5 @@
+         public void mediaStoppedPlaying(int id) {
++            reportTitaniumYoutubePip("media_stopped");
+             // As above, we don't know if it was the effectively fullscreen video that stopped. Even
+             // if it is, note that this won't cause us to exit Picture in Picture mode if we're in
+             // it.
+@@ -881,4 +881,5 @@
+         public void hasEffectivelyFullscreenVideoChange(boolean isFullscreen) {
++            reportTitaniumYoutubePip(isFullscreen ? "effective_fullscreen_true" : "effective_fullscreen_false");
+             Log.i(TAG, "Effective video fullscreen change: " + isFullscreen);
+             if (isFullscreen) {
+                 updateAutoPictureInPictureStatusIfNeeded();
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -5042,6 +5042,11 @@
+ // //tools/flags/generate_unexpire_flags.py.
+ #include "build/chromeos_buildflags.h"
+ #include "chrome/browser/unexpire_flags_gen.inc"
++#if BUILDFLAG(IS_ANDROID)
++    {"versanium-youtube-diagnostics", "Versanium YouTube PiP diagnostics",
++     "Log existing PiP decision stages for normal YouTube tabs; no script injection or fullscreen permission probes. Disable after testing.",
++     kOsAndroid, SINGLE_VALUE_TYPE("versanium-youtube-diagnostics")},
++#endif
+     {switches::kEnableBenchmarking, flag_descriptions::kEnableBenchmarkingName,
+      flag_descriptions::kEnableBenchmarkingDescription, kOsAll,
+      MULTI_VALUE_TYPE(kEnableBenchmarkingChoices)},
+--- a/chrome/browser/flag-metadata.json
++++ b/chrome/browser/flag-metadata.json
+@@ -28,6 +28,11 @@
+ 
+ [
+   {
++    "name": "versanium-youtube-diagnostics",
++    "owners": ["298596960+Nvoid911@users.noreply.github.com"],
++    "expiry_milestone": 157
++  },
++  {
+     "name": "aaudio-per-stream-device-selection",
+     "owners": [ "mjel@google.com", "lt-web-apps-team@google.com" ],
+     "expiry_milestone": 155

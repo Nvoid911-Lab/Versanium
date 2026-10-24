@@ -10,4 +10,11 @@
     <string formatted="false" name="titanium_zoom_sites_summary">Select a site to remove its override in this environment.</string>
     <string formatted="false" name="titanium_zoom_no_sites">No site overrides saved in this environment.</string>
     <string formatted="false" name="titanium_zoom_reset_confirm">Use the environment default for this site? The other environment stays unchanged.</string>
+    <string name="titanium_zoom_export">Export zoom settings</string>
+    <string name="titanium_zoom_import">Import zoom settings</string>
+    <string name="titanium_zoom_transfer_ok">Zoom settings transfer completed.</string>
+    <string name="titanium_zoom_transfer_failed">Transfer failed, a save is pending, or a legacy exponent is unsafe to apply. The source file is preserved. No replacement was confirmed. Check storage and retry after pending saves complete.</string>
+    <string name="titanium_zoom_import_confirm">Replace both environments? Mobile default multiplier (power notation): %1$s; DeX default multiplier (power notation): %2$s; saved sites: %3$d. Display mode: %4$s will apply to THIS screen only. Existing site overrides in both environments will be replaced, not merged. Other local screen overrides are preserved. Values are restored exactly; Chromium may limit the displayed zoom.</string>
+    <string name="titanium_zoom_export_scope">Both zoom environments and the current screen mode; no display IDs.</string>
+    <string name="titanium_zoom_legacy_default_summary">Saved multiplier %1$s is outside the slider range. It is preserved until you move this slider.</string>
 </resources>

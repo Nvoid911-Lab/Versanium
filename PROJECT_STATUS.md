@@ -1,8 +1,78 @@
 # Versanium Project Status
 
+Latest host report: source-only apply/verify PASS, GN gen exit0, toolchain
+android_clang_arm64, no compile at native-diagnostic-evidence-NQzDtk. Audit failed
+because partition(':') split escaped $:. Bytes lexer now decodes literal paths,
+includes implicit outputs in duplicate checks, rejects unsupported variables.
+Old source-record controller is preserved; audit-only descendant proof required.
+See native-graph-escape-reaudit.md. No source/GN reapply or host operations here.
+
+Latest native preparation: standalone prepare_native_diagnostic.py and new
+post-GN audit_native_graph.py, no historical helper imports/changes. Baseline
+built Forward lnxJen applied/after-apk/current provenance + distribution APK
+0264aec7… exact hash.50 before/header absent→51 source-only after; other43/B,
+tools/args/signing source/output preserved. Source apply and manual GN generation
+are separate gates. GN required for modified BUILD.gn; objects resolved from
+actual loaded bytes graph + GN source/rule/toolchain, no guessed target names.
+See native-diagnostic-build-preparation.md. No real-host apply/GN/compile.
+
+Latest candidate (2026-10-25 JST): EAM JNI entry/controller selected-branch/
+context-output native diagnostics and synchronous nesting depth implemented.
+Normal non-shutdown profile, HTTPS exact YouTube, diagnosis ON and live actual
+WebContents/current-tab gates; no eligibility repeats or exit/stop behavior change.
+50→51 selection retains Forward43/B exclusion. Content renderer/browser/security
+initial ingress remains deferred/unmeasured; not a PiP fix. See
+config-a-origin-forward-native-review.md. Old helpers unchanged, no host apply/build.
+
+Latest Forward② evidence (2026-10-25 JST): restart confirmed; PiP briefly
+visible/audio stopped/no crash. Wrapper→ExclusiveAccess forwarding precedes
+accepted exit; normal Activity branch absent, downstream FullscreenManager not
+excluded. Fixed156 EAM JNI→FullscreenController→context→Java Base path and
+recursive WebContents exit chain verified in source. First native requester
+remains unknown. See config-a-origin-forward2-review.md and complete device log.
+Native diagnostic scope/lifetime/JNI/target design documented; no product fix,
+saved-host changes or build. Existing67 tests/source audits remain bounded checks.
+
+Latest preparation: prepare_config_a_origin_forward.py adds independent
+read-only/explicit3-file apply/precompile verify against completed AOrigin
+LfbK0s evidence (not A/installed). Pinned43 manifest, fixed-source reconstruction,
+other40/B exclusion, external backup/intent/provenance/full output checks;
+partial failure stops without rollback. See config-a-origin-forward-apply.md.
+Java転送経路の確認用。native要求元は未確定。No saved-host apply/compile.
+
+Latest candidate: AOriginForward adds wrapper-entry and existing Activity
+delegate-branch fixed labels, plus a scoped current-tab controller bridge.
+Baseline is built/signed AOrigin evidence config-a-origin-evidence-LfbK0s,
+NOT A or installed60b.43-input selection changes3 Java files, retains other40
+and excludes B. New diagnostic does not establish the initial native caller;
+scoped native follow-up is considered but deferred pending bridge/lifetime review.
+See docs/versanium/config-a-origin-forward-review.md. No saved-host apply/build.
+
+Latest AOrigin② device evidence (2026-10-24 JST): restart directly confirmed;
+no visible PiP, audio stopped, no crash. Framework entry precedes accepted exit
+104ms, successful move-to-back108ms, SYSTEM suspend205ms; STOPPED/tab hidden
+are subsequent. First requester remains unknown. Fixed156 external native→Java
+wrapper→Activity delegate→FullscreenManager path bypasses local origin labels.
+See [AOrigin② review](docs/versanium/config-a-origin2-review.md). B and all
+saved-host operations/builds remain deferred; old helper/manifest gates unchanged.
+
+Latest AOrigin preparation: new config-a-origin manifest adds original Base to A40 (41 total), preserves other39 and defines only two Java changes. New independent prepare_config_a_origin.py uses completed A applied.updated_provenance + A after-apk, never installed60b; reconstructs fixed-source before/after, defaults read-only, explicit two-file transaction with full external backups/intent/output state and precompile recheck. No B selection. See docs/versanium/config-a-origin-apply.md; real host41 preflight and new integration/device are pending. Previous A real compile/sign/log evidence remains confirmed. No saved-host apply/build/Actions authorized here.
+
+Latest ConfigA evidence: user reports A signed APK4cae4391…c18317, same certificate and actual Java/APK compile/install success. New A OFF log identifies video permission denial after active fullscreen passes, no entry; ON confirms reason6 moveTaskToBack(true) returned true, reason7 then inactive, SYSTEM suspend returned, media_stopped and framework exit. First fullscreen-exit requester is still unproven. Supplied A posts do not directly reconfirm all instructed conditions/restart/crash outcomes; do not inherit older APK outcomes as new evidence. Two-Java-file origin diagnostic candidate records existing Base handler request branches only, with current normal YouTube tab gates, no extra permission/eligibility queries or exit-policy changes. B remains unapplied; existing zoom work is preserved. See docs/versanium/config-a-pip-origin-review.md. No new build/apply authorized here.
+
+Latest config-A gate: user confirms b341 host applied/after-apk/current provenance equality and installed40/40 match. A apply/compile remains unperformed. New prepare_config_a.py is independent, A-only, default read-only, explicit one-controller-Java apply and precompile verify; fixed-source recipe and all40 before/after hashes are checked, full generated-output state and external backup/intent are retained. B remains deferred until A device logs. See docs/versanium/config-a-apply.md. No saved-host mutation/build/Actions authorized here.
+
+Latest A/B coverage correction: f4a2601 real-host provenance/current inputs matched but installed manifest was37/40. Six inherited patch.sh operations affecting WebContentsImpl/Manifest/ChromeTabbedActivity were omitted from selected fixtures. Fixed156 reproduction now equals all three reported real hashes, inherited by installed/A/B; B WebContents hash is0156c1d1…00bb2. No skip/alternative-hash acceptance. Local51 checks and selected integrations PASS; corrected real-host40/40 remains pending. See docs/versanium/ab-pipeline-coverage-review.md. No saved-tree apply/build/Actions/merge/Release.
+
+Latest preparation: stage A selects installed60b zoom plus257b PiP branch diagnostics; stage B adds3452 video zoom only after A device logs. No branch rollback. Temporary selected-source assembly asserts exact one-file A and two-file B deltas and records hashes in docs/versanium/ab-selection-manifest.json. Real saved-tree comparison must start from actual diagnostic applied.json + after-apk-provenance.json; no real-host gate/application is claimed. See docs/versanium/ab-test-preparation.md. Prior restart is directly user-reported; future restart remains instruction until reported. No apply/build/Actions/GN/sync/merge/release.
+
+Latest PiP comparison (2026-10-24 JST): installed Diagnostic APK, smartphone YouTube100%, diagnosis/background ON, restart after changes user-reported. PiP candidate OFF: audio continues/home but no PiP, attempt blocked/no entry in supplied log; tab playback/manual stop work. PiP candidate ON: framework entry confirmed, dismiss6 +88ms, dismiss7 +181ms, stop_suspend +328ms (pre-call only), framework exit +374ms; tab and inline-home playback continue, manual stop/crash safety retained in reports. Candidate effect is conditional and must not be called globally ineffective. Narrow branch-only instrumentation is added; dismissal/stop policy remains unchanged pending first-cause evidence. Video zoom candidate at3452edd is retained and still unbuilt; these earlier APK logs do not validate it. See [comparison](docs/versanium/pip-device-comparison-2026-10-24.md). No build or saved-tree apply is authorized.
+
+Current 2026-10-24 JST follow-up: user checkpoint confirms Diagnostic APK d01c7633… built/signed/installed with the same certificate; diagnosis-only smartphone/DeX playback and restart show no crash in reported conditions. Video fullscreen size tracks page zoom with diagnosis ON/OFF and also in old Titanium F11 Test (corrected comparison). New zoom correction defers to temporary zoom, avoids saving temporary setter changes, and applies a rendering-only100% override for DOM fullscreen plus effective video, restoring current environment zoom on exit. It is NOT compiled/device-tested. See [video zoom review](docs/versanium/video-fullscreen-zoom-review.md). Prior unbuilt-diagnostics status below is historical. Neither saved Run9 nor the four-file diagnostic recovery helper is modified/reused. PiP remains unresolved; no build/Actions/merge/Release authorized by this update.
+
 > Authoritative operational status for the Versanium project. Update this file whenever repository roles, active branches, build policy, current milestones, or blockers change.
 
-Last reviewed: 2026-10-22 JST (IdeaPad recovery proposal; not yet device/build validated)
+Last reviewed: 2026-10-24 JST (manual156 APK/device evidence; diagnostic CHECK hazard corrected, new APK unbuilt)
 
 ## Project
 
@@ -138,3 +208,51 @@ PR #3 was merged into migration/versanium at 630c950c8e6cc940a85c9a5cf4aad5a7c04
 At about 10h53m, the user reported 1951/37342 tasks. A naive task-count extrapolation is not a reliable completion forecast. Longer vmstat samples showed repeated swap-in/out, swap-out peaks around 27MB/s, free memory dipping to about 80MB, and kernel CPU up to 52%. Twelve clang++ processes were present. This supports reducing concurrency to relieve memory pressure; it does not exclude sleep, power or thermal limits.
 
 Proposed change: pass -j 6 to both recovery autoninja targets. Preserve source paths, GN args, existing outputs, signing isolation, guards and the 20-hour timeout. There is no clean/reset or new build dispatch. Actual improvement must be measured after review/merge and explicit Test execution. Validation: 21 migration/recovery unit checks, inline shell syntax, bash -n and git diff --check. General persistent provisioning and Secondary/Notion/Project Sources refresh remain pending; do not interpret earlier proposal snapshots as current build success.
+
+## 2026-10-23 — Successful 155 recovery and next-Test review
+
+This section supersedes the *current-state* wording of the October 22 proposal snapshots above; their historical evidence remains intact. Live Primary integration before this work was `d64b78be40b15dee889c24c67ba689777e090ca7`.
+
+Run [39765620887](https://github.com/Nvoid911-Lab/Versanium/actions/runs/39765620887) is **success**, using the saved original 155 source through the IdeaPad recovery route. It did not reapply a new PiP fix. The user confirmed F11, smartphone YouTube PiP/tab-background failures and working DeX playback/PiP. Mobile/DeX zoom is in use; backup/restore is now required. APK binary inclusion has not been independently inspected.
+
+A review branch `next-test/156-zoom-transfer-pip` proposes the official stable Titanium 156.0.8078.47 input, native patch adaptation, SAF zoom backup/restore, opt-in YouTube-only candidates/diagnostics and an isolated fresh IdeaPad tree with provenance. These are **implemented review candidates with limited local checks, not built or device-verified**. See [next-Test review](docs/versanium/next-test-156-review.md) for exact revisions, test scopes and the device matrix.
+
+The 156 revision rejects old resume mode. It preserves the old successful tree/output and uses a new run-ID directory for a fresh build. Do not reinterpret old state as a new source version. No Test Build is authorized in this work unit: review comes first and the user controls later manual execution.
+
+Outstanding before calling it build-ready: pinned AndroidX package access (network proxy HTTP403), actual SAF preference screen/type/lifecycle verification, complete JNI/native/GN integration checks where feasible, local Windows/WSL/account/capacity evidence, and review of the limited inline-PiP candidate. Main still has old Titanium-facing presentation; a separate documentation-only main PR is proposed without promoting code or releasing an APK.
+
+Notion/Project Sources were unavailable to this workspace and have not been marked updated. At least the October 19 context described above is historical. After reviewed integration and Primary→Secondary synchronization settle, verify/refresh the canonical context following RULES; do not label this unmerged proposal a settled release.
+
+
+### PR5 follow-up review (unmerged)
+
+The review branch now preserves legacy finite zoom values in backups, explicitly rejects numerically unsafe SAF restores without changing current data, and restores only owned PiP attributes across same-document display moves. The frame-wide native CHECK exception has been replaced by a dedicated fixed-payload JNI route; generic JavaScript APIs retain pinned upstream restrictions. Migration/root branch state remains unchanged pending PR5 review. Exact AndroidX snapshots, cloud403 classification, unverified SAF/native/device conditions and read-only build-host/ref/input steps are in the review report. PR6 remains a separate unmerged main presentation change. No Actions/build/Release/tag/main merge was performed.
+
+
+## Run9 — actual156 build failure and limited recovery preparation
+
+Run39951209951 / #9 used7d9102f4f0e35dec9f69425de44cd889836a88ac and failed. API confirms Build failure/provenance upload; the user's log reports GN generation and chrome_java success, then native failure because the fixed GURL API has host(), not host_piece(). The old model's invented API and our incomplete real-header review did not detect it. The Run9 task counts are not an ETA/reuse guarantee.
+
+This branch corrects exactly three calls, preserves every scope restriction and adds pinned-header comparison. A NEW156 manual preflight/apply/verify helper validates the original artifact digest and provenance, existing source/output paths, GN arguments/toolchain/state, then can change only that native scope's accessors. It never compiles or cleans/syncs/repatches/moves the tree. Old155 recovery and the Workflow remain untouched. See [Run9 recovery](docs/versanium/run9-incremental-recovery.md) for the actual-object-first future command, evidence links and STOP conditions.
+
+The cloud could not download the original artifact/log payload; actual host provenance/state/object target verification and object compilation have NOT occurred here. The helper's temporary-fixture tests are not a host recovery. This information-source update precedes any future resumption. No Actions/build/main merge/Release/tag has been executed as part of this correction. The former 'unbuilt156' text above is historical; Run9 attempted156, with no successful APK established. PR6 remains separate.
+
+### Run9 preflight parser follow-up
+
+The user ran read-only preflight with controller093f787 and encountered UnicodeDecodeError at byte1319 in the unrelated android_clang_arm rust/lazy_static lib.ninja. The parser also incorrectly treated same-basename objects in other toolchains as ambiguous. The original Run9 log confirms the failed target is obj/content/browser/browser/render_frame_host_impl.o. The user confirms no saved source/output change or compilation occurred before this stop.
+
+The helper now reads build definitions as bytes without lossy decoding, requires exactly one definition of that exact logged target, and checks cxx plus the exact explicit source. Duplicate definitions reject even when identical; other toolchains are distinct. Regression tests cover those cases and byte preservation. All prior provenance/original SHA/GN/toolchain/limited-diff/output guards remain intact. Next step is a new read-only preflight using the updated separate controller and a fresh evidence filename, not apply/build. Updated host preflight and native compilation remain unverified; see the Run9 report. No Actions/build/main merge/Release/tag was performed.
+
+## 2026-10-24 — Manual156 success and diagnostic crash blocker
+
+User Context v1.9 sections17–18 report real object/APK incremental success, existing-key signing and S23 installation. Signed APK SHA256:87c5b11aea148856f13cc7aab46a5ac1d2b4a0590ae068c19a2e7a52fa5837cf. Run9 remains failure; no new Actions artifact. F11/zoom/backup/restart basics work. Diagnostics alone crashes mobile and DeX; background-only improves tab playback but PiP flashes/closes; PiP-only does not improve defaults. Earlier unbuilt/host-unverified statements above are historical. Data-clearing recovery prevents claiming untouched155 data migration success.
+
+Static investigation found an unconditional diagnostic native permission getter whose observer CHECKs require a fullscreen player. This hazard is removed, but no crash stack confirms the user's root cause. Diagnosis now only logs existing controller stages; it cannot authorize candidate JNI/JS or result callbacks. Background candidate code remains unchanged. No speculative PiP exit/suspension fix is included. See [device review](docs/versanium/156-device-diagnostics-review.md) for evidence, tests and safe next comparison. New code is NOT built/device-tested. The old three-token Run9 recovery controller must not be used for this correction. No Actions, saved-tree apply, merge, Release or tag. External Notion/Project Sources updates are not claimed.
+
+### Next Test incremental preparation (target60b0037)
+
+A separate read-only-first helper and [reviewable preparation](docs/versanium/next-test-diagnostic-build-preparation.md) now define how to compare the APK-completed saved Run9 tree with the diagnostic correction. Exact selected-source comparison identifies four changed applied files: PiP controller Java, TabImpl Java, RFH C++, and about_flags C++. The fixed payload header, WebContents JNI/API/implementation, BUILD.gn and flag metadata are unchanged and pinned by hash. Old `prepare_run9.py` remains unchanged and strict.
+
+Real-host preflight has NOT run. It requires the original ZIP, prior ebfc applied evidence and an actual saved post-correction provenance JSON; it recomputes source/GN/toolchain provenance and derives the RFH/about_flags objects plus chrome_java from the saved graph. Future apply is explicit and separately authorized; future narrow gates are chrome_java then both actual C++ objects, with provenance before any separately approved APK continuation. PiP remains unresolved. No saved-tree mutation, build, Actions, merge, Release or tag occurred in this preparation.
+
+The first real-host read-only attempt at controller b401856 stopped safely before mutation/compilation on flag-metadata hash drift. Investigation proved the old expected293f hash was from a selected-source fixture that skipped patch.sh's 11 expiry overrides and added only the three Versanium flags. Fixed HEADc155 → ordered expiry-only47f → exact candidate insertion now reproduces dc5, equal to the user-reported saved hash. The helper now derives and directly compares this pipeline; it does not allowlist the observed hash alone. Actual host bytes were not uploaded, so cloud evidence is exact generation plus SHA equality; the corrected host preflight remains pending.

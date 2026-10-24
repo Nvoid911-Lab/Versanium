@@ -210,3 +210,11 @@ When two sources disagree:
 ## 11. Script/instruction presentation preference
 
 When giving the user Termux or similar shell-script replacements, prefer a complete copy-paste version suitable for deleting the existing file contents in `nano` and replacing them in one operation, rather than fragmentary patches.
+
+## 12. User-specified information-source checkpoint (2026-10-24)
+
+Before every Test/normal/rebuild/resume, create or refresh and present the current information-source file. Also create a real downloadable file when asked to make/update an information-source or handoff file, including unmerged/in-progress state clearly labeled as such. Refresh material build/PR/device outcomes before the next decision. Do not require a merge or interrupt an authorized operation solely to call a snapshot settled.
+
+Record JST date, purpose/delta, repository roles, branch/SHA/PR, upstream pins, exact build path/inputs/Test identity, prior outputs, verified/unverified results, known risks and device criteria. Check current runner/WSL/memory/disk/concurrency before execution; never reuse old readings as current. After execution record actual run/attempt/head/time/runner and outcome/artifact; never invent future runs. File creation is not authorization to start a build. Preserve the user's latest execution prohibition.
+
+Use Versanium_Project_Context.md with version/history inside. Present a download link; Project Sources replacement by the user, GitHub documents and Notion synchronization are separate operations. State any unavailable/unsynchronized layer. Include references and approval scope without Secrets/keys/authentication data. This supplements section8's settled-state ordering for explicitly requested pre-build/in-progress snapshots.

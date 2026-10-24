@@ -1,0 +1,28 @@
+User: AOrigin②, browser restart after settings confirmed.
+Visible result: PiP表示なし、音声停止、クラッシュなし。
+Normalized transcription: 2026-10-24 JST, PID/TID20841, I cr_VersaniumPiP.
+changing=false throughout. inPip=false until framework_entered; true until framework_exited; false thereafter.
+21:13:28.753 resume / dismiss_0 / decision_no_active_fullscreen / auto_blocked / dismiss_inactive_0
+21:13:30.723 effective_fullscreen_true
+21:13:30.728 auto_allowed
+21:13:30.790 effective_fullscreen_true
+21:13:30.795 auto_allowed
+21:13:32.217 effective_fullscreen_true
+21:13:32.219 auto_allowed
+21:13:34.274 framework_entered / persistent_video_request
+21:13:34.275 persistent_video_returned
+21:13:34.276 origin6_multiwindow_callback
+21:13:34.373 effective_fullscreen_true
+21:13:34.375 auto_allowed
+21:13:34.378 origin6_accepted_on_exit / origin6_exit_persistent_entry / origin6_notify_exit_observer
+21:13:34.379 dismiss_6 / decision_no_active_fullscreen / auto_blocked
+21:13:34.380 dismiss_move_request_6
+21:13:34.382 dismiss_move_true_6 / origin6_notify_exit_observer
+21:13:34.445 effective_fullscreen_false / dismiss_7 / decision_no_active_fullscreen / auto_blocked / dismiss_inactive_7
+21:13:34.472 origin6_activity_stopped_request
+21:13:34.479 stop_suspend / stop_suspend_called
+21:13:34.481 origin6_tab_hidden
+21:13:34.511 framework_exited / origin6_multiwindow_callback
+21:13:34.514 media_stopped
+21:13:34.515 decision_no_active_fullscreen / auto_blocked
+21:13:34.877 decision_no_active_fullscreen / auto_blocked

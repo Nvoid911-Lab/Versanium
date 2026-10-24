@@ -1,4 +1,4 @@
-"""Validate against a locally supplied Chromium 155.0.8059.79 source snapshot.
+"""Validate against a locally supplied Chromium 156.0.8078.47 source snapshot.
 Apply the repository's selected Vanadium patches only to files touched by zoom,
 then check/apply the actual overlay. This is NOT GN/JNI/native compilation.
 """
