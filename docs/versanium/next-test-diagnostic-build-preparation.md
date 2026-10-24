@@ -202,4 +202,3 @@ preserving manual stop, DeX, Twitch/private and background tab playback.
   tests: PASS locally. Models/doubles are not Chromium or device integration.
 - actionlint, YAML/inline shell, bash/documented command syntax and diff checks:
   PASS. No real host preflight, source apply, compilation, signing or device test.
-
