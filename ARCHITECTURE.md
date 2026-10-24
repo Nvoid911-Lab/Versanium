@@ -192,3 +192,7 @@ A separate156-only manual controller can validate the preserved Run9 repository7
 ### 2026-10-24 — Passive diagnosis boundary
 
 Diagnostics only observes existing PiP controller stages in regular live HTTPS YouTube tabs and live Activity; no fullscreen permission/AppOps/recent-task probing, candidate authorization, JS pause wrapping or script-result callback. Both Java and native candidate entry require a PiP/background candidate flag. Native options force diagnostics=false. Fixed-payload JNI and generic JavaScript restrictions remain. Background/PiP DOM behavior is unchanged. User reports the prior156 manual APK works except diagnosis/PiP issues; the new correction still requires integration/device validation.
+
+### Preserved Run9 diagnostic-update boundary
+
+The APK-completed saved Run9 tree may only be considered for reuse through the new diagnostic-update helper, not by weakening the historical three-accessor helper. The new chain requires original provenance, prior applied evidence, saved post-correction provenance, exact four-file pre/post hashes, unchanged JNI/GN/payload hashes, existing arm64 Test GN/toolchain and byte-parsed saved targets. Its default is external-evidence-only. A future explicit apply may write those four sources while proving output bytes unchanged. Java and both native objects are separate compile gates before any APK target. GN regeneration, sync, patch/build scripts, cleaning and path movement are stop conditions, not recovery actions.
