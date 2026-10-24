@@ -1,5 +1,12 @@
 # Versanium Architecture
 
+AOrigin② source trace: native WebContentsDelegateAndroid can forward through
+TabWebContentsDelegateAndroidImpl and ActivityTabWebContentsDelegateAndroid
+directly to FullscreenManager.onExitFullscreen, without Base-local request labels.
+Missing labels are inconclusive due to scope filters. See
+docs/versanium/config-a-origin2-review.md for fixed-source edges and proposed
+branch-local diagnostics; no exit/lifecycle behavior is changed.
+
 > High-level technical and repository architecture. This document describes boundaries and responsibilities, not every implementation detail.
 
 Last reviewed: 2026-10-19 JST

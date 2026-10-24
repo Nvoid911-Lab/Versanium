@@ -1,5 +1,13 @@
 # Versanium Project Status
 
+Latest AOrigin② device evidence (2026-10-24 JST): restart directly confirmed;
+no visible PiP, audio stopped, no crash. Framework entry precedes accepted exit
+104ms, successful move-to-back108ms, SYSTEM suspend205ms; STOPPED/tab hidden
+are subsequent. First requester remains unknown. Fixed156 external native→Java
+wrapper→Activity delegate→FullscreenManager path bypasses local origin labels.
+See [AOrigin② review](docs/versanium/config-a-origin2-review.md). B and all
+saved-host operations/builds remain deferred; old helper/manifest gates unchanged.
+
 Latest AOrigin preparation: new config-a-origin manifest adds original Base to A40 (41 total), preserves other39 and defines only two Java changes. New independent prepare_config_a_origin.py uses completed A applied.updated_provenance + A after-apk, never installed60b; reconstructs fixed-source before/after, defaults read-only, explicit two-file transaction with full external backups/intent/output state and precompile recheck. No B selection. See docs/versanium/config-a-origin-apply.md; real host41 preflight and new integration/device are pending. Previous A real compile/sign/log evidence remains confirmed. No saved-host apply/build/Actions authorized here.
 
 Latest ConfigA evidence: user reports A signed APK4cae4391…c18317, same certificate and actual Java/APK compile/install success. New A OFF log identifies video permission denial after active fullscreen passes, no entry; ON confirms reason6 moveTaskToBack(true) returned true, reason7 then inactive, SYSTEM suspend returned, media_stopped and framework exit. First fullscreen-exit requester is still unproven. Supplied A posts do not directly reconfirm all instructed conditions/restart/crash outcomes; do not inherit older APK outcomes as new evidence. Two-Java-file origin diagnostic candidate records existing Base handler request branches only, with current normal YouTube tab gates, no extra permission/eligibility queries or exit-policy changes. B remains unapplied; existing zoom work is preserved. See docs/versanium/config-a-pip-origin-review.md. No new build/apply authorized here.

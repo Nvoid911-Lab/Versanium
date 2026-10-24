@@ -196,3 +196,12 @@ User A logs establish OFF video permission denial and ON reason6 move success/cl
 ## 2026-10-24 — Prepare AOrigin against completed A, without B
 
 Add a new41-file selection (A40 plus Base) and independent explicit two-file apply controller. Require A applied.updated_provenance and after-apk equality/current reconstruction, not pre-A diagnostic inputs. Preserve original A helpers/manifests and B exclusion. Test fixed-source recipes, repeated/mismatched state and second-file failure without automatic rollback. Real chrome_java/NullAway then APK/signing remain later authorization gates, with a distinct ConfigAOrigin artifact and retained A distributions. Filtered origin-log absence never proves absence of the underlying event.
+
+## 2026-10-24 — AOrigin② external exit remains unproven
+
+Preserve user-visible failure and framework-entry evidence together. Do not infer
+multiwindow causality from callback alone or from missing filtered request logs.
+Trace the fixed156 native/Java delegate forwarding gap; propose branch-local
+labels before changing behavior. Recorded STOPPED/hidden follow first accepted
+exit; do not bypass all fullscreen exits/onStop or extend grace as a substitute.
+No product/apply-manifest changes; no B or host operations are authorized.
