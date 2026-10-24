@@ -184,3 +184,7 @@ Candidate OFF is a blocked-entry observation; ON confirms entry then exit. The l
 ## 2026-10-24 — Correct common selected-source pipeline coverage for A/B
 
 Host provenance matched but three manifest files exposed six omitted inherited patch.sh operations. Reproduce exact commands and require reported host hashes from fixed inputs, rather than skipping files or accepting alternatives. Apply corrected coverage tooling to installed/A/B, regenerate B native hash/diff, and test omission of each operation plus order equivalence. Selected fixture PASS is not real-host40/40 or Chromium success. Old helpers remain strict and unchanged; corrected read-only comparison precedes any later authorization.
+
+## 2026-10-24 — Prepare executable A-only transaction after reported host40/40
+
+User confirms b341 host40/40 and applied/after-apk/current provenance match without apply/compile. Add an independent one-Java-file controller with default read-only, explicit apply, and precompile verify. Reconstruct fixed-source installed→A bytes via exact historical patches, retain external backup/intent/provenance/full Ninja-Siso-generated-output hashes, reject drift/repetition and preserve partial evidence without automatic rollback. No old helper relaxation or B application. Next narrow build gate is chrome_java before separately authorized APK/signing; A device evidence precedes B.
