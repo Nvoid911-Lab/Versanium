@@ -180,3 +180,7 @@ Keep persisted default/site/environment values and backup formats. Restore upstr
 ## 2026-10-24 — Preserve both PiP comparison outcomes; instrument existing branches
 
 Candidate OFF is a blocked-entry observation; ON confirms entry then exit. The latter demonstrates a conditional eligibility/transition difference, superseding blanket "ineffective" interpretations. At +88ms the fixed50ms dismissal grace has elapsed, but old dismiss/stop logs precede real branch actions. Add actual branch and suspend-completion diagnostics, preserving getter counts/short circuit and all playback/exit rules. Do not ignore fullscreen6/7 or disable onStop based only on timing. Trace persistent-video, browser fullscreen origins and renderer effective state as hypotheses; no causal stack is present. Retain video zoom work and report its not-yet-built status separately.
+
+## 2026-10-24 — Correct common selected-source pipeline coverage for A/B
+
+Host provenance matched but three manifest files exposed six omitted inherited patch.sh operations. Reproduce exact commands and require reported host hashes from fixed inputs, rather than skipping files or accepting alternatives. Apply corrected coverage tooling to installed/A/B, regenerate B native hash/diff, and test omission of each operation plus order equivalence. Selected fixture PASS is not real-host40/40 or Chromium success. Old helpers remain strict and unchanged; corrected read-only comparison precedes any later authorization.

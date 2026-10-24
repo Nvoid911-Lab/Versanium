@@ -1,5 +1,11 @@
 # A/B Test preparation — 2026-10-24 JST
 
+Coverage correction: f4a2601 host comparison matched provenance but only37/40
+selected installed files. Three inherited patch.sh edits were missing from the
+fixture. See [reproduction](ab-pipeline-coverage-review.md). The regenerated
+manifest retains all40 files in installed/A/B; B native hash/diff now use the
+correct inherited baseline. Real-host corrected40/40 comparison remains pending.
+
 Review only: no saved source apply, compile, Actions or release authorization.
 Keep current branch history. Product selections refer to exact commits:
 

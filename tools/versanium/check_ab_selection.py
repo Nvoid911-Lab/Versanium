@@ -15,6 +15,10 @@ with tempfile.TemporaryDirectory() as d:
   # Submodule patches are unchanged, but not included by git archive.
   import shutil
   shutil.copytree(repo/'vanadium/patches',control/'vanadium/patches',dirs_exist_ok=True)
+  # Use corrected coverage tooling for every product selection, not historical
+  # fixture omissions in their archived test scripts. Product patches stay pinned.
+  for name in ['tools/youtube_pip/tests/check_source_integration.py','tools/versanium/flag_metadata_pipeline.py','tools/versanium/selected_patch_pipeline.py']:
+   shutil.copyfile(repo/name,control/name)
   if mode=='A':
    (control/'tools/environment_zoom/chromium.patch').write_bytes(subprocess.check_output(['git','-C',str(repo),'show',base+':tools/environment_zoom/chromium.patch']))
   root=a.output/mode
@@ -40,6 +44,6 @@ with tempfile.TemporaryDirectory() as d:
    r=subprocess.run(['git','diff','--no-index','--',str(roots[before]/name),str(roots[after]/name)],capture_output=True)
    if r.returncode not in (0,1):raise RuntimeError(r.stderr)
    diff+=r.stdout
-  (a.output/(before+'-to-'+after+'.review.diff')).write_bytes(diff)
+  (a.output/(before+'-to-'+after+'.review.diff')).write_bytes(diff.replace(b'\n \n',b'\n\n'))
  (a.output/'selection-manifest.json').write_text(json.dumps(result,indent=2)+'\n')
  print(json.dumps(result['deltas'],indent=2))

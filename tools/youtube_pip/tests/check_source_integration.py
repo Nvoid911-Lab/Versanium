@@ -17,6 +17,9 @@ for patch in sorted((repo/'vanadium/patches').glob('*.patch')):
  if any(fnmatch.fnmatch(patch.name,pattern) for pattern in zoom.removed):continue
  text=patch.read_text().replace('VANADIUM','TITANIUM').replace('Vanadium','Titanium').replace('vanadium','titanium')
  subprocess.run(['git','apply',*['--include='+path for path in paths],'-'],input=text,text=True,cwd=a.output_dir,check=True)
+sys.path.insert(0,str(repo/'tools'))
+from versanium.selected_patch_pipeline import apply as apply_common_selected
+apply_common_selected(a.output_dir,repo)
 f11=(repo/'patch.sh').read_text().split("python3 - <<'PY_F11' || exit 1\n",1)[1].split('\nPY_F11',1)[0]
 subprocess.run(['python3','-c',f11],cwd=a.output_dir,check=True)
 media=a.output_dir/'content/public/renderer/render_frame_media_playback_options.cc'
