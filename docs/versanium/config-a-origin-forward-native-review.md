@@ -1,5 +1,12 @@
 # EAM native diagnostic implementation — 2026-10-25 JST
 
+Current execution preparation is now documented in
+native-diagnostic-build-preparation.md: independent source-only transaction
+against built Forward lnxJen evidence/APK hash, separate manual GN gen and
+post-GN actual-object audit. Old helpers remain untouched. This supersedes the
+earlier "prepare a new transaction" pending item below, not the unverified
+host/GN/Chromium compilation status. No host operation has been performed.
+
 Purpose: identify the first **observed EAM entry**, actual FullscreenController
 branches, and synchronous reentry. This is diagnosis, not a PiP fix. Initial
 renderer/browser/security requester before the EAM boundary remains unmeasured.
