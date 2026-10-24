@@ -255,3 +255,13 @@ backup precedes writes, partial failure retains evidence without rollback.
 Modified BUILD.gn requires GN gen with saved binary/args; no implicit regeneration
 via autoninja. Resolve actual objects by loaded source/rule/toolchain, not names.
 All actual host apply/GN/compile remain outside current authorization.
+
+## 2026-10-25 — Repair escaped Ninja tokens, retain source controller evidence
+
+User-host source/GN success does not imply compile success; parser failure is
+separate. Decode $:/space/dollar and continuations as bytes; inspect decoded
+explicit/implicit output duplicates, reject unknown variable syntax. Keep source/
+rule/toolchain and old/new object identity gates. Permit old source-record SHA
+only via trusted ancestor and audit/test/Markdown-only delta plus product/manifest/
+source-helper invariance. Record proof under fresh re-audit evidence, never rewrite
+original controller or reapply/regenerate the saved tree to solve an audit bug.

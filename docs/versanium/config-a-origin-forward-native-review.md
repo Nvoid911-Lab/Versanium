@@ -1,5 +1,10 @@
 # EAM native diagnostic implementation — 2026-10-25 JST
 
+Latest host report: source-only apply/verify and GN gen completed, compilation
+not started. Post-GN audit escape-parser repair and controller-only compatibility
+proof are documented in native-graph-escape-reaudit.md. This supersedes prior
+host-apply/GN-unverified status for this reported run, not native compilation.
+
 Current execution preparation is now documented in
 native-diagnostic-build-preparation.md: independent source-only transaction
 against built Forward lnxJen evidence/APK hash, separate manual GN gen and

@@ -1,5 +1,11 @@
 # Versanium Architecture
 
+Post-GN edge lexer uses bytes tokens: escaped colon/space/dollar are path bytes,
+unescaped colon/group operators are syntax. Duplicate checks cover decoded
+explicit+implicit outputs. Controller compatibility is a constrained ancestor/
+audit-test-Markdown diff proof with product/manifest/source-helper byte invariants,
+stored alongside unchanged original source-record hash; never edit that record.
+
 Native preparation is independent of old helpers: Forward50/source-only51 with
 unchanged generated outputs, external source+graph/state backup and provenance.
 Graph regeneration is a separate manual authorization/command; post-GN read-only

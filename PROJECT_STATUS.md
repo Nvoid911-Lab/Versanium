@@ -1,5 +1,12 @@
 # Versanium Project Status
 
+Latest host report: source-only apply/verify PASS, GN gen exit0, toolchain
+android_clang_arm64, no compile at native-diagnostic-evidence-NQzDtk. Audit failed
+because partition(':') split escaped $:. Bytes lexer now decodes literal paths,
+includes implicit outputs in duplicate checks, rejects unsupported variables.
+Old source-record controller is preserved; audit-only descendant proof required.
+See native-graph-escape-reaudit.md. No source/GN reapply or host operations here.
+
 Latest native preparation: standalone prepare_native_diagnostic.py and new
 post-GN audit_native_graph.py, no historical helper imports/changes. Baseline
 built Forward lnxJen applied/after-apk/current provenance + distribution APK

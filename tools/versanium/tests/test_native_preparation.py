@@ -14,6 +14,49 @@ import prepare_native_diagnostic as m
 import audit_native_graph as g
 
 class NativePreparationTests(unittest.TestCase):
+ def test_ninja_escaped_colons_spaces_dollars_and_continuations(self):
+  examples=[b'$:all_rust: phony phony/all_rust',b'$:blink_python_tests: phony phony/blink_python_tests',b'$:blink_tests: phony phony/blink_tests']
+  for line in examples:
+   outputs,rule,inputs=g.edge(line);self.assertEqual(len(outputs),1);self.assertTrue(outputs[0].startswith(b':'));self.assertEqual(rule,b'phony')
+  line=b'obj/a$ b$$c$:d.o | obj/implicit$ output: cxx ../../src/a$ b$$c$:d.cc | header$ name || stamp |@ validate'
+  outputs,rule,inputs=g.edge(line)
+  self.assertEqual(outputs,[b'obj/a b$c:d.o',b'obj/implicit output']);self.assertEqual(inputs,[b'../../src/a b$c:d.cc'])
+  self.assertEqual(g.tokens(b'a$$$:b$ c'),[b'a$:b c'])
+  lines=list(g.logical_lines(b'build a$\n  b: phony c$\r\n  d\n# binary \xff$\nbuild z: phony\n'))
+  self.assertEqual(g.edge(lines[0][6:]),([b'ab'],b'phony',[b'cd']))
+  self.assertEqual(lines[2],b'build z: phony')
+  for bad in [b'$var: phony',b'${var}: phony',b'a: cxx $in',b'a: cxx foo$?',b'a: cxx x : y',b'a |: phony',b'a || b: phony',b'a: cxx x || y | z',b'a: phony |']:
+   with self.assertRaises(RuntimeError,msg=repr(bad)):g.edge(bad)
+ def test_decoded_duplicates_and_implicit_object_escaped_source(self):
+  with tempfile.TemporaryDirectory() as d:
+   r=Path(d);out=r/'out/Default';out.mkdir(parents=True);tc='//build/toolchain/android:actual'
+   names=list(g.SOURCES);descriptions={}
+   for src,label in g.SOURCES.items():descriptions.setdefault(label,{'sources':[],'toolchain':tc})['sources'].append('//'+src)
+   def encoded(x):return x.replace(b'$',b'$$').replace(b' ',b'$ ').replace(b':',b'$:')
+   lines=[b'build $:all_rust: phony phony/all_rust\n',b'build $:blink_tests: phony\n']
+   for i,src in enumerate(names):
+    lines.append(b'build stamp'+str(i).encode()+b' | '+encoded(b'obj/a b$c:'+str(i).encode()+b'.o')+b': cxx '+encoded(b'../../'+src.encode())+b'\n')
+   (out/'build.ninja').write_bytes(b'subninja graph$ name$$$:.ninja\n');(out/'graph name$:.ninja').write_bytes(b''.join(lines))
+   self.assertEqual(len(g.objects(out,r,[descriptions],tc)['objects']),3)
+   with (out/'graph name$:.ninja').open('ab') as f:f.write(b'build obj/a$ b$$c$:0.o: phony\n')
+   with self.assertRaisesRegex(RuntimeError,'Duplicate Ninja output'):g.objects(out,r,[descriptions],tc)
+ def test_old_controller_audit_only_proof_and_product_rejection(self):
+  old='830fef60cec065a40b468d460089fc50dc9fb49d'
+  def fake(control,*args):
+   if args[:2]==('status','--porcelain'):return b''
+   if args[:2]==('rev-parse','HEAD'):return b'new-controller'
+   if args[:3]==('diff','--no-renames','--name-only'):return b'tools/versanium/audit_native_graph.py\ndocs/audit-review.md\n'
+   if args[:2]==('diff','--binary'):return b'audit-only diff'
+   if args[0]=='show':return (ROOT/args[1].split(':',1)[1]).read_bytes()
+   raise AssertionError(args)
+  with patch.object(m,'git',side_effect=fake),patch.object(m.subprocess,'run',return_value=types.SimpleNamespace(returncode=0)):
+   proof=g.controller_proof(ROOT,old);self.assertEqual(proof['recorded_controller'],old)
+   for forbidden in ['tools/apply_fullscreen_native_origin.py','docs/versanium/config-a-origin-forward-native-manifest.json','tools/versanium/prepare_native_diagnostic.py']:
+    def changed(control,*args):
+     if args[:3]==('diff','--no-renames','--name-only'):return forbidden.encode()+b'\n'
+     return fake(control,*args)
+    with patch.object(m,'git',side_effect=changed):
+     with self.assertRaisesRegex(RuntimeError,'not audit/test/docs'):g.controller_proof(ROOT,old)
  def test_post_gn_delta_refuses_args_objects_and_history_even_mtime(self):
   before={'build.ninja':{'sha256':'old'},'args.gn':{'sha256':'args','mtime_ns':1},'.siso_deps':{'sha256':'state'}}
   after=dict(before,**{'build.ninja':{'sha256':'new'}})

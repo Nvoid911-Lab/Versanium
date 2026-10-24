@@ -1,5 +1,10 @@
 # Native diagnosis: source / graph / compilation gates — 2026-10-25 JST
 
+Latest user-host update: native source-only apply/verify PASS and direct GN gen
+exit0 at native-diagnostic-evidence-NQzDtk; no compilation. Post-GN parser failed
+on escaped-colon phony edges. See native-graph-escape-reaudit.md for the corrected
+bytes parser/controller proof and NEW evidence command. Do not repeat apply/GN.
+
 Preparation only. No saved-host source apply, GN generation, compiler, Actions,
 B, reset/clean/sync, merge, Release or tag is executed here.
 
