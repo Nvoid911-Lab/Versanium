@@ -159,6 +159,11 @@ Existing getter counts and exit-state updates are unchanged. Logger9,
 decision/dismiss15, native17 MODEL, DOM37 MODEL and B zoom67 MODEL checks PASS.
 Existing migration/recovery/preparation55 tests, actionlint, shell/diff checks
 also PASS; the selected-source negative anchor test emits an expected patch error.
+An independent scratch selection retained the installed60b zoom patch and added
+only the origin diagnostic: all39 non-controller inputs from manifest A matched,
+and both new Java outputs matched the combined review selection. This validates
+A-plus-origin composition without selecting B in scratch; it is still not a
+real saved-host apply/compile and introduces no apply-ready host controller.
 These are bounded source/model/Java-double checks, not Android/Chromium native
 integration or device success of the new origin candidate.
 
