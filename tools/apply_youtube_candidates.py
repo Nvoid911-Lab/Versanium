@@ -24,30 +24,15 @@ def apply(root,repository):
         var command = org.chromium.base.CommandLine.getInstance();
         boolean pip = command.hasSwitch("versanium-youtube-pip-candidate");
         boolean background = command.hasSwitch("versanium-youtube-background-candidate");
-        boolean diagnostics = command.hasSwitch("versanium-youtube-diagnostics");
-        if (!pip && !background && !diagnostics) return;
+        if (!pip && !background) return;
         var contents = getWebContents();
         var address = contents.getLastCommittedUrl();
         if (!"https".equals(address.getScheme()) || !("youtube.com".equals(address.getHost())
                 || "www.youtube.com".equals(address.getHost())
                 || "m.youtube.com".equals(address.getHost()))) return;
         boolean mobile = EnvironmentZoom.isMobileDisplay(contents);
-        if (diagnostics) Log.i("VersaniumYT", "stage=%s injection_requested mobile=%b", stage,mobile);
-        contents.applyVersaniumYoutubeCandidate(mobile, result -> {
-            if (diagnostics && result != null && result.length() < 512) {
-                try {
-                    org.json.JSONObject record = new org.json.JSONObject(result);
-                    Log.i("VersaniumYT", "stage=%s mobile=%b pip=%b background=%b backgroundApplied=%b adjusted=%b pause=%b visibility=%b paused=%b pauseMethod=%b pauseUserActivation=%b",
-                            stage,
-                            record.optBoolean("mobile"),record.optBoolean("pip"),record.optBoolean("background"),record.optBoolean("backgroundApplied"),
-                            record.optBoolean("pipAdjusted"),record.optBoolean("pauseObserved"),
-                            record.optBoolean("visibilityObserved"),record.optBoolean("paused"),
-                            record.optBoolean("pauseMethodObserved"),record.optBoolean("pauseWithActivation"));
-                } catch (org.json.JSONException error) {
-                    Log.i("VersaniumYT", "diagnostic_invalid");
-                }
-            }
-        });
+        // Diagnostics never authorizes injection or owns a script-result callback.
+        contents.applyVersaniumYoutubeCandidate(mobile, null);
         java.lang.ref.WeakReference<TabImpl> owner = new java.lang.ref.WeakReference<>(this);
         EnvironmentZoom.setEnvironmentListener(contents, () -> {
             TabImpl active = owner.get();

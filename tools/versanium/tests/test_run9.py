@@ -13,7 +13,7 @@ class Run9Tests(unittest.TestCase):
  def test_exact_three_only(self):
   before='// unrelated host_piece() stays\n'+OLD+'\n'
   self.assertEqual(r.replacement(before,BASEPATCH),before.replace('candidate_url.host_piece()','candidate_url.host()'))
-  self.assertEqual((ROOT/'tools/youtube_pip/execution_scope.patch').read_text(),BASEPATCH.replace('candidate_url.host_piece()','candidate_url.host()'))
+  self.assertEqual(subprocess.check_output(['git','-C',str(ROOT),'show','ebfc81cf6ef4388f0f1b29be86e0eb212bc7bce1:tools/youtube_pip/execution_scope.patch'],text=True),BASEPATCH.replace('candidate_url.host_piece()','candidate_url.host()'))
  def test_scope_edits_rejected(self):
   for altered in [OLD.replace('https','http'),OLD.replace('www.youtube.com','twitch.tv'),OLD.replace('IsOffTheRecord()','IsGuest()'),OLD.replace('IsActive()','Other()')]:
    with self.assertRaises(RuntimeError):r.replacement(altered,BASEPATCH)

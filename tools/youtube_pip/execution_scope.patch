@@ -44,7 +44,7 @@
 +  options += u",\"background\":";
 +  options += command->HasSwitch("versanium-youtube-background-candidate") ? u"true" : u"false";
 +  options += u",\"diagnostics\":";
-+  options += command->HasSwitch("versanium-youtube-diagnostics") ? u"true" : u"false";
++  options += u"false";  // Diagnostics is passive Java event logging only.
 +  options += u"}";
 +  std::u16string script = kVersaniumYoutubeCandidate;
 +  base::ReplaceSubstringsAfterOffset(&script, 0, u"__VERSANIUM_OPTIONS__", options);
@@ -57,7 +57,7 @@
  void RenderFrameHostImpl::ExecuteJavaScriptInIsolatedWorld(
      const std::u16string& javascript,
      JavaScriptResultCallback callback,
-@@ -14268,6 +14296,31 @@
+@@ -14268,6 +14296,30 @@
            this));
    return bypass_redirect_checks;
  }
@@ -82,8 +82,7 @@
 +  }
 +  const auto* candidate_command = base::CommandLine::ForCurrentProcess();
 +  return candidate_command->HasSwitch("versanium-youtube-pip-candidate") ||
-+         candidate_command->HasSwitch("versanium-youtube-background-candidate") ||
-+         candidate_command->HasSwitch("versanium-youtube-diagnostics");
++         candidate_command->HasSwitch("versanium-youtube-background-candidate");
 +}
 +#endif
  

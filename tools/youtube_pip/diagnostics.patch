@@ -1,6 +1,6 @@
 --- a/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
-@@ -253,6 +253,41 @@
+@@ -253,6 +253,31 @@
          return true;
      }
  
@@ -12,6 +12,7 @@
 +                || !org.chromium.base.CommandLine.getInstance().hasSwitch(
 +                        "versanium-youtube-diagnostics")
 +                || !LibraryLoader.getInstance().isInitialized()) return;
++        if (mActivity.isDestroyed() || mActivity.isFinishing()) return;
 +        Tab tab = mActivityTabProvider.get();
 +        WebContents contents = getWebContents();
 +        if (tab == null || tab.isDestroyed() || contents == null || contents.isDestroyed() || tab.isOffTheRecord()) return;
@@ -19,20 +20,9 @@
 +        String host = url.getHost();
 +        if (!"https".equals(url.getScheme()) || !("youtube.com".equals(host)
 +                || "www.youtube.com".equals(host) || "m.youtube.com".equals(host))) return;
-+        android.app.AppOpsManager appOps = mActivity.getSystemService(android.app.AppOpsManager.class);
-+        int appOp = appOps == null ? -1 : appOps.checkOpNoThrow(
-+                android.app.AppOpsManager.OPSTR_PICTURE_IN_PICTURE,
-+                android.os.Process.myUid(), mActivity.getPackageName());
 +        String record = stage
-+                + " full=" + contents.hasActiveEffectivelyFullscreenVideo()
-+                + " videoAllows=" + contents.isPictureInPictureAllowedForFullscreenVideo()
-+                + " devicePip=" + mActivity.getPackageManager().hasSystemFeature(
-+                        PackageManager.FEATURE_PICTURE_IN_PICTURE)
-+                + " appOp=" + appOp
-+                + " recentTaskAllowed=" + canStartPipBasedOnRecentTasks()
 +                + " inPip=" + mActivity.isInPictureInPictureMode()
-+                + " changing=" + mActivity.isChangingConfigurations()
-+                + " finishing=" + mActivity.isFinishing();
++                + " changing=" + mActivity.isChangingConfigurations();
 +        if (!record.equals(mLastTitaniumPipDiagnostic)) {
 +            mLastTitaniumPipDiagnostic = record;
 +            Log.i("VersaniumPiP", "%s", record);
@@ -121,7 +111,7 @@
  #include "chrome/browser/unexpire_flags_gen.inc"
 +#if BUILDFLAG(IS_ANDROID)
 +    {"versanium-youtube-diagnostics", "Versanium YouTube PiP diagnostics",
-+     "Log only PiP decision booleans for normal YouTube tabs. Does not change playback. Disable after testing.",
++     "Log existing PiP decision stages for normal YouTube tabs; no script injection or fullscreen permission probes. Disable after testing.",
 +     kOsAndroid, SINGLE_VALUE_TYPE("versanium-youtube-diagnostics")},
 +#endif
      {switches::kEnableBenchmarking, flag_descriptions::kEnableBenchmarkingName,

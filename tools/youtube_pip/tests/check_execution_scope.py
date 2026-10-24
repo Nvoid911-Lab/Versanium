@@ -44,8 +44,9 @@ int main(){using namespace content;RenderFrameHost frame;int checks=0;
  assert(!RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(nullptr));++checks;
  check(false);
  for(auto flag:{"versanium-youtube-pip-candidate","versanium-youtube-background-candidate","versanium-youtube-diagnostics"}){
-  base::CommandLine::current.flags={flag};check(true);
+  base::CommandLine::current.flags={flag};check(std::string(flag)!="versanium-youtube-diagnostics");
  }
+ base::CommandLine::current.flags={"versanium-youtube-background-candidate"};
  frame.url.scheme="http";check(false);frame.url.scheme="https";
  frame.url.hostname="youtube.com.attacker.test";check(false);frame.url.hostname="twitch.tv";check(false);
  for(auto host:{"youtube.com","www.youtube.com","m.youtube.com"}){frame.url.hostname=host;check(true);}

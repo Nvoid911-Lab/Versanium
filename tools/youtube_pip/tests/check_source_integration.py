@@ -64,7 +64,7 @@ assert 'ExecuteJavaScript(' not in fixed and 'ForTests' not in fixed
 java=(a.output_dir/'content/public/android/java/src/org/chromium/content/browser/webcontents/WebContentsImpl.java').read_text()
 assert 'long nativeWebContentsAndroid, boolean mobile, @Nullable JavaScriptCallback callback);' in java
 assert 'renderer_host/versanium_youtube_candidate.h' in (a.output_dir/'content/browser/BUILD.gn').read_text()
-assert 'contents.applyVersaniumYoutubeCandidate(mobile, result ->' in (repo/'tools/apply_youtube_candidates.py').read_text()
+assert 'contents.applyVersaniumYoutubeCandidate(mobile, null)' in (repo/'tools/apply_youtube_candidates.py').read_text()
 assert 'contents.evaluateJavaScript(' not in (repo/'tools/apply_youtube_candidates.py').read_text()
 assert 'AllowInjectingJavaScript();' not in (repo/'tools/youtube_pip/execution_scope.patch').read_text()
 print('Pinned 156 + selected Vanadium + zoom/SAF + F11 + inherited media policy + PiP hooks/flags PASS')

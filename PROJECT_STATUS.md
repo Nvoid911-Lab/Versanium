@@ -2,7 +2,7 @@
 
 > Authoritative operational status for the Versanium project. Update this file whenever repository roles, active branches, build policy, current milestones, or blockers change.
 
-Last reviewed: 2026-10-23 JST (Run9 native compilation failure; limited156 correction/recovery prepared, not executed)
+Last reviewed: 2026-10-24 JST (manual156 APK/device evidence; diagnostic CHECK hazard corrected, new APK unbuilt)
 
 ## Project
 
@@ -172,3 +172,9 @@ The cloud could not download the original artifact/log payload; actual host prov
 The user ran read-only preflight with controller093f787 and encountered UnicodeDecodeError at byte1319 in the unrelated android_clang_arm rust/lazy_static lib.ninja. The parser also incorrectly treated same-basename objects in other toolchains as ambiguous. The original Run9 log confirms the failed target is obj/content/browser/browser/render_frame_host_impl.o. The user confirms no saved source/output change or compilation occurred before this stop.
 
 The helper now reads build definitions as bytes without lossy decoding, requires exactly one definition of that exact logged target, and checks cxx plus the exact explicit source. Duplicate definitions reject even when identical; other toolchains are distinct. Regression tests cover those cases and byte preservation. All prior provenance/original SHA/GN/toolchain/limited-diff/output guards remain intact. Next step is a new read-only preflight using the updated separate controller and a fresh evidence filename, not apply/build. Updated host preflight and native compilation remain unverified; see the Run9 report. No Actions/build/main merge/Release/tag was performed.
+
+## 2026-10-24 — Manual156 success and diagnostic crash blocker
+
+User Context v1.9 sections17–18 report real object/APK incremental success, existing-key signing and S23 installation. Signed APK SHA256:87c5b11aea148856f13cc7aab46a5ac1d2b4a0590ae068c19a2e7a52fa5837cf. Run9 remains failure; no new Actions artifact. F11/zoom/backup/restart basics work. Diagnostics alone crashes mobile and DeX; background-only improves tab playback but PiP flashes/closes; PiP-only does not improve defaults. Earlier unbuilt/host-unverified statements above are historical. Data-clearing recovery prevents claiming untouched155 data migration success.
+
+Static investigation found an unconditional diagnostic native permission getter whose observer CHECKs require a fullscreen player. This hazard is removed, but no crash stack confirms the user's root cause. Diagnosis now only logs existing controller stages; it cannot authorize candidate JNI/JS or result callbacks. Background candidate code remains unchanged. No speculative PiP exit/suspension fix is included. See [device review](docs/versanium/156-device-diagnostics-review.md) for evidence, tests and safe next comparison. New code is NOT built/device-tested. The old three-token Run9 recovery controller must not be used for this correction. No Actions, saved-tree apply, merge, Release or tag. External Notion/Project Sources updates are not claimed.
