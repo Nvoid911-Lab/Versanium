@@ -1,0 +1,22 @@
+{
+  "parse_test.py": "0f39985cf28163336bb433545c1fa1d7e1ea6efbf0c1fa3f85bfe73d746877b1",
+  "parse.py": "f75d3b5d8239a3788e813407d4f1f8e3a23e5ee9057e9a75fbf9cb95d2574659",
+  "proxy.py": "e1fcb73934a3d63a71f44aa96551c8261d11bc18aac5de7b56f05b92094d6f6f",
+  "jni_registration_generator.py": "6ea410097399df204a1adb71e832a088e7d1d41d203f59b3d84f13394853efdf",
+  "jni_zero.py": "92b59af5bc5894cb122c743c98869ff6b3d5bc9f106b081537b21a62570561fc",
+  "jni_generator.py": "7d656a8cd32f9465d9cce2fb6addf5bfdb00b18a851023b40a596218de63d86c",
+  "java_types.py": "29a84ba167bc0b7fc62a4a0f1ddae459645bb2e807fb1ba3d6aec32f2d5201ce",
+  "common.py": "5cea5e6a3e9a8aa11316c3ffae7c41d638c2863401cfbbcc81a00524a4da9525",
+  "java_lang_classes.py": "928f4da076dfcd27a7f94e63b3417a7685c7e5087be607061051ba3c9ebebe1a",
+  "PRESUBMIT.py": "2152b0ba92d2a93739980d1c2df609c399c3963e81e494ad0286fbcbef1b1a8c",
+  "gen_register_natives.py": "dd0f199e460ad2b65f53d7b268e5fcb04173b7859ec91224068bed463ae7fcef",
+  "codegen/register_natives.py": "7ae055292c94e550873d46d3c98352d00248d6a9d6c4f7b30b0036f7c9acb9af",
+  "codegen/proxy_impl_java.py": "f9cd1e0cc485085de17bd125eb9f53ad5b672f590fb458fd6eb4f23cdad8f69f",
+  "codegen/placeholder_gen_jni_java.py": "c038b21b881cf6345a495ce402c4064555624fb53d4456f981275d1eef7dc68d",
+  "codegen/placeholder_java_type.py": "68e4ebb33e1e93d8a9fa6101e503298ba33a9a5a8902aa78cc6d7de4af1b9526",
+  "codegen/natives_header.py": "e53b312e8e89249f0e0974b92d678a3f96f1a5b840942274b589e4f2e46007f7",
+  "codegen/header_common.py": "38171eb06ca1e8bd0388d5ffe92f26d2855843126ca4910172a5601bcfad165e",
+  "codegen/gen_jni_java.py": "c5b65755015c425b4616e769af86bad0ca7d56ba34283bd510d88d7205ef284b",
+  "codegen/convert_type.py": "776fe1b24a767c3ad6ce5a7a5a68019a4fdd0eeb3f42f0b54d395d3708fff023",
+  "codegen/called_by_native_header.py": "1c4ee4dcf52c5094ed1a530e32effdcef844c48fb70521dd7aa81db582a952ec"
+}

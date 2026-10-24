@@ -233,3 +233,14 @@ from repetitions, renderer completion from persistent return, or no downstream
 FullscreenManager from absent normal Activity label. Defer behavior changes;
 document safe scoped native ingress/guard/context diagnostics and lifetime/JNI/
 GN gates. No feature force-off, blanket exit suppression or grace-only fix.
+
+## 2026-10-25 — Adopt bounded EAM native diagnostics, defer content ingress
+
+Instrument actual EAM exit JNI and existing controller branches/context output,
+with fixed enums/current scoped contents and TLS depth. Preserve all original
+conditions/getter counts/CHECKs; WeakPtr callbacks suppress destroyed owners.
+JNI generator private-callback error corrected via package-private method, no
+generator relaxation. Root content renderer/browser/security remains unmeasured:
+do not introduce content→chrome dependency or infer original cause from EAM entry.
+Keep all43 Forward inputs/B unmodified; new50/51 selection needs a new reviewed
+transaction/GN plan before any host apply/build. Old helper gates remain unchanged.

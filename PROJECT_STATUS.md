@@ -1,5 +1,13 @@
 # Versanium Project Status
 
+Latest candidate (2026-10-25 JST): EAM JNI entry/controller selected-branch/
+context-output native diagnostics and synchronous nesting depth implemented.
+Normal non-shutdown profile, HTTPS exact YouTube, diagnosis ON and live actual
+WebContents/current-tab gates; no eligibility repeats or exit/stop behavior change.
+50→51 selection retains Forward43/B exclusion. Content renderer/browser/security
+initial ingress remains deferred/unmeasured; not a PiP fix. See
+config-a-origin-forward-native-review.md. Old helpers unchanged, no host apply/build.
+
 Latest Forward② evidence (2026-10-25 JST): restart confirmed; PiP briefly
 visible/audio stopped/no crash. Wrapper→ExclusiveAccess forwarding precedes
 accepted exit; normal Activity branch absent, downstream FullscreenManager not

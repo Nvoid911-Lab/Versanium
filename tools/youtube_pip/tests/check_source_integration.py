@@ -14,6 +14,9 @@ paths+=['url/gurl.h','chrome/android/java/src/org/chromium/chrome/browser/Chrome
 paths+=['chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java']
 paths+=['chrome/android/java/src/org/chromium/chrome/browser/tab/TabWebContentsDelegateAndroidImpl.java',
         'chrome/android/java/src/org/chromium/chrome/browser/app/tab_activity_glue/ActivityTabWebContentsDelegateAndroid.java']
+sys.path.insert(0,str(repo/'tools'))
+from apply_fullscreen_native_origin import FILES as native_diagnostic_inputs
+paths+=list(native_diagnostic_inputs)
 for relative in paths:
  target=a.output_dir/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(a.source_tree/relative,target)
 for patch in sorted((repo/'vanadium/patches').glob('*.patch')):

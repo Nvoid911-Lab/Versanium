@@ -1,5 +1,13 @@
 # Versanium Architecture
 
+Native diagnostic uses a default no-op ExclusiveAccessContext hook overridden
+only by Android, through existing Java context generated JNI. Actual contents
+identity is checked before routing to unchanged current-tab scoped logger.
+WeakPtr branch callback and pre-call contents snapshots avoid added post-destroy
+dereferences; trivial TLS RAII depth captures synchronous instrumented reentry
+without owner pointers/async attribution. Content imports no chrome dependency.
+New common header is listed in GN; a future graph-change review is required.
+
 Fixed156 EAM path: Java native-pointer gate→ExclusiveAccessManagerAndroid JNI→
 FullscreenController→Android NotifyTabExclusiveAccessLost (clears exclusive tab
 then WebContents exit)→context native/Java→FullscreenManager.onExitFullscreen.
