@@ -1,5 +1,12 @@
 # Versanium Architecture
 
+Content diagnostic transport is scoped WebContentsImpl→new default no-op native
+observer callback→existing Android proxy→generated (I)V JNI→Java observer→current
+actual WebContents PiP observer→unchanged scoped logger. No Chrome dependency or
+Chrome TLS in content, no global origin state, no async pointer retention.
+WeakPtr/destruction guards preserve original decisions; actual false send branches
+do not re-evaluate eligibility. Product selection is separate from host transaction.
+
 Native trial constrains EAM branch/reentry, not upstream initiator. Loss clears
 exclusive tab then exits WebContents; context output enters Base, whose stored
 WebContents exit can reenter again. PiP reason6 move/cleanup runs persistent-false

@@ -1,5 +1,13 @@
 # Versanium Project Status
 
+Latest product candidate: content ingress + cleanup persistent-false diagnostics
+via WebContentsObserver/Android proxy/JNI, no content→chrome/TLS dependency.
+Fixed renderer API/security/navigation/renderer-gone branches and generic wrapper/
+dispatch brackets; generic arrival alone is not root attribution. False unchanged/
+no-player/send begin/returned separate, none claims renderer completion.
+New58 selection retains Native/no-B baseline; old helpers/manifests untouched.
+See content-fullscreen-diagnostic-review.md. No host apply/build preparation yet.
+
 Latest Native device trial: Galaxy S23, diagnosis/background/PiP ON, restart
 confirmed, brief PiP/audio stop/no crash. Full72-stage log saved. Actual EAM
 d1/controller d2 selects tab-caused exit; two d3/d4 guard returns are nested

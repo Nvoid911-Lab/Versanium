@@ -17,6 +17,9 @@ paths+=['chrome/android/java/src/org/chromium/chrome/browser/tab/TabWebContentsD
 sys.path.insert(0,str(repo/'tools'))
 from apply_fullscreen_native_origin import FILES as native_diagnostic_inputs
 paths+=list(native_diagnostic_inputs)
+from apply_content_fullscreen_origin import FILES as content_diagnostic_inputs
+paths+=list(content_diagnostic_inputs)
+paths=list(dict.fromkeys(paths))
 for relative in paths:
  target=a.output_dir/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(a.source_tree/relative,target)
 for patch in sorted((repo/'vanadium/patches').glob('*.patch')):

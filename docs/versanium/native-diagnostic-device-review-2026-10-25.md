@@ -1,5 +1,9 @@
 # Native device trial: EAM reentry and early media stop — 2026-10-25 JST
 
+The narrow NEXT product diagnosis is now implemented/reviewed in
+content-fullscreen-diagnostic-review.md. It is not applied/built on saved Native;
+this trial's evidence and unknown signed APK hash remain unchanged.
+
 User conditions: Galaxy S23, Native configuration, diagnosis/background/PiP
 candidates ON, browser restart after settings directly confirmed. Visible result:
 **PiP briefly displayed, audio stopped, no crash.** Complete supplied72 stage

@@ -276,3 +276,13 @@ not multiple roots; first content ingress still unknown. No safe blanket EAM/
 fullscreen/PiP cleanup fix is established. Prioritize ingress + persistent-false
 dispatch only if another diagnostic is needed, with actual scoped content observer
 JNI and lifetime review. Keep B/video zoom separate; do not build or modify host.
+
+## 2026-10-25 — Implement narrow content ingress and false-dispatch diagnosis
+
+Use existing content observer/Android JNI boundary, actual receiver/current tab
+and fixed enum labels. No Chrome TLS/dependency in content. Bracket actual API/
+wrapper/dispatch calls and selected security/navigation/gone branches; generic
+arrival alone remains unknown. Observe cleanup false, existing equal-state/no-player
+returns and actual Mojo call begin/returned, never renderer completion. No pause/
+MediaSession diagnostics or exit behavior change. Preserve old manifests/helpers;
+new58 source-only product selection is not saved-host apply authorization.

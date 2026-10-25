@@ -58,6 +58,8 @@ def apply(root,repository):
     apply_delegate_origins(root)
     from apply_fullscreen_native_origin import apply as apply_native_origins
     apply_native_origins(root)
+    from apply_content_fullscreen_origin import apply as apply_content_origins
+    apply_content_origins(root)
     tab.write_text(source)
     flags=root/'chrome/browser/about_flags.cc'
     text=flags.read_text();anchor='    {"versanium-youtube-diagnostics",'
