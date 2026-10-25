@@ -277,3 +277,10 @@ A separate read-only-first helper and [reviewable preparation](docs/versanium/ne
 Real-host preflight has NOT run. It requires the original ZIP, prior ebfc applied evidence and an actual saved post-correction provenance JSON; it recomputes source/GN/toolchain provenance and derives the RFH/about_flags objects plus chrome_java from the saved graph. Future apply is explicit and separately authorized; future narrow gates are chrome_java then both actual C++ objects, with provenance before any separately approved APK continuation. PiP remains unresolved. No saved-tree mutation, build, Actions, merge, Release or tag occurred in this preparation.
 
 The first real-host read-only attempt at controller b401856 stopped safely before mutation/compilation on flag-metadata hash drift. Investigation proved the old expected293f hash was from a selected-source fixture that skipped patch.sh's 11 expiry overrides and added only the three Versanium flags. Fixed HEADc155 → ordered expiry-only47f → exact candidate insertion now reproduces dc5, equal to the user-reported saved hash. The helper now derives and directly compares this pipeline; it does not allowlist the observed hash alone. Actual host bytes were not uploaded, so cloud evidence is exact generation plus SHA equality; the corrected host preflight remains pending.
+
+Content-origin preflight630a64b stopped at JNI discovery in host evidence oj2Q3e;
+no apply/GN/compile. Fixed156 jni_zero template confirms missing jni_headers path.
+New graph audit checks full gen/jni_headers/.../WebContentsObserverProxy_jni.h,
+exact action/default arm64 identity, direct Java input and native/Java dependency
+closure. Java/NullAway remains NOT REACHED on host. Use new evidence/controller;
+see content-diagnostic-host-preparation.md JNI correction section.

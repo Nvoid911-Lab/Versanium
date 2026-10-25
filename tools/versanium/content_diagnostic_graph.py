@@ -108,7 +108,9 @@ def coverage(graph,out,source,toolchain):
     jni=[]
     for e in graph['edges']:
         if not any(path_at(out,i)==(source/proxy).resolve() for i in e['inputs']):continue
-        header=[t for t in e['outputs'] if t==b'gen/content/public/android/content_jni_headers/WebContentsObserverProxy_jni.h']
+        # Android jni_zero.gni uses root_build_dir/gen/jni_headers, not root_gen_dir alone.
+        header=[t for t in e['outputs'] if t==b'gen/jni_headers/content/public/android/content_jni_headers/WebContentsObserverProxy_jni.h']
+        if e['ninja']!='toolchain.ninja' or e['rule']!=b'__content_public_android_content_jni_headers__action___build_toolchain_android_android_clang_arm64__rule':continue
         if header and b'jni_zero.py' in recipe(graph,e):jni.append((e,header[0]))
     if len(jni)!=1:raise MissingCoverage('JNI action input/proxy header output/generator recipe absent or ambiguous')
     e,header=jni[0]

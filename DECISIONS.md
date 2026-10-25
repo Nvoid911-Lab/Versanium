@@ -296,3 +296,12 @@ explicit source apply and separate graph audit retain external backups/evidence,
 stop without rollback. Actual graph/JNI closure and generator depfile determine
 GN need; no BUILD diff alone is insufficient. Saved ErrorProne=false cannot be
 reported as NullAway success. No product/old helper changes or host/build execution.
+
+## 2026-10-25: Correct JNI discovery without loosening graph identity
+
+Use fixed156 jni_zero Android root_build_dir/gen/jni_headers layout, not a
+basename fallback. Since Android JNI outputs may be shared across toolchains,
+require exact content_jni_headers arm64 action in toolchain.ninja plus actual
+Java input, recipe, uniqueness and dependency closure. Keep old evidence/product/
+selection/helpers immutable. Host Java/NullAway was not reached; rerun read-only
+with new controller and external evidence, no apply or build authorized.

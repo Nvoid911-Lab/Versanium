@@ -164,3 +164,38 @@ Local result:93 unittest tests PASS (7 new); actionlint PASS; documented shell
 syntax PASS; git diff --check PASS. No actual host evidence files, graph or APK
 were accessible in this environment. These results do not verify actual host
 preflight, JNI generation, Java/NullAway/native compilation, signing or device behavior.
+
+## JNI path correction after host read-only stop (2026-10-25)
+
+Controller630a64b stopped at JNI action discovery in user evidence
+`/home/takuma/versanium/content-origin-evidence-oj2Q3e`; no apply/GN/compile.
+The expected path omitted `jni_headers/`. Fixed Chromium1d17's
+`third_party/jni_zero/jni_zero.gni` lines35–40 sets Android
+`jni_headers_dir = "$root_build_dir/gen/jni_headers"`; lines476–477 combines
+that with target_gen_dir relative to root_gen_dir and the target name.
+Thus the exact output is:
+`gen/jni_headers/content/public/android/content_jni_headers/WebContentsObserverProxy_jni.h`.
+This agrees with the user's actual graph report: direct proxy Java input and
+jni_zero.py recipe, rule
+`__content_public_android_content_jni_headers__action___build_toolchain_android_android_clang_arm64__rule`
+in `toolchain.ninja`. The helper now checks all these together, unique candidate,
+recorded default arm64 and native/Java dependency closure. Basename-only matching
+is never used. Another toolchain can share Android's root JNI directory, so the
+exact action/toolchain identity is essential, in addition to output path.
+
+Reviewed remaining path assumptions: cpp outputs are discovered by actual source,
+cxx rule and default obj scope; Java outputs by actual compiler/source/family;
+GN membership uses source-relative paths. No other hardcoded generated JNI path
+was found in the dedicated helper. C++ include paths without gen/jni_headers are
+include-relative and must not be rewritten as filesystem paths. Existing product,
+selection and old helpers/manifests remain unchanged.
+
+Regression fixture now uses actual output layout/action and toolchain.ninja;
+rejects old layout, other toolchain/action, Java-input mismatch, wrong generator,
+ambiguous candidates, duplicate decoded outputs, missing native/Java dependency
+closure. These are fixture proofs, not an actual-host graph replay. All93 local
+tests PASS; Java/NullAway stages were NOT reached by the real host preflight.
+
+Restart from a new external content-origin-evidence-XXXXXX using the first
+command above with the NEW controller SHA from PR5. Do not reuse or overwrite
+oj2Q3e. Existing source/signature/graph records are read-only and unchanged.

@@ -147,9 +147,12 @@ class ContentPreparationTests(unittest.TestCase):
    observer='content/public/android/java/src/org/chromium/content_public/browser/WebContentsObserver.java'
    pip=m.PIP
    cpp=[m.RFH,m.WC,'content/browser/media/media_web_contents_observer.cc','content/browser/android/web_contents_observer_proxy.cc']
-   header=b'gen/content/public/android/content_jni_headers/WebContentsObserverProxy_jni.h'
-   lines=[b'# nonUTF8 \xff\xfe',b'rule cxx',b' command = clang++ $in',b'rule gen_jni',b' command = python ../../third_party/jni_zero/jni_zero.py $in',b'rule java',b' command = python ../../build/android/gyp/compile_java.py $in',b'build $:all_rust: phony']
-   lines.append(b'build '+header+b' gen/content.srcjar: gen_jni ../../'+proxy.encode()+b' ../../third_party/jni_zero/jni_zero.py')
+   header=b'gen/jni_headers/content/public/android/content_jni_headers/WebContentsObserverProxy_jni.h'
+   jni_rule=b'__content_public_android_content_jni_headers__action___build_toolchain_android_android_clang_arm64__rule'
+   lines=[b'# nonUTF8 \xff\xfe',b'rule cxx',b' command = clang++ $in',b'rule '+jni_rule,b' command = python ../../third_party/jni_zero/jni_zero.py $in',b'rule java',b' command = python ../../build/android/gyp/compile_java.py $in',b'build $:all_rust: phony']
+   jni_line=b'build '+header+b' gen/content.srcjar: '+jni_rule+b' ../../'+proxy.encode()+b' ../../third_party/jni_zero/jni_zero.py\n'
+   (out/'toolchain.ninja').write_bytes(jni_line)
+   lines.append(b'include toolchain.ninja')
    lines.append(b'subninja content_full_java.ninja');lines.append(b'subninja chrome_java.ninja')
    (out/'content_full_java.ninja').write_bytes(b'build obj/content.jar: java ../../'+proxy.encode()+b' ../../'+observer.encode()+b' gen/content.srcjar\n')
    (out/'chrome_java.ninja').write_bytes(b'build obj/chrome.jar: java ../../'+pip.encode()+b' obj/content.jar\n')
@@ -159,6 +162,33 @@ class ContentPreparationTests(unittest.TestCase):
    data=g.load(out);plan=g.coverage(data,out,source,'//build/toolchain/android:android_clang_arm64')
    self.assertEqual(len(plan['objects']),4);self.assertEqual(plan['jni']['target'],header.decode())
    self.assertTrue(all(x['target'].startswith('obj/') for x in plan['objects']))
+   # Same basename/recipe is insufficient: exact layout/action/default toolchain/input required.
+   for wrong in [
+    jni_line.replace(b'gen/jni_headers/',b'gen/'),
+    jni_line.replace(jni_rule,jni_rule.replace(b'arm64',b'arm')),
+    jni_line.replace(jni_rule,b'another_action'),
+    jni_line.replace(proxy.encode(),observer.encode()),
+   ]:
+    (out/'toolchain.ninja').write_bytes(wrong)
+    with self.assertRaises(g.MissingCoverage):g.coverage(g.load(out),out,source,'//build/toolchain/android:android_clang_arm64')
+   (out/'toolchain.ninja').write_bytes(jni_line)
+   recipe_data=g.load(out)
+   recipe_data['rules'][(0,jni_rule)]=[b' command = other_generator.py $in']
+   recipe_data['outputs'][header]['inputs']=[b'../../'+proxy.encode()]
+   with self.assertRaises(g.MissingCoverage):g.coverage(recipe_data,out,source,'//build/toolchain/android:android_clang_arm64')
+   with self.assertRaises(g.UnsupportedGraph):g.coverage(g.load(out),out,source,'//build/toolchain/android:android_clang_arm')
+   ambiguous=g.load(out)
+   edge=ambiguous['outputs'][header]
+   ambiguous['edges'].append(dict(edge))
+   with self.assertRaisesRegex(g.MissingCoverage,'ambiguous'):g.coverage(ambiguous,out,source,'//build/toolchain/android:android_clang_arm64')
+   (out/'toolchain.ninja').write_bytes(jni_line+jni_line)
+   with self.assertRaisesRegex(g.UnsupportedGraph,'Duplicate decoded'):g.load(out)
+   (out/'toolchain.ninja').write_bytes(jni_line)
+
+   for java_file,dependency in [('content_full_java.ninja',b' gen/content.srcjar'),('chrome_java.ninja',b' obj/content.jar')]:
+    f=out/java_file;original_java=f.read_bytes();f.write_bytes(original_java.replace(dependency,b''))
+    with self.assertRaisesRegex(g.MissingCoverage,'dependency'):g.coverage(g.load(out),out,source,'//build/toolchain/android:android_clang_arm64')
+    f.write_bytes(original_java)
    original=(out/'build.ninja').read_bytes();(out/'build.ninja').write_bytes(original.replace(b' || '+header,b''))
    with self.assertRaisesRegex(g.MissingCoverage,'dependency'):g.coverage(g.load(out),out,source,'//build/toolchain/android:android_clang_arm64')
    (out/'build.ninja').write_bytes(original+b'build $:all_rust: phony\n')
