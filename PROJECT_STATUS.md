@@ -1,5 +1,14 @@
 # Versanium Project Status
 
+Latest Native device trial: Galaxy S23, diagnosis/background/PiP ON, restart
+confirmed, brief PiP/audio stop/no crash. Full72-stage log saved. Actual EAM
+d1/controller d2 selects tab-caused exit; two d3/d4 guard returns are nested
+loss/Base call-outs, not independent external counts. media_stopped44.083 is
+before onStop stop_not_playing44.331; NO stop_suspend_called this trial.
+Do not carry over Forward's SYSTEM-suspend attribution. Initial upstream exit
+and earliest pause caller remain unknown; signed Native APK SHA256 unreported.
+See native-diagnostic-device-review-2026-10-25.md. No product/host changes or B.
+
 Latest host report: source-only apply/verify PASS, GN gen exit0, toolchain
 android_clang_arm64, no compile at native-diagnostic-evidence-NQzDtk. Audit failed
 because partition(':') split escaped $:. Bytes lexer now decodes literal paths,

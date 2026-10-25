@@ -1,5 +1,11 @@
 # EAM native diagnostic implementation — 2026-10-25 JST
 
+Latest Native device evidence and stopping analysis are in
+native-diagnostic-device-review-2026-10-25.md with complete log. This trial confirms
+EAM tab-caused branch/two nested returns, but media stop is BEFORE onStop and
+stop_not_playing means no onStop SYSTEM suspend call. Do not apply the earlier
+Forward suspend result to it. Signed Native APK hash remains unknown.
+
 Latest host report: source-only apply/verify and GN gen completed, compilation
 not started. Post-GN audit escape-parser repair and controller-only compatibility
 proof are documented in native-graph-escape-reaudit.md. This supersedes prior

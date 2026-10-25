@@ -265,3 +265,14 @@ rule/toolchain and old/new object identity gates. Permit old source-record SHA
 only via trusted ancestor and audit/test/Markdown-only delta plus product/manifest/
 source-helper invariance. Record proof under fresh re-audit evidence, never rewrite
 original controller or reapply/regenerate the saved tree to solve an audit bug.
+
+## 2026-10-25 — Separate Native early media stop from Forward onStop suspend
+
+Preserve full log and visible result/restart; do not invent signed Native APK SHA.
+Native media stop precedes onStop and stop_not_playing excludes this branch's
+SYSTEM suspend. Existing Forward suspend evidence remains a separate trial.
+Observed d3/d4 are nested cycles consistent with loss/Base WebContents call-outs,
+not multiple roots; first content ingress still unknown. No safe blanket EAM/
+fullscreen/PiP cleanup fix is established. Prioritize ingress + persistent-false
+dispatch only if another diagnostic is needed, with actual scoped content observer
+JNI and lifetime review. Keep B/video zoom separate; do not build or modify host.

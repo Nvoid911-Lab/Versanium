@@ -1,5 +1,14 @@
 # Versanium Architecture
 
+Native trial constrains EAM branch/reentry, not upstream initiator. Loss clears
+exclusive tab then exits WebContents; context output enters Base, whose stored
+WebContents exit can reenter again. PiP reason6 move/cleanup runs persistent-false
+callbacks before framework exit; renderer delivery/application is unmeasured.
+Media-stopped Java callback drops native reason/player context and cannot identify
+pause origin. This trial onStop sees mIsPlaying=false and makes no SYSTEM suspend.
+Next diagnosis, if separately approved, should identify content ingress and
+actual persistent-false dispatch via content observer/JNI, not repeat EAM labels.
+
 Post-GN edge lexer uses bytes tokens: escaped colon/space/dollar are path bytes,
 unescaped colon/group operators are syntax. Duplicate checks cover decoded
 explicit+implicit outputs. Controller compatibility is a constrained ancestor/
