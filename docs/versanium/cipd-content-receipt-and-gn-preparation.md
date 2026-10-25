@@ -131,7 +131,10 @@ All other saved args remain byte-preserved apart from those explicit line change
 Do not print raw args. On unsupported expressions/duplicates stop, not append blindly.
 
 ```sh
-# FUTURE ONLY. Set CONTENT_SOURCE and CONTENT_EVIDENCE explicitly first.
+# FUTURE ONLY, after explicit authorization and receipt/Default/source review.
+CONTENT_SOURCE=/home/takuma/versanium/actions-runner/_work/Versanium/Versanium/versanium-next-test-39951209951/chromium/src
+CONTENT_EVIDENCE=$(mktemp -d /home/takuma/versanium/nullaway-gn-evidence-XXXXXX)
+printf 'Evidence: %s\n' "$CONTENT_EVIDENCE"
 # Evidence is external to saved workspace; directory must be NEW.
 export CONTENT_SOURCE CONTENT_EVIDENCE
 python3 - <<'PY'
@@ -168,6 +171,8 @@ it to post-apply state; if processor/args/source drift STOP.
 
 ```sh
 # FUTURE ONLY, separate authorization required.
+CONTENT_VERIFY_OUT=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["output"])' "$CONTENT_EVIDENCE/verification-config.json")
+export CONTENT_VERIFY_OUT
 export DEPOT_TOOLS_UPDATE=0
 export PATH="$CONTENT_SOURCE/buildtools/linux64:$CONTENT_SOURCE/../../depot_tools:$PATH"
 (
