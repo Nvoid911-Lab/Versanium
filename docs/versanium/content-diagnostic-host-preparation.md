@@ -263,3 +263,19 @@ host graph replay or Java/NullAway compilation. New evidence must retain NDSMal.
 Local validation after Java correction:95 tests PASS (two additional test methods,
 expanded shared actual-layout fixture), actionlint PASS, documented shell syntax
 PASS and git diff --check PASS. All host/compilation limitations above remain.
+
+
+## Completed host read-only and isolated analysis follow-up
+
+User reports controller7b60873 completed TQNw0X/read-only.json: READ_ONLY_COMPLETE,
+NO_REGEN_INDICATED_BY_GRAPH_AND_DEPFILE, saved ErrorProne=false, separate analysis
+records0, NullAway NOT_PROVEN_REQUIRES_SEPARATE_REVIEW_ARGS_UNCHANGED. No apply/GN/
+compile. This is the latest host result; previous discovery stops are historical.
+The records were not locally reread here.
+
+See [isolated NullAway plan](nullaway-isolated-output-plan.md) for fixed156
+configuration, source coverage, separate output/args, real graph/shard/processor
+checks, capacity/stop conditions and source-apply→analysis→product build order.
+Existing helper gate and Default args/output remain unchanged. Creating a graph
+or finding flags alone does not satisfy the gate; separate actual execution
+evidence must match the final candidate. No output generation or build performed.

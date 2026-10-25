@@ -280,3 +280,10 @@ Signed source/provenance and actual graph are linked by new external evidence,
 not edits to old signature/controller records. Source apply, GN, compilation and
 signing are separate gates; saved NullAway flag/actions must be proven. See
 docs/versanium/content-diagnostic-host-preparation.md.
+
+Isolated NullAway validation is a separate verification-only output using the
+SAME reviewed candidate source, never Default output artifacts or APK/signing.
+Source-only apply/verify precedes candidate analysis; separate receipt binds full
+source coverage, processor/tool/args/graph/actions and actual successful execution.
+Default's disabled ErrorProne gate is preserved as historical fact, not auto-cleared.
+See docs/versanium/nullaway-isolated-output-plan.md.

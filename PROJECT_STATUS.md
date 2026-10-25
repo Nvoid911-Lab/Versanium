@@ -1,5 +1,16 @@
 # Versanium Project Status
 
+Latest host result (user-reported TQNw0X/read-only.json, controller7b60873):
+READ_ONLY_COMPLETE; no product GN regeneration indicated by real graph+depfile;
+saved ErrorProne=false, separate analysis records0, NullAway NOT_PROVEN.
+No host source apply/GN/compile. Earlier discovery failures below are historical.
+Isolated NullAway output plan prepared in docs/versanium/nullaway-isolated-output-plan.md.
+Only future verification args: ErrorProne=true, static_analysis="on", warnings-as-errors=true;
+Default args/output/old helper gate unchanged. Candidate source-only apply/verify
+must precede candidate analysis; no Native-only analysis may validate new code.
+Real source/graph/processor/shard coverage + synchronous successful execution
+required before separate review of the gate; no NullAway PASS yet.
+
 Latest product candidate: content ingress + cleanup persistent-false diagnostics
 via WebContentsObserver/Android proxy/JNI, no content→chrome/TLS dependency.
 Fixed renderer API/security/navigation/renderer-gone branches and generic wrapper/

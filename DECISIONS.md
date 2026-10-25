@@ -314,3 +314,14 @@ and JNI dependencies determine membership. Separate ErrorProne/stamp/shard and
 validation scan determines analysis availability; ordinary compiler NullAway flag
 absence is not a proxy for analysis absence. Reject ambiguous/unproven membership.
 Preserve product/selection/old helpers/evidence; retry read-only in new evidence.
+
+## 2026-10-25: Plan isolated real-source NullAway validation
+
+User host TQNw0X read-only completed; source apply/GN/compile not done. Saved
+ErrorProne=false and no separate actions mean NullAway remains NOT_PROVEN. Plan
+fresh verification-only output, exactly ErrorProne=true/static_analysis="on"/
+warnings-as-errors=true overrides, after content candidate source-only apply and
+verify. No output generated now. Audit real graph/shards/source lists/processor/
+classpaths and capacity before executing family-wide analysis; no jar/fragment
+substitutes, no cross-output packaging/signing. Old helper gate and Default remain
+unchanged; a reviewed matching execution receipt is needed before product build.
