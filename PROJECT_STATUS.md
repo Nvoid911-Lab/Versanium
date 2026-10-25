@@ -6,7 +6,11 @@ Fixed renderer API/security/navigation/renderer-gone branches and generic wrappe
 dispatch brackets; generic arrival alone is not root attribution. False unchanged/
 no-player/send begin/returned separate, none claims renderer completion.
 New58 selection retains Native/no-B baseline; old helpers/manifests untouched.
-See content-fullscreen-diagnostic-review.md. No host apply/build preparation yet.
+See content-fullscreen-diagnostic-review.md and content-diagnostic-host-preparation.md.
+Independent Native58/10-file host preparation now available; no host execution.
+Native signed host APK hash user-confirmed: fba3cbd639abdb0c00d9e7c1d4621e61580efde1fb9126ce8545437261923bc7.
+Signature record has no graph link: derive through actual source/provenance records; never rewrite it.
+Saved NullAway graph/flag must be checked; ordinary Java is not NullAway proof.
 
 Latest Native device trial: Galaxy S23, diagnosis/background/PiP ON, restart
 confirmed, brief PiP/audio stop/no crash. Full72-stage log saved. Actual EAM
@@ -14,7 +18,7 @@ d1/controller d2 selects tab-caused exit; two d3/d4 guard returns are nested
 loss/Base call-outs, not independent external counts. media_stopped44.083 is
 before onStop stop_not_playing44.331; NO stop_suspend_called this trial.
 Do not carry over Forward's SYSTEM-suspend attribution. Initial upstream exit
-and earliest pause caller remain unknown; signed Native APK SHA256 unreported.
+and earliest pause caller remain unknown; signed Native APK SHA256 now user-confirmed above.
 See native-diagnostic-device-review-2026-10-25.md. No product/host changes or B.
 
 Latest host report: source-only apply/verify PASS, GN gen exit0, toolchain

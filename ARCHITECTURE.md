@@ -273,3 +273,10 @@ Configuration A transaction is independent of previous apply controllers. Its in
 Origin diagnostic candidate adds fixed logging calls inside FullscreenHtmlApiHandlerBase's existing request/dispatch branches, routed via the existing PiP controller with same-tab/live/normal-profile/YouTube checks. Both classes are existing chrome_java sources. Conditions, getter counts and exit policy remain unchanged. A actual logs establish move/suspend execution but not the request origin. Old apply paths are not valid for this expanded two-file selection; B remains separately deferred.
 
 AOrigin has a separate41-file manifest and transaction controller. It reuses only immutable utility functions of the A helper, not its validation/apply conditions, and requires the actual completed A record plus after-apk provenance. Two fixed-source-reproduced Java files can be written only after external backup/intent/full output snapshot. AOrigin41, other source/tool/output and updated provenance are verified afterward; partial failure is retained for review. No B path exists in this controller.
+
+Native→content diagnostic host preparation is isolated in prepare_content_diagnostic.py
+and content_diagnostic_graph.py. Product415/old helpers/manifests remain immutable.
+Signed source/provenance and actual graph are linked by new external evidence,
+not edits to old signature/controller records. Source apply, GN, compilation and
+signing are separate gates; saved NullAway flag/actions must be proven. See
+docs/versanium/content-diagnostic-host-preparation.md.

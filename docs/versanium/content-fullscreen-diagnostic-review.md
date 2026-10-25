@@ -3,7 +3,9 @@
 Scope is ONLY first content ingress and persistent-false request/dispatch. No
 renderer pause, broad MediaSession, playback/exit policy or B changes. Prior
 Native device evidence/full log remains in native-diagnostic-device-review-2026-10-25.md.
-Signed Native APK hash remains unreported. This product selection is not a host
+Signed Native host APK hash is now user-confirmed (not device extraction); see
+content-diagnostic-host-preparation.md for exact record linkage and new independent
+Native58 source-only/graph/compile preparation. This product selection is not a host
 transaction or permission to apply/build. Existing helpers/manifests are unchanged.
 
 ## Product route and fixed events

@@ -1,0 +1,166 @@
+# Native → content-origin host preparation (2026-10-25 JST)
+
+Product pin: `415f6df9bb70d1e3c062c398c05ebebc997772ee`. This independent
+helper does not import/modify historical apply helpers or manifests. It prepares
+first content ingress and persistent-false diagnostics, NOT a PiP fix. B/video
+fullscreen zoom remains excluded. No host operation or build was performed here.
+
+## Confirmed baseline and evidence linkage
+
+Use built/signed **AOriginForwardNative**, never Forward/A/installed60b.
+User confirmed signing record, actual host APK and previous certificate match,
+installation and restart; this is NOT extraction/verification of the device APK.
+
+- signed Native APK SHA256: `fba3cbd639abdb0c00d9e7c1d4621e61580efde1fb9126ce8545437261923bc7`
+- certificate: `2e79f4e6597f7ea320b32c4889405c8d93081774a0fd8db4a040def0d54ad120`
+- source-applied SHA256: `5934cc6dd0074b66d95cd6ae8f94236de7977e453b93a5db910cdcfe23c920d4`
+- after-apk-provenance SHA256: `7331a3d310403149b05d705ffa5f07b699db4138969936a602e597b3699a03b3`
+
+`source-applied.json` is in native-diagnostic-evidence-NQzDtk. Graph, APK
+provenance and signed record are in its graph-reaudit-ZFshuZ directory. The
+signature record has NO graph reference. The helper derives a new evidence link:
+sign record→actual source/provenance hashes; graph→same source hash/provenance;
+current loaded graph→historically audited graph hashes; actual signed/unsigned
+APK→recorded hashes. This is a read-only consistency proof, not a retroactive
+cryptographic compiler attestation. Old records are never edited or re-signed.
+
+Recorded source controller→graph audit controller ancestry and exact historical
+audit-only delta are checked against stored proof. Product415 and new preparation
+are checked as separate descendant stages; only enumerated product/preparation
+paths and documentation are accepted. Native product/manifest/helper and content
+product/selection bytes are invariant. Old controller fields are never rewritten.
+
+## First operation: read-only, separate controller only
+
+Replace CONTROLLER_SHA with the final reviewed preparation commit in PR5.
+This checkout is ONLY in the separate controller; never checkout/reset saved Run9.
+
+```sh
+(
+  set -eu
+  CONTENT_CONTROL=/home/takuma/versanium/run9-control-093f787-3k3yO1
+  test -z "$(git -C "$CONTENT_CONTROL" status --porcelain)"
+  git -C "$CONTENT_CONTROL" fetch --no-tags https://github.com/Nvoid911-Lab/Versanium.git next-test/156-zoom-transfer-pip
+  git -C "$CONTENT_CONTROL" checkout --detach CONTROLLER_SHA
+  CONTENT_EVIDENCE=$(mktemp -d /home/takuma/versanium/content-origin-evidence-XXXXXX)
+  printf 'Evidence: %s\n' "$CONTENT_EVIDENCE"
+  PYTHONDONTWRITEBYTECODE=1 python3 "$CONTENT_CONTROL/tools/versanium/prepare_content_diagnostic.py" \
+    --workspace /home/takuma/versanium/actions-runner/_work/Versanium/Versanium/versanium-next-test-39951209951 \
+    --control "$CONTENT_CONTROL" \
+    --native-source-record /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/source-applied.json \
+    --build-evidence /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/graph-reaudit-ZFshuZ \
+    --signed-apk /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/signed-test/Versanium-156.0.8078.47_Test_ConfigAOriginForwardNative.apk \
+    --evidence "$CONTENT_EVIDENCE/read-only.json"
+)
+```
+
+This hashes the COMPLETE saved output tree (potentially substantial disk I/O,
+no dependency downloads). Keep builders/runner idle throughout. It checks58 inputs
+(Native51 plus7), exactly10 changes, no B. Ten before/after files are reproduced
+from fixed Chromium HEAD and selected historical patches/transforms in temporary
+space, including the reviewed common patch.sh WebContents sed; patch.sh itself
+is never executed. The58-input selection is unchanged from product415.
+
+Tracked nonselection source diff, untracked-name census, tool binaries, saved
+args and signing/identity sources are checked. This is not a byte census of all
+ignored/untracked source files; do not externally edit those. All generated output
+files are inventoried including Ninja/Siso logs/deps. No saved source/output writes.
+Unknown/indirect graph syntax, missing action, ambiguous target, nonliteral path,
+wrong baseline, output/source drift, unsupported depfile: STOP for review.
+
+## Future source-only apply (NOT authorized in this task)
+
+Repeat identical arguments with NEW external `--evidence .../applied.json --apply`.
+After reviewing read-only evidence, do not reuse read-only.json as apply record.
+Before10 writes: copy original files, four historical evidence files, Native
+unsigned APK and all loaded graph/state files externally; record intent, original
+provenance and full output inventory. Native signed APK remains untouched.
+After:58 after hashes, only intended source provenance delta, other sources,
+args/toolchain/signing and entire generated output inventory must match.
+Then repeat same arguments with `--evidence .../applied.json --verify` **before
+any GN/compile**. Duplicate apply, mismatch or partial failure stops, retains
+false/partial intent and backups, never automatic rollback/reset. Do not manually
+resume partial writes. Existing old helper conditions are unchanged.
+
+## GN decision: real graph first, separate stage
+
+No BUILD.gn product difference is insufficient evidence. Read-only inspects actual
+content JNI Java input/header output/generator script, native dependency closure,
+content_full_java/chrome_java compile actions and JNI closure. Actual default
+cxx object definitions must uniquely match source/rule/default arm64 scope; other
+toolchains do not substitute. Targets are recorded from actual graph, never guessed.
+GN memberships and toolchain hashes are cross-checked. Generator edges AND their
+actual depfiles determine whether changed files participate in GN regeneration.
+Absent/unsupported depfile gives REVIEW_REQUIRED, not implicit permission.
+NO_REGEN_INDICATED requires literal complete evidence; SEPARATE_GN_UPDATE_REQUIRED
+means a separately authorized graph step. No implicit Ninja regeneration allowed.
+
+If separately approved, source-only verify first, retain pre-GN graph backups;
+use unchanged saved args/depot/toolchain, from the same chromium/src:
+
+```sh
+# FUTURE ONLY, after explicit authorization; use new external log/status paths.
+export DEPOT_TOOLS_UPDATE=0
+export PATH="$CONTENT_WORKSPACE/chromium/src/buildtools/linux64:$CONTENT_WORKSPACE/depot_tools:$PATH"
+(
+  cd "$CONTENT_WORKSPACE/chromium/src" || exit 1
+  if (set -o noclobber; ./buildtools/linux64/gn gen out/Default > "$CONTENT_EVIDENCE/gn.log" 2>&1); then
+    printf '0\n' > "$CONTENT_EVIDENCE/gn.status"
+  else
+    CONTENT_GN_STATUS=$?
+    printf '%s\n' "$CONTENT_GN_STATUS" > "$CONTENT_EVIDENCE/gn.status"
+    exit "$CONTENT_GN_STATUS"
+  fi
+)
+```
+
+Then same helper/base args with NEW `--evidence .../after-gn.json
+--audit-after-gn --application-record .../applied.json --gn-log .../gn.log
+--gn-status .../gn.status`. This never runs GN. It requires a fresh generated
+graph timestamp, status0, actual source58/provenance and all object/JNI/Java action
+recipes/dependencies unchanged. Only graph/depfile/stamp output changes accepted;
+args, objects, jars, APK, Ninja/Siso history changes STOP. Retain new graph copies.
+Unexpected legitimate graph changes still require review, not blanket acceptance.
+
+## Subsequent compile/sign gates (not run)
+
+|Order|Actual target selection / requirement|
+|---|---|
+|1|Content JNI action from graph_plan.jni.target; verify generated observer proxy signature against native use. A file left on disk is insufficient.|
+|2|Actual graph_plan.java targets for content_full_java (observer/proxy) then chrome_java (controller), real Java integration.|
+|3|Actual ErrorProne/NullAway action targets with --enable-nullaway, dependency/validation closure verified; execute and retain results separately.|
+|4|Four graph_plan.objects: RFH, WebContentsImpl, MediaWebContentsObserver, Android observer proxy. Source/cxx/default arm64 toolchain must match before execution.|
+|5|Actual saved graph chrome_public_apk alias and dependency closure, full APK integration including public observer/header users. No rebuild/time guarantee.|
+|6|Check Test manifest/version156.0.8078.47/arm64, sign by existing approved key/flow; new APK below, compare certificate above. No key/Secrets logged.|
+
+Use saved autoninja/depot with DEPOT_TOOLS_UPDATE=0, same out/Default; use recorded
+actual targets, do not paste speculative object names. Record each command/status,
+updated provenance and output inventory. Stop on implicit GN rerun, source/args/
+tool/config drift or failure. Precompile --verify cannot be used as postcompile
+proof because output changes are expected then. No build.sh, patch.sh, sync/clean.
+
+**NullAway blocker:** repository args.gn sets use_errorprone_java_compiler=false.
+Read the actual saved argument and action graph; ordinary Java success is NOT
+NullAway success. Helper records actual flag/action evidence. Missing/disabled
+NullAway remains an unresolved gate; do not change saved args behind the user.
+A separately reviewed verification configuration is needed if absent.
+
+New external signed name:
+`Versanium-156.0.8078.47_Test_ConfigNativeContentOrigin.apk`.
+Preserve Native and all older signed/unsigned distributions. Signed record must
+link new source, graph, after-apk hashes explicitly; do not modify old records.
+No release/upload, main/migration merge, tag, Actions or B follows.
+
+## Validation boundary
+
+New7 tests cover fixed reconstruction, exact record links/config/APK mismatch,
+read/apply/verify/partial transaction fixtures, controller-history proof, bytes
+Ninja escaping/scopes/duplicates/JNI dependencies, GN depfile decision and
+separate post-GN rejection. Fixtures are NOT real-host evidence. Real Native58,
+actual Ninja/JNI/action discovery, GN decision, Java/NullAway/C++/APK integration
+and new APK device trial remain unverified until user executes reviewed stages.
+
+Local result:93 unittest tests PASS (7 new); actionlint PASS; documented shell
+syntax PASS; git diff --check PASS. No actual host evidence files, graph or APK
+were accessible in this environment. These results do not verify actual host
+preflight, JNI generation, Java/NullAway/native compilation, signing or device behavior.

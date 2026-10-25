@@ -286,3 +286,13 @@ arrival alone remains unknown. Observe cleanup false, existing equal-state/no-pl
 returns and actual Mojo call begin/returned, never renderer completion. No pause/
 MediaSession diagnostics or exit behavior change. Preserve old manifests/helpers;
 new58 source-only product selection is not saved-host apply authorization.
+
+## 2026-10-25: Native58 content-origin preparation only
+
+Accept only user-confirmed Native source/graph/after-apk/sign record and actual
+APK through exact hashes and ancestry proof. No retroactive graph reference is
+inserted into signature records. New independent helper defaults read-only;
+explicit source apply and separate graph audit retain external backups/evidence,
+stop without rollback. Actual graph/JNI closure and generator depfile determine
+GN need; no BUILD diff alone is insufficient. Saved ErrorProne=false cannot be
+reported as NullAway success. No product/old helper changes or host/build execution.
