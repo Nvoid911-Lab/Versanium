@@ -1,5 +1,12 @@
 # Versanium Project Status
 
+Latest collection9db02a6 stopped BEFORE CIPD/jars: small()1MiB cap rejected normal
+inventory-bearing applied.json (sucsAo evidence). No new provenance finding.
+Replacement complete collector is documented in cipd-collector-large-record-review.md:
+separate bounded256MiB receipt reader with MemAvailable-based budget/schema/hash
+validation; package limits retained. Five local fixture regressions PASS.
+Old evidence/collector and applying controller7b60873 unchanged; no host retry run.
+
 Latest host report (2026-10-26 JST): content candidate10 apply/verify PASS under
 controller7b60873; TQNw0X/applied.json is the baseline, Default graph/output unchanged.
 No verification output/GN/compile yet. User reports C226.6GiB vs WSL815GiB,

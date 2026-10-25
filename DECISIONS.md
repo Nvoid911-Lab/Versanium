@@ -337,3 +337,14 @@ If binding evidence is absent, report unproven, not mismatch or waived provenanc
 Keep Default/args and original apply controller/evidence; prepare only docs-only
 compatibility proof, isolated-output3-override/GN/audit stages. C physical capacity
 and measured dependency growth govern future review, not WSL virtual capacity.
+
+## 2026-10-26: Separate large apply receipts from small metadata
+
+The first CIPD batch failed before jars because1MiB metadata cap was applied to
+normal generated-output inventory. Preserve old batch/evidence. New external
+collector uses bounded256MiB receipt parsing after size/estimated memory check,
+strict required schema/config/controller/pins and stable-file checks. Keep small
+package caps and original disk inventory unchanged; no unconditional limit waiver.
+Documented function regressions cover normal>1MiB inventory and invalid inputs.
+Changes remain Markdown only, preserving original applying controller7b60873 and
+its verification/provenance rules. No host collection/build execution authorized.

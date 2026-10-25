@@ -315,3 +315,14 @@ limit the layout conclusion until the batch verifies actual saved tools. Only
 small public source files were read for research; no dependency package/archive
 was obtained. No claim that embedded jar versions or local deployment metadata
 were actually received yet; only the three reported jar hashes are confirmed.
+
+
+## Collection-size correction (2026-10-26 JST)
+
+User collection9db02a6 stopped at applied.json read BEFORE CIPD/jars in external
+sucsAo. The original command above is retained as historical; do not rerun it.
+Use [complete replacement and regressions](cipd-collector-large-record-review.md)
+in NEW evidence. Applied receipt has a separate bounded memory-aware schema
+reader; small package caps stay. Old collector/evidence unchanged. No CIPD
+collection result or host retry is claimed. Controller/compatibility rules above
+remain unchanged; actual applying HEAD stays7b60873.

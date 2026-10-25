@@ -293,3 +293,8 @@ client revision, not presumed package-local .cipd files. Separate requested DEPS
 pin, observed jar bytes/version and recorded installed instance/file manifests.
 Original7b60873 apply receipt remains bound to that controller for verification;
 docs-only review compatibility is separate evidence, not a record rewrite.
+
+CIPD collection separates inventory-bearing apply receipt parsing from small
+package metadata: bounded file size, MemAvailable heuristic, schema/hash checks;
+only needed fields retained for collection. This does not replace original58-input
+helper verification or change on-disk receipts. See cipd-collector-large-record-review.md.
