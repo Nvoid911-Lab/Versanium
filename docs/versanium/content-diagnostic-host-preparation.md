@@ -279,3 +279,13 @@ checks, capacity/stop conditions and source-apply→analysis→product build ord
 Existing helper gate and Default args/output remain unchanged. Creating a graph
 or finding flags alone does not satisfy the gate; separate actual execution
 evidence must match the final candidate. No output generation or build performed.
+
+
+## Candidate already applied (2026-10-26 JST)
+
+User reports TQNw0X/applied.json content10 apply/verify PASS under7b60873 and
+Default unchanged. Do not start from Native-before or reapply. Keep original
+controller for --verify; docs-only review changes need a separate compatibility
+proof, never overwrite old controller fields. New NullAway output absent; see
+nullaway-cipd-host-followup.md for bounded processor metadata collection and next
+review gates. Current observed jar hashes do not alone prove CIPD instance binding.

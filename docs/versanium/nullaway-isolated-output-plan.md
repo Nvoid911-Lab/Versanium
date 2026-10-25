@@ -287,3 +287,13 @@ Local preparation checks:95 existing tests PASS, actionlint PASS, documented
 Bash and embedded Python syntax PASS, git diff --check PASS. AST inspection of
 fixed errorprone.py confirms empty in-place-fix list; no processor/Java execution
 is implied. No product code/helper/gate/selection or saved host file changed.
+
+
+## Applied candidate / processor provenance update (2026-10-26 JST)
+
+User confirms content candidate10 apply/verify PASS under original controller
+7b60873; TQNw0X/applied.json, Default output unchanged. Do NOT apply again.
+See [CIPD/host follow-up](nullaway-cipd-host-followup.md) for jar hashes, actual
+metadata location/format research, bounded batch, original-controller compatibility
+and capacity observations. New-output/GN/analysis steps remain future only; actual
+jar→instance binding, output size and execution time still unproven.

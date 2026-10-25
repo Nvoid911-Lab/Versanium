@@ -287,3 +287,9 @@ Source-only apply/verify precedes candidate analysis; separate receipt binds ful
 source coverage, processor/tool/args/graph/actions and actual successful execution.
 Default's disabled ErrorProne gate is preserved as historical fact, not auto-cleared.
 See docs/versanium/nullaway-isolated-output-plan.md.
+
+Processor acquisition evidence belongs to gclient's actual management root and
+client revision, not presumed package-local .cipd files. Separate requested DEPS
+pin, observed jar bytes/version and recorded installed instance/file manifests.
+Original7b60873 apply receipt remains bound to that controller for verification;
+docs-only review compatibility is separate evidence, not a record rewrite.

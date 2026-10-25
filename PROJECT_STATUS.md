@@ -1,5 +1,16 @@
 # Versanium Project Status
 
+Latest host report (2026-10-26 JST): content candidate10 apply/verify PASS under
+controller7b60873; TQNw0X/applied.json is the baseline, Default graph/output unchanged.
+No verification output/GN/compile yet. User reports C226.6GiB vs WSL815GiB,
+RAM available11GiB/swap32GiB; physical backing-volume capacity, not virtual free,
+governs approval. Three actual processor jar SHA256 now recorded in
+nullaway-cipd-host-followup.md; they identify observed bytes, not CIPD-instance proof.
+Package-local metadata absence is inconclusive: gclient may manage at .gclient
+root with central .cipd/pkgs metadata. Saved actual tool revision/layout remains
+to be confirmed by one bounded read-only batch. Keep original applying controller
+for --verify; docs-only compatibility proof does not rewrite old controller fields.
+
 Latest host result (user-reported TQNw0X/read-only.json, controller7b60873):
 READ_ONLY_COMPLETE; no product GN regeneration indicated by real graph+depfile;
 saved ErrorProne=false, separate analysis records0, NullAway NOT_PROVEN.

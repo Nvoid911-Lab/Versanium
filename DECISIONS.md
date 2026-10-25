@@ -325,3 +325,15 @@ verify. No output generated now. Audit real graph/shards/source lists/processor/
 classpaths and capacity before executing family-wide analysis; no jar/fragment
 substitutes, no cross-output packaging/signing. Old helper gate and Default remain
 unchanged; a reviewed matching execution receipt is needed before product build.
+
+## 2026-10-26: Applied candidate and bounded acquisition provenance audit
+
+Accept user-reported candidate10 apply/verify PASS under7b60873 as latest host
+state; no reapply. Processor hashes identify observed bytes, not standalone proof
+of immutable CIPD instance membership. Package-local .cipd absence is inconclusive;
+inspect actual saved gclient root/tool revision and centrally indexed package
+metadata once, without executing bootstrap clients or acquiring dependencies.
+If binding evidence is absent, report unproven, not mismatch or waived provenance.
+Keep Default/args and original apply controller/evidence; prepare only docs-only
+compatibility proof, isolated-output3-override/GN/audit stages. C physical capacity
+and measured dependency growth govern future review, not WSL virtual capacity.
