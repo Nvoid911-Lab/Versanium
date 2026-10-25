@@ -319,3 +319,5 @@ compile. Java family now derived from exact fixed156 rule/default toolchain,
 source/outputs/recipe and dependencies, never Ninja filename. Separate ErrorProne
 and shard actions scanned independently; compiler flag absence is not analysis
 absence. Actual host Java/NullAway inspection remains incomplete and unexecuted.
+
+2026-10-26 latest CIPD collection v2-5N3hJj user report: depot4be4e4628e093c4ad50210db5dcfa05a88280bda matches expected, tracked clean; central root chromium and3 exact package/subdir/instances found. Manifest sizes/hash correspond to reported actual jars. Primary LUCI iid/caspb/manifest sources confirm rawURLBase64(digest+tag02)=SHA256. New external receipt and isolated-output→GN-only steps in cipd-content-receipt-and-gn-preparation.md. Local consistency is not independent authenticity; actual receipt not run. Candidate58/Default/controller7b preserved; no output/GN/analysis.

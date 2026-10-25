@@ -348,3 +348,13 @@ package caps and original disk inventory unchanged; no unconditional limit waive
 Documented function regressions cover normal>1MiB inventory and invalid inputs.
 Changes remain Markdown only, preserving original applying controller7b60873 and
 its verification/provenance rules. No host collection/build execution authorized.
+
+## 2026-10-26: Confirm CIPD file digest encoding, preserve trust boundary
+
+LUCI primary iid.go plus caspb SHA256=2 confirms supplied manifest file hashes
+as digest+algorithm rawURLBase64;3 positive/2 negative checks PASS. Prepare new
+external live size/hash/package/subdir/instance receipt, explicitly local-record
+consistency only. Host metadata-location uncertainty is resolved by v2-5N3hJj
+user report, not fabricated host access. Keep original apply controller7b and
+Default unchanged; future separate3-override output/GN stops for graph/capacity
+review before analysis. No packages or runtime verification executed now.

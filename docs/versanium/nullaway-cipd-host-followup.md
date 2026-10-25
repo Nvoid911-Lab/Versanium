@@ -326,3 +326,13 @@ in NEW evidence. Applied receipt has a separate bounded memory-aware schema
 reader; small package caps stay. Old collector/evidence unchanged. No CIPD
 collection result or host retry is claimed. Controller/compatibility rules above
 remain unchanged; actual applying HEAD stays7b60873.
+
+
+## Collected management records received (2026-10-26 JST)
+
+User reports v2-5N3hJj found actual depot4be4e4628e093c4ad50210db5dcfa05a88280bda
+matching provenance and clean tracked files; central root chromium, exact three
+package/subdir/instances and manifest jar sizes/hashes. See
+[formal hash review / external receipt / GN preparation](cipd-content-receipt-and-gn-preparation.md).
+This supersedes pending-location status; local consistency remains distinct from
+independent authenticity. New receipt and verification output/GN not executed.
