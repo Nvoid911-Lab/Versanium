@@ -1,5 +1,4 @@
 """Independent literal Ninja graph inspection; no execution and no old helper imports."""
-from pathlib import Path
 import hashlib
 import os
 import re
@@ -118,26 +117,45 @@ def coverage(graph,out,source,toolchain):
     # The bridge header must be an actual graph output, not merely a file left on disk.
     generated={'target':os.fsdecode(header),'rule':os.fsdecode(e['rule']),'ninja':e['ninja'],'inputs':[os.fsdecode(i) for i in e['inputs']],'outputs':[os.fsdecode(t) for t in e['outputs']],'recipe_sha256':hashlib.sha256(recipe(graph,e)).hexdigest()}
     java=[];analysis=[];jni_edge=e
-    for name in [proxy,'content/public/android/java/src/org/chromium/content_public/browser/WebContentsObserver.java','chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java']:
-        hits=[];family='chrome_java' if name.startswith('chrome/') else 'content_full_java'
-        for edge in graph['edges']:
-            if not any(path_at(out,i)==(source/name).resolve() for i in edge['inputs']):continue
-            # GN Android library helper actions have their parent's exact family
-            # name or __suffix, not similarly named unit-test target families.
-            stem=Path(edge['ninja']).stem
-            if stem!=family and not stem.startswith(family+'__'):continue
-            jars=[t for t in edge['outputs'] if t.startswith(b'obj/') and t.endswith(b'.jar')]
-            if jars and b'compile_java.py' in recipe(graph,edge):hits.append((edge,jars))
-        if not hits:raise MissingCoverage('Production Java compiler action/source/.jar coverage absent or unsupported: '+name)
-        for edge,jars in hits:
-            java.append({'source':name,'gn_family':family,'targets':[os.fsdecode(t) for t in jars],'rule':os.fsdecode(edge['rule']),'ninja':edge['ninja'],'recipe_sha256':hashlib.sha256(recipe(graph,edge)).hexdigest()})
-            if not depends_on(graph,edge,jni_edge):raise MissingCoverage('Java compiler graph does not prove dependency on content JNI: '+name)
+    # GN android_library creates __compile_java and optional __errorprone[_shardN]
+    # actions. Their rules encode target + toolchain; the .ninja filename does not.
+    specs=[('content/public/android','content_full_java',[proxy,'content/public/android/java/src/org/chromium/content_public/browser/WebContentsObserver.java']),
+           ('chrome/android','chrome_java',['chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java'])]
+    for directory,family,names in specs:
+        prefix=('__'+directory.replace('/','_')+'_'+family).encode()
+        suffix=b'___build_toolchain_android_android_clang_arm64__rule'
+        compile_rule=prefix+b'__compile_java'+suffix
+        output=('obj/'+directory+'/'+family).encode()
+        jar=output+b'.javac.jar'
+        required={jar,jar+b'.info'};allowed=required|{output+b'.compliment.jar'}
+        hits=[edge for edge in graph['edges'] if edge['rule']==compile_rule]
+        if len(hits)!=1:raise MissingCoverage('Production Java compiler action absent or ambiguous: '+family)
+        edge=hits[0];raw=recipe(graph,edge)
+        require(required<=set(edge['outputs'])<=allowed,'Unexpected exact Java compiler outputs: '+family)
+        require(b'compile_java.py' in raw and b'errorprone.py' not in raw and b'turbine.py' not in raw,'Wrong Java compiler recipe: '+family)
+        if not depends_on(graph,edge,jni_edge):raise MissingCoverage('Java compiler graph does not prove dependency on content JNI: '+family)
+        for name in names:
+            if not any(path_at(out,i)==(source/name).resolve() for i in edge['inputs']):raise MissingCoverage('Production Java compiler direct source absent: '+name)
+            java.append({'source':name,'gn_family':family,'compiler_nullaway_flag_observed':b'--enable-nullaway' in raw,'targets':[os.fsdecode(jar)],'outputs':[os.fsdecode(t) for t in edge['outputs']],'rule':os.fsdecode(edge['rule']),'ninja':edge['ninja'],'recipe_sha256':hashlib.sha256(raw).hexdigest()})
+        pattern=re.compile(re.escape(prefix)+rb'__errorprone(_shard[0-9]+)?'+re.escape(suffix))
+        found=[];seen_ep_rules=set()
         for candidate in graph['edges']:
-            stem=Path(candidate['ninja']).stem
-            if not stem.startswith(family+'__'):continue
-            if not any(path_at(out,i)==(source/name).resolve() for i in candidate['inputs']):continue
-            raw=recipe(graph,candidate)
-            if b'errorprone.py' not in raw:continue
-            require(any(depends_on(graph,edge,candidate) for edge,jars in hits),'ErrorProne action not linked to Java compile validations')
-            analysis.append({'source':name,'targets':[os.fsdecode(t) for t in candidate['outputs']],'rule':os.fsdecode(candidate['rule']),'ninja':candidate['ninja'],'nullaway_flag_observed':b'--enable-nullaway' in raw,'recipe_sha256':hashlib.sha256(raw).hexdigest()})
+            match=pattern.fullmatch(candidate['rule'])
+            if not match:continue
+            require(candidate['rule'] not in seen_ep_rules,'Ambiguous duplicate ErrorProne rule: '+family)
+            seen_ep_rules.add(candidate['rule'])
+            label=family+'__errorprone'+(match.group(1).decode() if match.group(1) else '')
+            stamp=('obj/'+directory+'/'+label+'.stamp').encode()
+            require(candidate['outputs']==[stamp],'Unexpected exact ErrorProne output: '+label)
+            ep_raw=recipe(graph,candidate)
+            require(b'errorprone.py' in ep_raw and b'compile_java.py' not in ep_raw and b'turbine.py' not in ep_raw,'Wrong ErrorProne recipe: '+label)
+            require(depends_on(graph,edge,candidate),'ErrorProne action not linked to Java compile validations: '+label)
+            found.append((candidate,ep_raw,match.group(1)))
+        require(not (any(shard is None for _,_,shard in found) and len(found)>1),'Ambiguous sharded/unsharded ErrorProne actions: '+family)
+        for name in names:
+            matches=[(candidate,ep_raw) for candidate,ep_raw,_ in found if any(path_at(out,i)==(source/name).resolve() for i in candidate['inputs'])]
+            require(len(matches)<=1,'Ambiguous ErrorProne source membership: '+name)
+            require(not found or matches,'ErrorProne family exists but direct source membership unproven: '+name)
+            for candidate,ep_raw in matches:
+                analysis.append({'source':name,'targets':[os.fsdecode(t) for t in candidate['outputs']],'rule':os.fsdecode(candidate['rule']),'ninja':candidate['ninja'],'nullaway_flag_observed':b'--enable-nullaway' in ep_raw,'recipe_sha256':hashlib.sha256(ep_raw).hexdigest()})
     return {'objects':objects,'jni':generated,'java':java,'errorprone':analysis,'nullaway_status':'GRAPH_ACTIONS_REQUIRE_EXECUTION_REVIEW' if analysis else 'NOT_PROVEN_NO_ACTIONS_FOUND','gn_requirement':'NO_REGEN_INDICATED_BY_LITERAL_GRAPH_COVERAGE','limitation':'GN descriptions not newly executed; fixed target membership plus recorded default toolchain/literal graph. Ambiguous/indirect inputs require review, not guessed targets.'}

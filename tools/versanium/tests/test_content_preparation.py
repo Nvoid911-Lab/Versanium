@@ -140,25 +140,30 @@ class ContentPreparationTests(unittest.TestCase):
      with self.assertRaises(OSError):m.run(a)
     self.assertFalse(m.read(a.evidence)['applied']);self.assertEqual((s/'a.cc').read_bytes(),b'new');self.assertEqual((s/'b.java').read_bytes(),b'old')
     self.assertEqual((a.evidence.with_suffix('.before')/'source/a.cc').read_bytes(),b'old')
+ def make_java_graph(self,d):
+  source=Path(d);out=source/'out/Default';out.mkdir(parents=True)
+  proxy='content/public/android/java/src/org/chromium/content/browser/webcontents/WebContentsObserverProxy.java'
+  observer='content/public/android/java/src/org/chromium/content_public/browser/WebContentsObserver.java'
+  pip=m.PIP
+  cpp=[m.RFH,m.WC,'content/browser/media/media_web_contents_observer.cc','content/browser/android/web_contents_observer_proxy.cc']
+  header=b'gen/jni_headers/content/public/android/content_jni_headers/WebContentsObserverProxy_jni.h'
+  jni_rule=b'__content_public_android_content_jni_headers__action___build_toolchain_android_android_clang_arm64__rule'
+  lines=[b'# nonUTF8 \xff\xfe',b'rule cxx',b' command = clang++ $in',b'rule '+jni_rule,b' command = python ../../third_party/jni_zero/jni_zero.py $in',b'build $:all_rust: phony']
+  jni_line=b'build '+header+b' gen/content.srcjar: '+jni_rule+b' ../../'+proxy.encode()+b' ../../third_party/jni_zero/jni_zero.py\n'
+  java_rules=[b'__content_public_android_content_full_java__compile_java___build_toolchain_android_android_clang_arm64__rule',b'__chrome_android_chrome_java__compile_java___build_toolchain_android_android_clang_arm64__rule']
+  java_lines=b''
+  for rule in java_rules:java_lines+=b'rule '+rule+b'\n command = python ../../build/android/gyp/compile_java.py $in\n'
+  java_lines+=b'build obj/content/public/android/content_full_java.javac.jar obj/content/public/android/content_full_java.javac.jar.info obj/content/public/android/content_full_java.compliment.jar: '+java_rules[0]+b' ../../'+proxy.encode()+b' ../../'+observer.encode()+b' gen/content.srcjar\n'
+  java_lines+=b'build obj/chrome/android/chrome_java.javac.jar obj/chrome/android/chrome_java.javac.jar.info: '+java_rules[1]+b' ../../'+pip.encode()+b' obj/content/public/android/content_full_java.javac.jar\n'
+  (out/'toolchain.ninja').write_bytes(jni_line+java_lines)
+  lines.append(b'include toolchain.ninja')
+  for i,n in enumerate(cpp):lines.append(b'build obj/actual'+str(i).encode()+b'.o: cxx ../../'+n.encode()+b' || '+header)
+  lines.append(b'subninja other.ninja');(out/'build.ninja').write_bytes(b'\n'.join(lines)+b'\n')
+  (out/'other.ninja').write_bytes(b'rule cxx\n command = othercompiler $in\nbuild other/obj/x.o: cxx ../../'+cpp[0].encode()+b'\n')
+  return source,out,proxy,observer,pip,cpp,header,jni_rule,jni_line,java_lines,java_rules
  def test_literal_graph_jni_java_native_dependencies_and_scope(self):
   with tempfile.TemporaryDirectory() as d:
-   source=Path(d);out=source/'out/Default';out.mkdir(parents=True)
-   proxy='content/public/android/java/src/org/chromium/content/browser/webcontents/WebContentsObserverProxy.java'
-   observer='content/public/android/java/src/org/chromium/content_public/browser/WebContentsObserver.java'
-   pip=m.PIP
-   cpp=[m.RFH,m.WC,'content/browser/media/media_web_contents_observer.cc','content/browser/android/web_contents_observer_proxy.cc']
-   header=b'gen/jni_headers/content/public/android/content_jni_headers/WebContentsObserverProxy_jni.h'
-   jni_rule=b'__content_public_android_content_jni_headers__action___build_toolchain_android_android_clang_arm64__rule'
-   lines=[b'# nonUTF8 \xff\xfe',b'rule cxx',b' command = clang++ $in',b'rule '+jni_rule,b' command = python ../../third_party/jni_zero/jni_zero.py $in',b'rule java',b' command = python ../../build/android/gyp/compile_java.py $in',b'build $:all_rust: phony']
-   jni_line=b'build '+header+b' gen/content.srcjar: '+jni_rule+b' ../../'+proxy.encode()+b' ../../third_party/jni_zero/jni_zero.py\n'
-   (out/'toolchain.ninja').write_bytes(jni_line)
-   lines.append(b'include toolchain.ninja')
-   lines.append(b'subninja content_full_java.ninja');lines.append(b'subninja chrome_java.ninja')
-   (out/'content_full_java.ninja').write_bytes(b'build obj/content.jar: java ../../'+proxy.encode()+b' ../../'+observer.encode()+b' gen/content.srcjar\n')
-   (out/'chrome_java.ninja').write_bytes(b'build obj/chrome.jar: java ../../'+pip.encode()+b' obj/content.jar\n')
-   for i,n in enumerate(cpp):lines.append(b'build obj/actual'+str(i).encode()+b'.o: cxx ../../'+n.encode()+b' || '+header)
-   lines.append(b'subninja other.ninja');(out/'build.ninja').write_bytes(b'\n'.join(lines)+b'\n')
-   (out/'other.ninja').write_bytes(b'rule cxx\n command = othercompiler $in\nbuild other/obj/x.o: cxx ../../'+cpp[0].encode()+b'\n')
+   source,out,proxy,observer,pip,cpp,header,jni_rule,jni_line,java_lines,java_rules=self.make_java_graph(d)
    data=g.load(out);plan=g.coverage(data,out,source,'//build/toolchain/android:android_clang_arm64')
    self.assertEqual(len(plan['objects']),4);self.assertEqual(plan['jni']['target'],header.decode())
    self.assertTrue(all(x['target'].startswith('obj/') for x in plan['objects']))
@@ -169,9 +174,9 @@ class ContentPreparationTests(unittest.TestCase):
     jni_line.replace(jni_rule,b'another_action'),
     jni_line.replace(proxy.encode(),observer.encode()),
    ]:
-    (out/'toolchain.ninja').write_bytes(wrong)
+    (out/'toolchain.ninja').write_bytes(wrong+java_lines)
     with self.assertRaises(g.MissingCoverage):g.coverage(g.load(out),out,source,'//build/toolchain/android:android_clang_arm64')
-   (out/'toolchain.ninja').write_bytes(jni_line)
+   (out/'toolchain.ninja').write_bytes(jni_line+java_lines)
    recipe_data=g.load(out)
    recipe_data['rules'][(0,jni_rule)]=[b' command = other_generator.py $in']
    recipe_data['outputs'][header]['inputs']=[b'../../'+proxy.encode()]
@@ -181,12 +186,12 @@ class ContentPreparationTests(unittest.TestCase):
    edge=ambiguous['outputs'][header]
    ambiguous['edges'].append(dict(edge))
    with self.assertRaisesRegex(g.MissingCoverage,'ambiguous'):g.coverage(ambiguous,out,source,'//build/toolchain/android:android_clang_arm64')
-   (out/'toolchain.ninja').write_bytes(jni_line+jni_line)
+   (out/'toolchain.ninja').write_bytes(jni_line+jni_line+java_lines)
    with self.assertRaisesRegex(g.UnsupportedGraph,'Duplicate decoded'):g.load(out)
-   (out/'toolchain.ninja').write_bytes(jni_line)
+   (out/'toolchain.ninja').write_bytes(jni_line+java_lines)
 
-   for java_file,dependency in [('content_full_java.ninja',b' gen/content.srcjar'),('chrome_java.ninja',b' obj/content.jar')]:
-    f=out/java_file;original_java=f.read_bytes();f.write_bytes(original_java.replace(dependency,b''))
+   for java_file,dependency in [('toolchain.ninja',b' gen/content.srcjar'),('toolchain.ninja',b' obj/content/public/android/content_full_java.javac.jar')]:
+    f=out/java_file;original_java=f.read_bytes();f.write_bytes(original_java.replace(dependency+b'\n',b'\n'))
     with self.assertRaisesRegex(g.MissingCoverage,'dependency'):g.coverage(g.load(out),out,source,'//build/toolchain/android:android_clang_arm64')
     f.write_bytes(original_java)
    original=(out/'build.ninja').read_bytes();(out/'build.ninja').write_bytes(original.replace(b' || '+header,b''))
@@ -195,3 +200,66 @@ class ContentPreparationTests(unittest.TestCase):
    with self.assertRaisesRegex(g.UnsupportedGraph,'Duplicate decoded'):g.load(out)
    with self.assertRaises(g.UnsupportedGraph):g.parse_edge(b'$unknown: phony')
    self.assertEqual(g.parse_edge(b'a$ b$$$:c | implicit$:x: phony in$ file')['outputs'],[b'a b$:c',b'implicit:x'])
+
+ def test_java_rule_identity_outputs_and_unique_production_candidates(self):
+  with tempfile.TemporaryDirectory() as d:
+   source,out,proxy,observer,pip,cpp,header,jni_rule,jni_line,java_lines,rules=self.make_java_graph(d)
+   toolchain='//build/toolchain/android:android_clang_arm64'
+   good=jni_line+java_lines
+   for rule in rules:
+    for wrong in [rule.replace(b'arm64',b'arm'),rule.replace(b'__compile_java',b'_test__compile_java'),rule.replace(b'__compile_java',b'_similar__compile_java')]:
+     (out/'toolchain.ninja').write_bytes(good.replace(rule,wrong))
+     with self.assertRaises(g.MissingCoverage):g.coverage(g.load(out),out,source,toolchain)
+   for wrong in [jni_line+java_lines.replace(name.encode(),b'other.java') for name in [proxy,observer,pip]]+[good.replace(b'content_full_java.javac.jar.info',b'content_full_java.wrong.info'),good.replace(b'compile_java.py',b'turbine.py')]:
+    (out/'toolchain.ninja').write_bytes(wrong)
+    with self.assertRaises((g.MissingCoverage,g.UnsupportedGraph)):g.coverage(g.load(out),out,source,toolchain)
+   # Distracting toolchain/test/similar-name actions do not establish membership.
+   distractors=b''
+   for wrong in [rules[0].replace(b'arm64',b'arm'),rules[0].replace(b'__compile_java',b'_test__compile_java'),rules[0].replace(b'__compile_java',b'_similar__compile_java')]:
+    distractors+=b'rule '+wrong+b'\n command = python compile_java.py $in\nbuild obj/'+wrong+b'.jar: '+wrong+b' ../../'+proxy.encode()+b'\n'
+   (out/'toolchain.ninja').write_bytes(good+distractors)
+   self.assertEqual(len(g.coverage(g.load(out),out,source,toolchain)['java']),3)
+   (out/'toolchain.ninja').write_bytes(good)
+   duplicate=g.load(out);duplicate['edges'].append(dict(duplicate['outputs'][b'obj/chrome/android/chrome_java.javac.jar']))
+   with self.assertRaisesRegex(g.MissingCoverage,'ambiguous'):g.coverage(duplicate,out,source,toolchain)
+   # Membership is rule/output based, not a Ninja file basename.
+   (out/'renamed-action-storage.ninja').write_bytes(java_lines)
+   (out/'toolchain.ninja').write_bytes(jni_line+b'include renamed-action-storage.ninja\n')
+   self.assertEqual(len(g.coverage(g.load(out),out,source,toolchain)['java']),3)
+ def test_separate_errorprone_actions_nullaway_shards_and_validation(self):
+  with tempfile.TemporaryDirectory() as d:
+   source,out,proxy,observer,pip,cpp,header,jni_rule,jni_line,java_lines,rules=self.make_java_graph(d)
+   toolchain='//build/toolchain/android:android_clang_arm64'
+   baseline=g.coverage(g.load(out),out,source,toolchain)
+   self.assertEqual(baseline['errorprone'],[])
+   self.assertFalse(any(x['compiler_nullaway_flag_observed'] for x in baseline['java']))
+   ep=b'';stamps=[]
+   for rule,directory,family,names in [(rules[0],b'content/public/android',b'content_full_java',[proxy,observer]),(rules[1],b'chrome/android',b'chrome_java',[pip])]:
+    # Content uses two shards, chrome the unsharded target.
+    for index,name in enumerate(names):
+     suffix=b'_shard'+str(index).encode() if len(names)>1 else b''
+     label=family+b'__errorprone'+suffix;stamp=b'obj/'+directory+b'/'+label+b'.stamp';stamps.append(stamp)
+     ep_rule=rule.replace(b'__compile_java',b'__errorprone'+suffix)
+     ep+=b'rule '+ep_rule+b'\n command = python ../../build/android/gyp/errorprone.py --enable-nullaway $in\n'
+     ep+=b'build '+stamp+b': '+ep_rule+b' ../../'+name.encode()+b'\n'
+   validated=java_lines.replace(b' gen/content.srcjar\n',b' gen/content.srcjar |@ '+b' '.join(stamps[:2])+b'\n').replace(b' obj/content/public/android/content_full_java.javac.jar\n',b' obj/content/public/android/content_full_java.javac.jar |@ '+stamps[2]+b'\n')
+   good=jni_line+validated+ep;(out/'toolchain.ninja').write_bytes(good)
+   plan=g.coverage(g.load(out),out,source,toolchain)
+   self.assertEqual(len(plan['errorprone']),3);self.assertTrue(all(x['nullaway_flag_observed'] for x in plan['errorprone']))
+   self.assertTrue(all('compile_java' in x['rule'] for x in plan['java']))
+   for unrelated in [ep.replace(b'arm64',b'arm'),ep.replace(b'__errorprone',b'_test__errorprone'),ep.replace(b'__errorprone',b'_similar__errorprone')]:
+    (out/'toolchain.ninja').write_bytes(jni_line+validated+unrelated)
+    unrelated_plan=g.coverage(g.load(out),out,source,toolchain)
+    self.assertEqual(unrelated_plan['errorprone'],[])
+    self.assertEqual(unrelated_plan['nullaway_status'],'NOT_PROVEN_NO_ACTIONS_FOUND')
+   (out/'toolchain.ninja').write_bytes(good.replace(b'--enable-nullaway',b''))
+   self.assertTrue(all(not x['nullaway_flag_observed'] for x in g.coverage(g.load(out),out,source,toolchain)['errorprone']))
+   (out/'toolchain.ninja').write_bytes(good.replace(b'../../'+observer.encode()+b'\n',b'../../other.java\n'))
+   with self.assertRaisesRegex(g.UnsupportedGraph,'membership'):g.coverage(g.load(out),out,source,toolchain)
+   (out/'toolchain.ninja').write_bytes(jni_line+java_lines+ep)
+   with self.assertRaisesRegex(g.UnsupportedGraph,'validations'):g.coverage(g.load(out),out,source,toolchain)
+   (out/'toolchain.ninja').write_bytes(good.replace(b'content_full_java__errorprone_shard0.stamp',b'content_full_java__errorprone_shard0.wrong'))
+   with self.assertRaisesRegex(g.UnsupportedGraph,'output'):g.coverage(g.load(out),out,source,toolchain)
+   (out/'toolchain.ninja').write_bytes(good)
+   duplicate=g.load(out);duplicate['edges'].append(dict(duplicate['outputs'][stamps[0]]))
+   with self.assertRaisesRegex(g.UnsupportedGraph,'Ambiguous'):g.coverage(duplicate,out,source,toolchain)

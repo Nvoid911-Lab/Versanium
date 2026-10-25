@@ -305,3 +305,12 @@ require exact content_jni_headers arm64 action in toolchain.ninja plus actual
 Java input, recipe, uniqueness and dependency closure. Keep old evidence/product/
 selection/helpers immutable. Host Java/NullAway was not reached; rerun read-only
 with new controller and external evidence, no apply or build authorized.
+
+## 2026-10-25: Java production membership is GN action identity
+
+Remove Ninja file-stem family inference. Exact content/chrome compile rules,
+default arm64, direct Java inputs, template-derived jars/info/optional compliment
+and JNI dependencies determine membership. Separate ErrorProne/stamp/shard and
+validation scan determines analysis availability; ordinary compiler NullAway flag
+absence is not a proxy for analysis absence. Reject ambiguous/unproven membership.
+Preserve product/selection/old helpers/evidence; retry read-only in new evidence.

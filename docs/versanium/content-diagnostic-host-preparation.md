@@ -199,3 +199,67 @@ tests PASS; Java/NullAway stages were NOT reached by the real host preflight.
 Restart from a new external content-origin-evidence-XXXXXX using the first
 command above with the NEW controller SHA from PR5. Do not reuse or overwrite
 oj2Q3e. Existing source/signature/graph records are read-only and unchanged.
+
+## Java action membership correction after NDSMal (2026-10-25)
+
+Host b85fc37 passed JNI discovery and stopped at Java action discovery in
+`/home/takuma/versanium/content-origin-evidence-NDSMal`. No apply/GN/compile.
+Host reports exact rule
+`__content_public_android_content_full_java__compile_java___build_toolchain_android_android_clang_arm64__rule`
+in toolchain.ninja, direct Proxy.java input, compile_java.py recipe and outputs
+obj/content/public/android/content_full_java.javac.jar, its .info and
+content_full_java.compliment.jar. Compiler action errorprone.py and
+--enable-nullaway are false. That alone says NOTHING about separate analysis
+actions. Java/NullAway graph inspection did not complete; neither was executed.
+
+Fixed Chromium1d17 build/config/android/internal_rules.gni was retrieved and
+matched against the previously inspected fixed template:
+- compile_java (2968 onwards) selects compile_java.py, turbine.py or errorprone.py;
+  normal compiler outputs output_jar_path and .info; filtered classes optionally
+  add exact family.compliment.jar. ErrorProne outputs target_out_dir/target.stamp.
+- android_library (3624,4142–4170) uses family.javac.jar and helper names
+  family__compile_java / family__errorprone, with compile validation dependency.
+- 4198–4255: sharded analysis uses family__errorprone_shardN, each own .sources,
+  direct subset inputs and stamp, with an aggregate validation group.
+- 3169 onwards: the separate ErrorProne recipe supplies --enable-nullaway;
+  its presence in a graph is still not successful analysis execution.
+
+The new scanner uses exact GN label-derived default-arm64 rules, never a Ninja
+file stem. Both content_full_java observer/proxy and chrome_java controller must
+have exactly one production compile action, direct source membership, exact
+family/path outputs and compile_java recipe (not turbine/ErrorProne), and actual
+JNI dependency closure. Only the primary .javac.jar is selected as compile target;
+all outputs including .info/optional compliment are recorded, not independently
+invented targets. Other toolchain/test/similar labels cannot substitute. Storage
+in toolchain.ninja or another loaded file does not change Java membership.
+
+Analysis is scanned independently across all loaded graph files by exact family
+and default toolchain. Unsharded/sharded rule and stamp, errorprone recipe and
+validation closure must match. Duplicate source membership or mixed shard modes
+stop; a detected family with unproven direct target-source membership stops.
+Compiler_nullaway_flag_observed is distinct from each analysis action's
+nullaway_flag_observed. No matching actions means no proven exact-family action,
+not a conclusion drawn from a compile action flag. The NullAway gate remains
+NOT_PROVEN unless all target sources have the requisite separate action, and
+then still requires actual execution. Unsupported indirect inputs require review.
+
+Other naming assumptions reviewed together: JNI full output/action is now based
+on fixed template and observed rule; native object paths remain discovered from
+actual source/cxx/default obj scope; no concrete object name is guessed. Recorded
+Native graph/default toolchain and fixed GN source membership remain checked.
+Exact GN generator edge/depfile checks may still stop on unsupported syntax;
+that is not a passed GN decision. No additional file-stem family assumptions
+remain in the dedicated graph scanner. Real host chrome action/analysis/shards
+and later GN checks remain unverified until a fresh read-only run succeeds.
+
+Fixture now stores content and chrome compiler actions in toolchain.ninja using
+real rule/output layout. Tests cover both families, all three Java inputs, other
+toolchain/test/similar labels, extra distractors, wrong outputs/recipe, ambiguous
+production actions, missing JNI dependencies, separate unsharded/sharded analysis,
+NullAway flag present/absent, missing validation and source membership. Renaming
+the fixture's Java storage file does not alter membership. These are NOT actual
+host graph replay or Java/NullAway compilation. New evidence must retain NDSMal.
+
+Local validation after Java correction:95 tests PASS (two additional test methods,
+expanded shared actual-layout fixture), actionlint PASS, documented shell syntax
+PASS and git diff --check PASS. All host/compilation limitations above remain.

@@ -284,3 +284,9 @@ New graph audit checks full gen/jni_headers/.../WebContentsObserverProxy_jni.h,
 exact action/default arm64 identity, direct Java input and native/Java dependency
 closure. Java/NullAway remains NOT REACHED on host. Use new evidence/controller;
 see content-diagnostic-host-preparation.md JNI correction section.
+
+Host b85fc37 JNI discovery PASSED, Java discovery stopped (NDSMal); no apply/GN/
+compile. Java family now derived from exact fixed156 rule/default toolchain,
+source/outputs/recipe and dependencies, never Ninja filename. Separate ErrorProne
+and shard actions scanned independently; compiler flag absence is not analysis
+absence. Actual host Java/NullAway inspection remains incomplete and unexecuted.
