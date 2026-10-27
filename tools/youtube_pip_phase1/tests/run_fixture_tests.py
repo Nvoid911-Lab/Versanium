@@ -100,8 +100,8 @@ public WebContentsObserver(WebContents w){observe(w);}
 public void observe(WebContents w){if(wc!=null)wc.observers.remove(this);wc=w;if(w!=null)w.observers.add(this);}
 public void didToggleFullscreenModeForTab(boolean entered,boolean resized){}}''',
 'org/chromium/content_public/browser/NavigationHandle.java': '''package org.chromium.content_public.browser;
-public class NavigationHandle {boolean same;String url;public NavigationHandle(boolean s,String u){same=s;url=u;}
-public boolean hasCommitted(){return true;}public boolean isSameDocument(){return same;}
+public class NavigationHandle {public boolean committed=true;boolean same;String url;public NavigationHandle(boolean s,String u){same=s;url=u;}
+public boolean hasCommitted(){return committed;}public boolean isSameDocument(){return same;}
 public org.chromium.url.GURL getUrl(){return new org.chromium.url.GURL(url);}}''',
 'org/chromium/content_public/browser/MediaSession.java': '''package org.chromium.content_public.browser;
 public class MediaSession {public int suspends,resumes;public static MediaSession fromWebContents(WebContents w){return w.session;}

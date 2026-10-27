@@ -1,3 +1,11 @@
+# Current follow-up — same-WebContents candidate recovery
+
+2026-10-28 JST: **same-WebContents fresh candidate recovery fixed; still NOT compiled/built/device-verified**.
+Next: `READY_FOR_36838_PHASE1_PREBUILD_REREVIEW_3`.
+[Recovery design and verification](candidate-recovery.md) supersedes the prior
+identity-only rejection tombstone. JVM359 (+50), candidate6 / active-owner24,
+gate-off, structural5 / parse-only5 PASS. Earlier checkpoints below are historical.
+
 # Current follow-up — terminal observer ordering fix
 
 2026-10-28 JST: **HIGH finding fixed but still NOT compiled/built/device-verified.**

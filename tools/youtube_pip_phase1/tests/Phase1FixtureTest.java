@@ -87,7 +87,8 @@ public final class Phase1FixtureTest {
         if (upstreamFirst) h.video.dismiss(h.activity, reason, h.tab, h.wc);
         signal.run(); signal.run(); queued.run();
         if (!upstreamFirst) h.video.dismiss(h.activity, reason, h.tab, h.wc);
-        check(h.tab.observers.isEmpty(), "candidate terminal detaches " + reason);
+        check(h.tab.observers.size() == 1 && !h.tab.observers.contains(observer),
+                "candidate terminal replaces authority with recovery observer " + reason);
         check(delayed[0] == 0, "candidate timer revoked " + reason);
         check(h.controller.claimTerminalDismiss(reason, h.tab, h.wc)
                 == VersaniumYouTubePictureInPictureController.TERMINAL_UNRELATED, "candidate no token");
@@ -116,7 +117,82 @@ public final class Phase1FixtureTest {
         check(h.hidden(), "old observer cannot clear replacement WC candidate");
         System.out.println("PASS candidate terminal: " + reason + " upstreamFirst=" + upstreamFirst);
     }
+    private static void sameContentsRecovery(int mode) {
+        Host h = new Host();
+        h.controller.updateCandidate(h.tab, true);
+        org.chromium.chrome.browser.tab.TabObserver old = h.tab.observers.get(0);
+        Runnable delayedTerminal = h.controller.guardDelayed(
+                () -> h.video.dismiss(h.activity, CRASH, h.tab, h.wc));
+        old.onCrash(h.tab);
+        org.chromium.chrome.browser.tab.TabObserver recovery = h.tab.observers.get(0);
+        old.onCrash(h.tab); // Duplicate must not replace recovery observation.
+        check(h.tab.observers.size() == 1 && h.tab.observers.get(0) == recovery, "duplicate tombstone");
+        h.controller.updateCandidate(h.tab, true);
+        h.activity.pip = true;
+        h.controller.onFrameworkEntered(false);
+        check(!h.hidden() && !h.controller.ownsMediaRouting(), "same document late/provisional rejected");
+        h.tab.commit(true, h.tab.url + "#fragment");
+        h.controller.updateCandidate(h.tab, true);
+        check(!h.hidden(), "fragment does not expire tombstone");
+        PostTask.advance(100000);
+        h.controller.updateCandidate(h.tab, true);
+        check(!h.hidden(), "time alone does not expire tombstone");
+        if (mode == 0) h.tab.commit(false, h.tab.url); // same URL reload
+        else if (mode == 1) h.tab.commit(false, "https://m.youtube.com/watch?v=cross");
+        else if (mode == 2) h.tab.commit(true, "https://m.youtube.com/watch?v=DIFFERENT");
+        else {
+            h.tab.url = "https://m.youtube.com/watch?v=DIFFERENT";
+            recovery.onUrlUpdated(h.tab);
+        }
+        check(h.tab.wc == h.wc && h.tab.observers.isEmpty(), "fresh evidence releases tombstone observer");
+        h.controller.updateCandidate(h.tab, true);
+        old.onCrash(h.tab); old.onClosingStateChanged(h.tab, true);
+        old.onActivityAttachmentChanged(h.tab, null); delayedTerminal.run();
+        recovery.onDestroyed(h.tab);
+        recovery.onDidFinishNavigationInPrimaryMainFrame(h.tab,
+                new org.chromium.content_public.browser.NavigationHandle(false, h.tab.url));
+        check(h.hidden(), "same identities recover and stale observers cannot revoke " + mode);
+        check(h.leaves == 0 && h.video.dismisses == 0 && h.wc.domExits == 0,
+                "recovery has no owner cleanup");
+        h.controller.onDestroy();
+        check(h.tab.observers.isEmpty(), "recovery lifecycle detaches");
+        System.out.println("PASS same-WebContents recovery: " + mode);
+    }
+
+    private static void recoveryLifecycle(int mode) {
+        Host h = new Host(); h.controller.updateCandidate(h.tab, true);
+        h.tab.observers.get(0).onCrash(h.tab);
+        org.chromium.chrome.browser.tab.TabObserver recovery = h.tab.observers.get(0);
+        recovery.onDidFinishNavigationInPrimaryMainFrame(new Tab(),
+                new org.chromium.content_public.browser.NavigationHandle(false, h.tab.url));
+        org.chromium.content_public.browser.NavigationHandle pending =
+                new org.chromium.content_public.browser.NavigationHandle(false, h.tab.url);
+        pending.committed = false;
+        recovery.onDidFinishNavigationInPrimaryMainFrame(h.tab, pending);
+        h.controller.updateCandidate(h.tab, true); h.activity.pip = true;
+        check(!h.hidden(), "wrong tab and uncommitted navigation cannot expire rejection");
+        h.activity.pip = false;
+        if (mode == 0) h.controller.onDestroy();
+        else if (mode == 1) recovery.onDestroyed(h.tab);
+        else if (mode == 2) check(h.enter() > 0, "explicit entry retains existing eligibility");
+        else if (mode == 3) {
+            h.tab.wc = new WebContents(); h.tab.wc.window = h.tab.window;
+            recovery.onContentChanged(h.tab);
+        } else h.tab.url = "https://m.youtube.com/watch?v=freshWithoutCallback";
+        if (mode != 2 && mode != 4) check(h.tab.observers.isEmpty(), "terminal observation released " + mode);
+        if (mode >= 3) {
+            h.controller.updateCandidate(h.tab, true);
+            check(!h.tab.observers.contains(recovery), "fresh capture removes recovery observer");
+            h.activity.pip = true;
+            check(h.hidden(), "identity/video fresh capture accepted " + mode);
+        }
+        h.controller.onDestroy();
+        check(h.tab.observers.isEmpty(), "all recovery lifecycle observers released");
+    }
+
     public static void main(String[] args) {
+        for (int mode = 0; mode < 5; ++mode) recoveryLifecycle(mode);
+        for (int mode = 0; mode < 4; ++mode) sameContentsRecovery(mode);
         for (int reason : new int[]{CLOSE, CRASH, REPARENT}) {
             candidateTerminal(reason, false); candidateTerminal(reason, true);
         }

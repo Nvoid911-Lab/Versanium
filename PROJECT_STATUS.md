@@ -1,5 +1,15 @@
 # Versanium Project Status
 
+> Current checkpoint — 2026-10-28 JST: #36838 Phase 1 candidate recovery fixed.
+> **same-WebContents fresh candidate recovery fixed; still NOT compiled/built/device-verified**.
+> Document-scoped rejection observation accepts committed reload/navigation or fresh
+> video/identity evidence, preserving synchronous/late recapture rejection.
+> JVM359 (+50), candidate6 / active-owner24, gate-off, structural5 / parse-only5 PASS.
+> Zoom24 SHA256 unchanged; retired34 absent. No GN/build/Actions/APK/saved Run9/
+> merge/release/tag/Production operation; PR5 Open/Draft/unmerged, body unchanged.
+> Next: `READY_FOR_36838_PHASE1_PREBUILD_REREVIEW_3` (supersedes earlier checkpoints).
+> See [recovery design and validation](docs/versanium/brave-36838-phase1/candidate-recovery.md).
+
 > Current checkpoint — 2026-10-28 JST: #36838 Phase 1 prebuild HIGH finding fixed.
 > Owner/generation terminal token and one-shot VIDEO routing preserve CLOSE/CRASH/
 > REPARENT responsibility across observer order, early cleanup and synchronous reentry.

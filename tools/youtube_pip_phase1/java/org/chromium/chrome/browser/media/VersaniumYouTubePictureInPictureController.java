@@ -88,6 +88,7 @@ public final class VersaniumYouTubePictureInPictureController {
     static final int TERMINAL_CLAIMED = 1;
     static final int TERMINAL_DUPLICATE = 2;
     private @Nullable Owner mRejectedCandidate;
+    private @Nullable TabObserver mRecoveryObserver;
     private @Nullable TabObserver mObserver;
 
     private TabObserver createObserver(Owner observed, long generation) {
@@ -175,6 +176,7 @@ public final class VersaniumYouTubePictureInPictureController {
             invalidate();
             return 0;
         }
+        clearRejectedCandidate();
         resetTerminal();
         mOwner = owner;
         seedUiOwner(owner);
@@ -340,7 +342,7 @@ public final class VersaniumYouTubePictureInPictureController {
         clear();
         if (VersaniumYouTubePictureInPicturePolicy.ENABLED) mFullscreen.removeObserver(mUiObserver);
         resetTerminal();
-        mRejectedCandidate = null;
+        clearRejectedCandidate();
         mDestroyed = true;
     }
 
@@ -557,23 +559,83 @@ public final class VersaniumYouTubePictureInPictureController {
         mTerminalConsumed = false;
     }
 
-    // A retired candidate cannot be recaptured by auto-status updates for the same document.
+    private void clearRejectedCandidate() {
+        Owner rejected = mRejectedCandidate;
+        if (rejected != null && mRecoveryObserver != null) {
+            rejected.tab.removeObserver(mRecoveryObserver);
+        }
+        mRecoveryObserver = null;
+        mRejectedCandidate = null;
+    }
+
+    // Retain only document recovery observation, never candidate/owner authority.
+    private void observeRejectedCandidate(Owner rejected) {
+        long generation = mGeneration;
+        TabObserver observer = new TabObserver() {
+            private boolean current(Tab tab) {
+                return !mDestroyed && mRejectedCandidate == rejected
+                        && mGeneration == generation && tab == rejected.tab;
+            }
+
+            private void recovered(Tab tab) {
+                if (!current(tab)) return;
+                ++mEpoch;
+                clearRejectedCandidate();
+            }
+
+            @Override
+            public void onDidFinishNavigationInPrimaryMainFrame(Tab tab, NavigationHandle navigation) {
+                if (!current(tab) || !navigation.hasCommitted()) return;
+                if (!navigation.isSameDocument()
+                        || !rejected.videoId.equals(VersaniumYouTubePictureInPicturePolicy.videoId(
+                                navigation.getUrl().getSpec()))) recovered(tab);
+            }
+
+            @Override
+            public void onUrlUpdated(Tab tab) {
+                if (current(tab) && !rejected.videoId.equals(
+                        VersaniumYouTubePictureInPicturePolicy.videoId(tab.getUrl().getSpec()))) {
+                    recovered(tab);
+                }
+            }
+
+            @Override
+            public void onContentChanged(Tab tab) {
+                if (current(tab) && tab.getWebContents() != rejected.webContents) recovered(tab);
+            }
+
+            @Override
+            public void onDestroyed(Tab tab) {
+                if (current(tab)) clearRejectedCandidate();
+            }
+        };
+        mRecoveryObserver = observer;
+        rejected.tab.addObserver(observer);
+    }
+
+    // No clock expiry: only validated document/session evidence lifts rejection.
     private boolean rejectedCandidate(Owner candidate) {
         Owner rejected = mRejectedCandidate;
-        return rejected != null && rejected.activity == candidate.activity
+        if (rejected == null) return false;
+        boolean same = rejected.activity == candidate.activity
                 && rejected.tab == candidate.tab && rejected.tabId == candidate.tabId
                 && rejected.webContents == candidate.webContents && rejected.window == candidate.window
-                && rejected.documentEpoch == candidate.documentEpoch;
+                && rejected.documentEpoch == candidate.documentEpoch
+                && rejected.videoId.equals(candidate.videoId);
+        if (!same) clearRejectedCandidate();
+        return same;
     }
 
     private void discardTerminalCandidate(Owner candidate, long generation) {
         if (mOwner != null || mCandidate != candidate || mGeneration != generation
                 || candidate.activity != mActivity || candidate.documentEpoch != mEpoch) return;
         // Revoke snapshots and queued work before detaching observers; no owner cleanup.
+        clearRejectedCandidate();
         mRejectedCandidate = candidate;
         mCandidate = null;
         mGeneration = ++sGeneration;
         observe(null);
+        observeRejectedCandidate(candidate);
         WeakReference<VersaniumYouTubePictureInPictureController> ref = sLocators.get(mActivity);
         if (ref != null && ref.get() == this) sLocators.remove(mActivity);
     }
