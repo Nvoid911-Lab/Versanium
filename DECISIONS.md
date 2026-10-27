@@ -375,3 +375,19 @@ User-reported host NullAway outcomes are recorded separately from locally run
 models/source-generation tests; neither proves a new native/APK/device build.
 The existing local shard2 fix and host preparation helpers are preserved but
 not silently swept into this narrowly scoped reconciliation commit.
+
+## 2026-10-27 — Publish reviewed context-menu constant-expression correction
+
+Formalize the preserved one-line patch.sh fix, not a new alternative: remove
+the short-circuited desktop-UA expression and generate MOUSE || LONG_PRESS.
+Retain prior Versanium empty-space menu behavior and no UA-getter evaluation.
+Do not revert to Chromium's desktop-UA-dependent long press, add suppression,
+change compiler options, or broaden DevTools enablement. Source regression tests
+execute only the actual selected command in a temporary fixed156 tree, compare
+all surrounding bytes, and reject old/false-constant/missing-condition output.
+
+Keep b69195c stage hooks and current content/PiP route intact; do not include
+untracked host helpers/evidence. Exact generated source matches host post-fix,
+but distinct whole patch.sh hashes are not interchangeable without host-byte
+review. Preserve historical host pins. Successful reconciliation permits the
+next saved integration review, not a Test Build, release or host re-analysis.

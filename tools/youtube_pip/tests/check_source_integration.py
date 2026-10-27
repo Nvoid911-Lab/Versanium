@@ -19,6 +19,8 @@ from apply_fullscreen_native_origin import FILES as native_diagnostic_inputs
 paths+=list(native_diagnostic_inputs)
 from apply_content_fullscreen_origin import FILES as content_diagnostic_inputs
 paths+=list(content_diagnostic_inputs)
+contextmenu='chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java'
+paths.append(contextmenu)
 paths=list(dict.fromkeys(paths))
 for relative in paths:
  target=a.output_dir/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(a.source_tree/relative,target)
@@ -29,6 +31,10 @@ for patch in sorted((repo/'vanadium/patches').glob('*.patch')):
 sys.path.insert(0,str(repo/'tools'))
 from versanium.selected_patch_pipeline import apply as apply_common_selected
 apply_common_selected(a.output_dir,repo)
+# Replay only the actual fixed156 context-menu command; never full patch.sh.
+sys.path.insert(0,str(repo/'tools/versanium/tests'))
+from test_contextmenu_patch import apply_contextmenu
+apply_contextmenu(a.output_dir,repo)
 f11=(repo/'patch.sh').read_text().split("python3 - <<'PY_F11' || exit 1\n",1)[1].split('\nPY_F11',1)[0]
 subprocess.run(['python3','-c',f11],cwd=a.output_dir,check=True)
 media=a.output_dir/'content/public/renderer/render_frame_media_playback_options.cc'

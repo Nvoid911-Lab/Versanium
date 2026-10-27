@@ -1,5 +1,29 @@
 # Versanium Project Status
 
+## 2026-10-27 JST — Shard2 patch.sh repository reconciliation
+
+This latest entry supersedes the earlier stage-only note that shard2 was still
+outside reviewed Git history. Preserve and publish the already-reviewed one-line
+patch.sh context-menu fix; no rewrite or other patch behavior change. Fresh
+fixed156/selected Vanadium source gives context-menu SHA256
+`89380eab2e93a7c1f47782fa966f993642c2407a13b842518f7204e230e720c5`,
+matching user-confirmed host post-fix. Target constant expression count0, exact
+MOUSE/LONG_PRESS condition1, all surrounding file bytes unchanged.
+Stage reconciliation b69195c remains ancestral; fresh TabImpl SHA remains
+`de0b9b1bed2bd411c7ee4d0706ff2f943b082fdae3c76540bd70153095bb5831`.
+Repository tests99 PASS (previous95 plus4 context-menu regressions), source/PiP
+integration/model, actionlint/syntax/diff PASS; see
+[shard2 review](docs/versanium/post-nullaway-shard2-reconciliation.md).
+User reports shard2 exit0/no warnings/errors/constant diagnostic/OOM and later
+chrome0–7/family/final-audit PASS. These host outcomes were NOT rerun/re-audited
+here. Host patch.sh649b... and repository patch.sh4a922... are distinct whole-file
+identities; host original bytes are unavailable, so remaining full-script diff
+must be examined during saved integration review, not guessed or allowlisted.
+Untracked stage helper/adapter/review files remain separate. Ready for the next
+saved source/output/graph/tools/full-integration REVIEW, not Test Build approval.
+No Actions, APK, real ErrorProne/NullAway, saved-tree apply, GN, sync/reset/clean,
+merge, Release/tag or PR6 change. PR5 body cleanup remains a separate update target.
+
 ## 2026-10-27 JST — Post-NullAway repository reconciliation
 
 Latest scoped repository change: remove the dead private TabImpl stage parameter

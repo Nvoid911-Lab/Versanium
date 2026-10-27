@@ -67,7 +67,7 @@ sed -i 's|boolean shouldShowDeveloperMenu() {|boolean shouldShowDeveloperMenu() 
 else
 sed -i 's|DeviceFormFactor.isNonMultiDisplayContextOnTablet(context)|(true \|\| &)|' chrome/browser/devtools/android/java/src/org/chromium/chrome/browser/devtools/DevToolsWindowAndroid.java
 fi
-sed -i 's|TabUtils.isUsingDesktopUserAgent(mItemDelegate.getWebContents())|(true \|\| TabUtils.isUsingDesktopUserAgent(mItemDelegate.getWebContents()))|' chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
+sed -i '/|| (TabUtils\.isUsingDesktopUserAgent(mItemDelegate\.getWebContents())/{N;s@|| (TabUtils\.isUsingDesktopUserAgent(mItemDelegate\.getWebContents())\n[[:blank:]]*&& mParams\.getSourceType() == MenuSourceType\.LONG_PRESS));@|| mParams.getSourceType() == MenuSourceType.LONG_PRESS);@;}' chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
 
 # dev: incognito
 sed -i 's|intent.putExtra(DevToolsActivity.WEB_CONTENTS_KEY, webContents);|&intent.putExtra("org.chromium.chrome.browser.devtools.DevTools.Incognito", webContents.isIncognito());|' chrome/android/java/src/org/chromium/chrome/browser/devtools/DevToolsActivity.java
