@@ -11,7 +11,7 @@
    "java/src/org/chromium/chrome/browser/media/MediaLauncherActivity.java",
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -1602,9 +1602,15 @@
+@@ -1605,9 +1605,15 @@
              FullscreenVideoPictureInPictureController controller =
                      ensureFullscreenVideoPictureInPictureController();
              if (controller != null) {
@@ -28,7 +28,7 @@
              if (mActorPipController != null) {
                  mActorPipController.onFrameworkExitedPictureInPicture();
              }
-@@ -1680,6 +1686,7 @@
+@@ -1684,6 +1690,7 @@
          startUmaSession();
 
          if (mFullscreenVideoPictureInPictureController != null) {
@@ -74,18 +74,19 @@
 
      /** Did we last tell the framework that auto-enter is allowed (true) or not? */
      private boolean mIsAutoEnterAllowed;
-@@ -183,6 +184,10 @@
+@@ -183,6 +184,11 @@
          mActivity = activity;
          mActivityTabProvider = activityTabProvider;
          mFullscreenManager = fullscreenManager;
 +        mVersaniumPip = new VersaniumYouTubePictureInPictureController(
 +                activity, activityTabProvider, fullscreenManager,
 +                () -> onExitedPictureInPicture(MetricsEndReason.RESUME),
-+                this::onVersaniumEntryTimeout);
++                this::onVersaniumEntryTimeout,
++                (reason, tab, wc) -> dismissActivityIfNeeded(activity, reason, tab, wc));
          mPowerManager = (PowerManager) mActivity.getSystemService(Activity.POWER_SERVICE);
 
          sControllers.put(mActivity, this);
-@@ -283,6 +288,7 @@
+@@ -283,6 +289,7 @@
          FullscreenVideoPictureInPictureController controller = sControllers.get(activity);
          if (controller != null) {
              controller.mIsAutoEnterAllowed = false;
@@ -93,7 +94,7 @@
          }
 
          if (!activity.getPackageManager()
-@@ -332,9 +338,16 @@
+@@ -332,9 +339,16 @@
              }
          }
 
@@ -111,7 +112,7 @@
              Log.e(TAG, "Error entering PiP with bounds %s", bounds, e);
          }
      }
-@@ -378,7 +391,7 @@
+@@ -378,7 +392,7 @@
              // us back into a good state.
              PostTask.postDelayedTask(
                      TaskTraits.UI_USER_BLOCKING,
@@ -120,7 +121,7 @@
                      UNSTASH_DELAY_MILLIS);
          }
      }
-@@ -402,7 +415,7 @@
+@@ -402,7 +416,7 @@
          mLastOnEnteredTimeMillis = SystemClock.elapsedRealtime();
 
          // Inform the WebContents when we enter and when we leave PiP.
@@ -129,7 +130,7 @@
          if (activityTab == null) {
              Log.i(TAG, "Activity tab is null, not entering Picture-in-picture");
              RecordHistogram.recordEnumeratedHistogram(
-@@ -443,6 +456,7 @@
+@@ -443,6 +457,7 @@
       * later, when the activity is restarted.
       */
      public void onDestroy() {
@@ -137,7 +138,7 @@
          sControllers.remove(mActivity);
          removeObserversIfNeeded();
      }
-@@ -458,6 +472,7 @@
+@@ -458,6 +473,7 @@
      // Closing used to suspend media as a side-effect of hiding the page, but that no longer happens
      // on large form factors (see IsBackgroundMediaSuspendEnabled), so suspend it here.
      public void onStop() {
@@ -145,7 +146,7 @@
          if (mShouldSuspendMediaOnStop) {
              mShouldSuspendMediaOnStop = false;
 
-@@ -469,6 +484,7 @@
+@@ -469,6 +485,7 @@
      }
 
      public void onResume() {
@@ -153,7 +154,7 @@
          // Pip was restored rather than closed, so media should keep playing.
          mShouldSuspendMediaOnStop = false;
          // Unconditionally dismiss pip, because the activity has been resumed.  This can happen if
-@@ -517,6 +533,24 @@
+@@ -517,6 +534,24 @@
       * Notify us that the framework has exited from Picture in Picture mode. Perform any cleanup
       * required. It's okay to call this even when we don't believe that we're in PiP mode.
       */
@@ -178,7 +179,7 @@
      public void onFrameworkExitedPictureInPicture() {
          Log.i(TAG, "Framework exited picture in picture");
          onExitedPictureInPicture(MetricsEndReason.RESUME);
-@@ -551,10 +585,12 @@
+@@ -551,10 +586,12 @@
 
          // This method can be called when we haven't been PiPed. We use Callbacks to ensure we only
          // do cleanup if it is required.
@@ -195,7 +196,7 @@
 
          // Leave the callbacks in place if we're using them to decide about auto-pip.  Otherwise,
          // they're only registered to detect when we leave.  They will be re-added if we're told to
-@@ -580,7 +616,8 @@
+@@ -580,7 +617,8 @@
                          @Override
                          public void onExitFullscreen(Tab tab) {
                              Log.i(TAG, "Exiting fullscreen");
@@ -205,7 +206,7 @@
                          }
                      };
 
-@@ -619,6 +656,7 @@
+@@ -619,6 +657,7 @@
          // Do not check if we're in PiP mode or not, since we're called during transitions into and
          // out of it.  The framework won't try to auto-enter if we're already there anyway.
          final boolean allowed = canDoPictureInPicture(false);
@@ -213,7 +214,7 @@
          if (!allowed && !mIsAutoEnterAllowed) {
              // Don't notify the framework if we were not and continue to be not allowed.  In the
              // case where we're allowed, the bounds for the source rect can change even if we were
-@@ -667,13 +705,21 @@
+@@ -667,13 +706,22 @@
       * This will also update our auto-PiP preference with the framework, if it's changed.
       */
      private void dismissActivityIfNeeded(Activity activity, @MetricsEndReason int reason) {
@@ -225,18 +226,26 @@
          // Something interesting happened -- make sure we've updated our preference for auto-PiP
          // with the framework, if applicable.
          Log.i(TAG, "Dismiss activity with reason " + reason);
-+        final boolean hadPipSession = isPipSessionActive();
++        final int terminal = mVersaniumPip.claimTerminalDismiss(reason, sourceTab, sourceWc);
++        if (terminal == VersaniumYouTubePictureInPictureController.TERMINAL_DUPLICATE) return;
          updateAutoPictureInPictureStatusIfNeeded();
 +        if (mVersaniumPip.handleDismiss(reason, sourceTab, sourceWc)) return;
          mDismissPending = false;
 
 -        if (!isPipSessionActive()) {
 +        if (!isPipSessionActive()
-+                && !(hadPipSession && mVersaniumPip.requiresUpstreamDismiss(reason))) {
++                && terminal != VersaniumYouTubePictureInPictureController.TERMINAL_CLAIMED) {
              return;
          }
 
-@@ -687,7 +733,8 @@
+@@ -683,11 +731,14 @@
+         // `onExitedPictureInPicture` runs, future callbacks will either (a) do nothing because
+         // `isPipSessionActive()` will be false, or (b) try to close PiP properly.  We also don't
+         // try to pro-rate the exit delay; it's short and arbitrary anyway.
+-        if (SystemClock.elapsedRealtime() - mLastOnEnteredTimeMillis < MIN_EXIT_DELAY_MILLIS) {
++        if (terminal != VersaniumYouTubePictureInPictureController.TERMINAL_CLAIMED
++                && SystemClock.elapsedRealtime() - mLastOnEnteredTimeMillis
++                        < MIN_EXIT_DELAY_MILLIS) {
              Log.i(TAG, "Posting deferred callback to dismiss activity.");
              PostTask.postDelayedTask(
                      TaskTraits.UI_USER_BLOCKING,
@@ -246,7 +255,7 @@
                      MIN_EXIT_DELAY_MILLIS);
              return;
          }
-@@ -736,7 +783,7 @@
+@@ -736,7 +787,7 @@
              mWebContents = mTab.getWebContents();
              if (mWebContents == null) return;
              mWebContentsObserver =
@@ -255,19 +264,21 @@
          }
 
          /** Clean up everything, and unregister `this`. */
-@@ -756,18 +803,19 @@
+@@ -756,18 +807,21 @@
 
          @Override
          public void onActivityAttachmentChanged(Tab tab, @Nullable WindowAndroid window) {
 -            if (window != null) dismissActivityIfNeeded(mActivity, MetricsEndReason.REPARENT);
-+            if (window != null) dismissActivityIfNeeded(mActivity, MetricsEndReason.REPARENT,
-+                    tab, mWebContents);
++            if (window != null || mVersaniumPip.ownsTerminalSource(tab, mWebContents)) {
++                dismissActivityIfNeeded(mActivity, MetricsEndReason.REPARENT,
++                        tab, mWebContents);
++            }
          }
 
          @Override
          public void onClosingStateChanged(Tab tab, boolean closing) {
 -            dismissActivityIfNeeded(mActivity, MetricsEndReason.CLOSE);
-+            dismissActivityIfNeeded(mActivity, MetricsEndReason.CLOSE, tab, mWebContents);
++            if (!VersaniumYouTubePictureInPicturePolicy.ENABLED || closing) dismissActivityIfNeeded(mActivity, MetricsEndReason.CLOSE, tab, mWebContents);
              cleanupWebContentsObserver();
          }
 
@@ -278,7 +289,7 @@
              cleanupWebContentsObserver();
          }
 
-@@ -852,9 +900,15 @@
+@@ -852,9 +906,15 @@
      private class DismissActivityOnWebContentsObserver extends WebContentsObserver {
          private final Activity mActivity;
 
@@ -295,7 +306,7 @@
          }
 
          @Override
-@@ -888,9 +942,11 @@
+@@ -888,9 +948,11 @@
                  // transition to be wrong.  This causes the pip window to look like it moves to the
                  // wrong part of the screen / partially clipped before snapping to its normal place.
                  PostTask.postDelayedTask(
@@ -309,7 +320,7 @@
              }
          }
      }
-@@ -911,6 +967,7 @@
+@@ -911,6 +973,7 @@
       */
      @VisibleForTesting
      /* package */ @Nullable MediaSession getMediaSession() {

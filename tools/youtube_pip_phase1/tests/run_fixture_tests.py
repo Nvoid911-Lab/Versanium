@@ -15,7 +15,8 @@ STUBS={
 public class Activity {public boolean pip,finishing,destroyed,changing;public int state=3;
 public boolean isInPictureInPictureMode(){return pip;}
 public boolean isFinishing(){return finishing;}public boolean isDestroyed(){return destroyed;}
-public boolean isChangingConfigurations(){return changing;}}''',
+public boolean isChangingConfigurations(){return changing;}public int moves;
+public boolean moveTaskToBack(boolean value){moves++;return true;}}''',
 'android/os/SystemClock.java': '''package android.os;public class SystemClock {
 public static long now=100;public static long elapsedRealtime(){return now;}}''',
 'android/net/Uri.java': '''package android.net;import java.net.*;import java.nio.charset.StandardCharsets;
@@ -34,7 +35,7 @@ public static final int RESUMED=3,STOPPED=5;}''',
 'org/chromium/base/ApplicationStatus.java': '''package org.chromium.base;public class ApplicationStatus {
 public static int getStateForActivity(android.app.Activity a){return a.state;}}''',
 'org/chromium/base/task/TaskTraits.java': '''package org.chromium.base.task;
-public class TaskTraits {public static final int UI_DEFAULT=0;}''',
+public class TaskTraits {public static final int UI_DEFAULT=0,UI_USER_BLOCKING=1;}''',
 'org/chromium/base/task/PostTask.java': '''package org.chromium.base.task;import java.util.*;
 public class PostTask {static class Task {long at;Runnable r;Task(long a,Runnable v){at=a;r=v;}}
 static List<Task> tasks=new ArrayList<>();public static void reset(){tasks.clear();android.os.SystemClock.now=100;}
@@ -122,6 +123,37 @@ def run(jdk, gate_off=False):
         root=Path(d)
         for path,text in STUBS.items():
             p=root/path;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
+        # Execute the exact composed VIDEO dismiss methods, rather than a copied routing model.
+        from test_bundle import BundleTest
+        composed=root/'composed';composed.mkdir()
+        test=BundleTest();test.fixture(composed);test.installer().apply(composed)
+        video=(composed/'chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java').read_text(encoding='utf-8')
+        start=video.index('    private void dismissActivityIfNeeded(')
+        end=video.index('    /**',start)
+        methods=video[start:end].replace('@MetricsEndReason ', '')
+        stub=root/'org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java'
+        header=stub.read_text()[:-1]
+        imports='''import android.app.Activity;import android.os.SystemClock;
+import org.chromium.build.annotations.Nullable;import org.chromium.chrome.browser.tab.Tab;
+import org.chromium.content_public.browser.*;import org.chromium.base.task.*;
+import org.chromium.media_session.mojom.MediaSession.SuspendType;
+'''
+        header=header.replace('public class FullscreenVideo',imports+'public class FullscreenVideo')
+        stub.write_text(header+'''
+static final String TAG="fixture";static final long MIN_EXIT_DELAY_MILLIS=500;
+static class Log {static void i(String tag,String message){}}
+static class Power {boolean interactive=true;boolean isInteractive(){return interactive;}}
+final Power mPowerManager=new Power();boolean mDismissPending,mIsSuspendedForStash,mIsPlaying=true;
+long mLastOnEnteredTimeMillis=100;VersaniumYouTubePictureInPictureController mVersaniumPip;
+java.util.List<Runnable> callbacks=new java.util.ArrayList<>();int dismisses;
+Runnable update=()->{};boolean isPipSessionActive(){return !callbacks.isEmpty();}
+void updateAutoPictureInPictureStatusIfNeeded(){update.run();}
+MediaSession getMediaSession(){return mVersaniumPip.ownerMediaSession();}
+void onExitedPictureInPicture(int reason){dismisses++;leave();}
+void leave(){mVersaniumPip.drainLeaveCallbacks(callbacks);}
+void dismiss(Activity a,int reason,Tab tab,WebContents wc){dismissActivityIfNeeded(a,reason,tab,wc);}
+'''+methods+'}')
+        shutil.rmtree(composed)
         for name in ('NullMarked','Nullable'):
             p=root/f'org/chromium/build/annotations/{name}.java';p.parent.mkdir(parents=True,exist_ok=True)
             p.write_text('package org.chromium.build.annotations;import java.lang.annotation.*;'
@@ -145,7 +177,8 @@ Tab t=new Tab();t.window=new WindowAndroid(h);t.wc.window=t.window;tabs.tab=t;
 FullscreenManager fm=new FullscreenManager();
 VersaniumYouTubePictureInPictureController c=new VersaniumYouTubePictureInPictureController(
 h,tabs,fm,()->{throw new AssertionError("gate-off cleanup");},
-()->{throw new AssertionError("gate-off confirmation");});
+()->{throw new AssertionError("gate-off confirmation");},
+(reason,tab,wc)->{throw new AssertionError("gate-off terminal");});
 assert c.beginEntry(t,true)==0;assert fm.observers.isEmpty();
 c.updateCandidate(t,true);h.pip=true;assert c.onFrameworkEntered(true);
 assert !VersaniumYouTubePictureInPictureController.preserveOnHidden(h,t,t,1);

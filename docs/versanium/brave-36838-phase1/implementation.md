@@ -1,3 +1,12 @@
+# Current follow-up — terminal observer ordering fix
+
+2026-10-28 JST: **HIGH finding fixed but still NOT compiled/built/device-verified.**
+Next: `READY_FOR_36838_PHASE1_PREBUILD_REREVIEW`.
+The [terminal fix report](terminal-fix.md) supersedes the prior hadPipSession-only
+terminal routing and records 255 JVM assertions, 24 observer-order cases and
+the new owner/generation one-shot token. The initial implementation record below
+is historical; no real compile/build/device gate has been passed.
+
 # Brave #36838 Phase 1 implementation — 2026-10-28 JST
 
 **Phase 1 implemented but NOT compiled/built/device-verified.**

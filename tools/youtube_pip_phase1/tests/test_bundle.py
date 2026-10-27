@@ -79,11 +79,14 @@ class BundleTest(unittest.TestCase):
             root=Path(d);self.fixture(root);self.installer().apply(root)
             base=root/'chrome/android/java/src/org/chromium/chrome/browser'
             video=(base/'media/FullscreenVideoPictureInPictureController.java').read_text(encoding='utf-8')
-            start=video.index('final boolean hadPipSession')
+            start=video.index('final int terminal')
             section=video[start:video.index('// If we just entered PiP',start)]
             self.assertLess(section.index('updateAutoPictureInPictureStatusIfNeeded()'),
                             section.index('mVersaniumPip.handleDismiss'))
-            self.assertIn('hadPipSession && mVersaniumPip.requiresUpstreamDismiss(reason)',section)
+            self.assertIn('terminal != VersaniumYouTubePictureInPictureController.TERMINAL_CLAIMED',section)
+            self.assertLess(section.index('claimTerminalDismiss'),
+                            section.index('updateAutoPictureInPictureStatusIfNeeded()'))
+            self.assertIn('TERMINAL_DUPLICATE) return',section)
             entry=video[video.index('final long generation'):video.index('public void onStashReported')]
             self.assertLess(entry.index('beginEntry('),entry.index('enterPictureInPictureMode('))
             self.assertEqual(entry.count('rollback(generation)'),2)

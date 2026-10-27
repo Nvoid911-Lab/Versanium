@@ -1,5 +1,16 @@
 # Versanium Project Status
 
+> Current checkpoint — 2026-10-28 JST: #36838 Phase 1 prebuild HIGH finding fixed.
+> Owner/generation terminal token and one-shot VIDEO routing preserve CLOSE/CRASH/
+> REPARENT responsibility across observer order, early cleanup and synchronous reentry.
+> JVM fixture 255 assertions / 24 order cases, gate-off, five structural tests and
+> five-source parse-only PASS; Zoom24 hashes unchanged; retired34 paths absent.
+> **HIGH finding fixed but still NOT compiled/built/device-verified.**
+> Next: `READY_FOR_36838_PHASE1_PREBUILD_REREVIEW` (supersedes checkpoint below).
+> No GN/build/Actions/APK/saved Run9/merge/release/tag/Production operation.
+> PR5 remains Draft/Open/unmerged; body unchanged.
+> See [fix design, observer matrix and verification limits](docs/versanium/brave-36838-phase1/terminal-fix.md).
+
 > Current checkpoint — 2026-10-28 JST: Brave #36838 Phase 1 source implementation
 > is complete. **Phase 1 implemented but NOT compiled/built/device-verified.**
 > Next: `READY_FOR_36838_PHASE1_PREBUILD_REVIEW`. A separate Source-of-Truth gate

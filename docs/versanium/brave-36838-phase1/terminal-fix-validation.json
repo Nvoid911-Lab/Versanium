@@ -1,0 +1,15 @@
+{
+  "start_head": "6b79f124000d8ea0c5d5efdc134ef555c4f03452",
+  "jvm_assertions": 255,
+  "observer_order_cases": 24,
+  "structural_tests": 5,
+  "parse_only_java_sources": 5,
+  "gate_off_fixture": "PASS",
+  "zoom_protected_files": 24,
+  "zoom_sha256_unchanged": true,
+  "retired_candidates_absent": 34,
+  "python_ast": "PASS",
+  "compile_static_review": "No obvious visibility/signature/import/nullability issues found; actual Chromium/NullAway unverified",
+  "not_compiled_built_device_verified": true,
+  "state": "READY_FOR_36838_PHASE1_PREBUILD_REREVIEW"
+}

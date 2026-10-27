@@ -26,6 +26,7 @@ public final class Phase1FixtureTest {
         final WebContents wc = tab.wc;
         int leaves;
         int confirmedEntries;
+        final FullscreenVideoPictureInPictureController video = new FullscreenVideoPictureInPictureController();
         final VersaniumYouTubePictureInPictureController controller;
         Host() {
             PostTask.reset();
@@ -33,15 +34,74 @@ public final class Phase1FixtureTest {
             wc.window = tab.window;
             tabs.tab = tab;
             controller = new VersaniumYouTubePictureInPictureController(
-                    activity, tabs, fullscreen, () -> ++leaves, this::confirm);
+                    activity, tabs, fullscreen, () -> { ++leaves; video.leave(); }, this::confirm,
+                    (reason, source, contents) -> video.dismiss(activity, reason, source, contents));
+            video.mVersaniumPip = controller;
         }
         void confirm() { if (controller.onFrameworkEntered(true)) ++confirmedEntries; }
         long enter() { return controller.beginEntry(tab, true); }
-        void active() { enter(); activity.pip = true; check(controller.onFrameworkEntered(true), "first enter"); }
+        void active() { enter(); activity.pip = true; check(controller.onFrameworkEntered(true), "first enter");
+            video.callbacks.add(() -> {}); }
         boolean hidden() { return VersaniumYouTubePictureInPictureController.preserveOnHidden(
                 activity, tab, tab, 1); }
     }
+    private static void terminalOrder(int reason, boolean dedicatedFirst, boolean destroyed, boolean reentrant) {
+        Host h = new Host(); h.active();
+        org.chromium.chrome.browser.tab.TabObserver dedicated = h.tab.observers.get(0);
+        Runnable terminal = () -> {
+            if (reason == CLOSE) dedicated.onClosingStateChanged(h.tab, true);
+            else if (reason == CRASH) dedicated.onCrash(h.tab);
+            else dedicated.onActivityAttachmentChanged(h.tab, null);
+        };
+        if (destroyed) h.wc.destroyed = true;
+        // Leave callback reentry occurs after callbacks have been detached, before UI cleanup.
+        if (reentrant) {
+            h.video.callbacks.add(() -> h.video.dismiss(h.activity, LEFT_FULLSCREEN, h.tab, h.wc));
+            h.video.callbacks.add(() -> h.video.dismiss(h.activity, reason, h.tab, h.wc));
+        }
+        if (dedicatedFirst) { terminal.run(); h.video.dismiss(h.activity, reason, h.tab, h.wc); }
+        else { h.video.dismiss(h.activity, reason, h.tab, h.wc); terminal.run(); }
+        check(h.video.dismisses == 1 && h.activity.moves == 1, "terminal executes once " + reason);
+        check(h.leaves == 1 && h.fullscreen.exits == 1, "controller cleanup once " + reason);
+        h.video.dismiss(h.activity, reason, h.tab, h.wc); terminal.run();
+        PostTask.advance(3000);
+        check(h.video.dismisses == 1 && h.activity.moves == 1 && h.leaves == 1,
+                "duplicates and delayed work cannot repeat " + reason);
+        check(h.controller.claimTerminalDismiss(reason, h.tab, h.wc)
+                == VersaniumYouTubePictureInPictureController.TERMINAL_DUPLICATE, "consume once");
+        if (destroyed) check(h.wc.domExits == 0 && h.wc.session.suspends == 0, "dead WC skipped");
+        System.out.println("PASS observer order: " + reason + " dedicatedFirst=" + dedicatedFirst
+                + " destroyed=" + destroyed + " reentrant=" + reentrant);
+    }
     public static void main(String[] args) {
+        for (int reason : new int[]{CLOSE, CRASH, REPARENT}) {
+            for (boolean first : new boolean[]{true, false}) {
+                for (boolean reentrant : new boolean[]{false, true}) {
+                    terminalOrder(reason, first, false, reentrant);
+                    terminalOrder(reason, first, true, reentrant);
+                }
+            }
+        }
+        Host order = new Host(); order.active();
+        order.video.update = () -> order.controller.updateCandidate(null, false);
+        order.tabs.tab = new Tab();
+        order.video.dismiss(order.activity, CLOSE, order.tab, order.wc);
+        check(order.activity.moves == 1 && order.leaves == 1, "claim precedes auto update cleanup");
+        Host newTab = new Host(); newTab.active();
+        newTab.tabs.tab = new Tab();
+        newTab.video.dismiss(newTab.activity, NEW_TAB, null, null);
+        check(newTab.activity.moves == 0 && newTab.leaves == 1, "NEW_TAB foreground retained");
+        check(newTab.controller.claimTerminalDismiss(NEW_TAB, newTab.tab, newTab.wc)
+                == VersaniumYouTubePictureInPictureController.TERMINAL_UNRELATED, "NEW_TAB no token");
+        Host stale = new Host(); stale.active();
+        Runnable oldTerminal = stale.controller.guardDelayed(
+                () -> stale.video.dismiss(stale.activity, CLOSE, stale.tab, stale.wc));
+        stale.tab.observers.get(0).onClosingStateChanged(stale.tab, true);
+        int previousMoves = stale.activity.moves;
+        stale.controller.onNewIntent(); stale.active(); oldTerminal.run();
+        check(stale.activity.moves == previousMoves, "stale generation terminal rejected after new entry");
+        check(stale.controller.claimTerminalDismiss(CLOSE, new Tab(), new WebContents())
+                == VersaniumYouTubePictureInPictureController.TERMINAL_UNRELATED, "wrong owner no token");
         String[] rejected = {"http://m.youtube.com/watch?v=a", "https://www.youtube.com/watch?v=a",
             "https://m.youtube.com.evil/watch?v=a", "https://m.youtube.com/shorts?v=a",
             "https://m.youtube.com/watch", "https://m.youtube.com/watch?v=",
@@ -103,7 +163,9 @@ public final class Phase1FixtureTest {
         for (int reason : new int[]{CLOSE, CRASH, REPARENT}) {
             h = new Host(); h.active();
             check(!h.controller.handleDismiss(reason, h.tab, h.wc), "terminal passthrough " + reason);
-            check(h.controller.requiresUpstreamDismiss(reason), "terminal upstream retained");
+            check(h.controller.claimTerminalDismiss(reason, h.tab, h.wc)
+                    == VersaniumYouTubePictureInPictureController.TERMINAL_UNRELATED,
+                    "unreserved direct cleanup cannot grant terminal");
             check(!h.hidden(), "terminal protection removed");
         }
         h = new Host(); h.active();
