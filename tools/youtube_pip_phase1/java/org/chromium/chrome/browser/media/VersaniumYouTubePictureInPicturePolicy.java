@@ -23,7 +23,7 @@ import org.chromium.ui.base.WindowAndroid;
 @NullMarked
 public final class VersaniumYouTubePictureInPicturePolicy {
     // Single integration gate. Intermediate commits must remain disabled.
-    static final boolean ENABLED = false;
+    static final boolean ENABLED = true;
     static final long ENTRY_TIMEOUT_MS = 2000;
     static final long EXIT_CLASSIFICATION_MS = 1000;
     static final long DOM_EXIT_TIMEOUT_MS = 500;
@@ -51,12 +51,16 @@ public final class VersaniumYouTubePictureInPicturePolicy {
         }
 
         boolean live(Activity host, long epoch) {
-            return activity == host
+            return attached(host, epoch)
                     && !host.isFinishing() && !host.isDestroyed()
-                    && !host.isChangingConfigurations()
-                    && documentEpoch == epoch && !tab.isDestroyed()
+                    && !host.isChangingConfigurations();
+        }
+
+        boolean attached(Activity host, long epoch) {
+            return activity == host && documentEpoch == epoch && !tab.isDestroyed()
                     && tab.getId() == tabId && tab.getWebContents() == webContents
                     && !webContents.isDestroyed() && tab.getWindowAndroid() == window
+                    && webContents.getTopLevelNativeWindow() == window
                     && window.getActivity().get() == activity
                     && !videoId.isEmpty() && videoId.equals(videoId(tab.getUrl().getSpec()));
         }
@@ -80,7 +84,8 @@ public final class VersaniumYouTubePictureInPicturePolicy {
         WindowAndroid window = tab.getWindowAndroid();
         if (wc == null || wc.isDestroyed() || window == null
                 || window.getActivity().get() != activity) return null;
-        return new Owner(activity, window, tab, wc, epoch);
+        Owner owner = new Owner(activity, window, tab, wc, epoch);
+        return owner.live(activity, epoch) ? owner : null;
     }
 
     static boolean protectedState(State state, long enteredAt, boolean frameworkPip) {
@@ -94,6 +99,12 @@ public final class VersaniumYouTubePictureInPicturePolicy {
                 || reason == FullscreenVideoPictureInPictureController.MetricsEndReason.RESUME
                 || reason == FullscreenVideoPictureInPictureController.MetricsEndReason.LEFT_FULLSCREEN
                 || reason == FullscreenVideoPictureInPictureController.MetricsEndReason.WEB_CONTENTS_LEFT_FULLSCREEN;
+    }
+
+    static boolean passthroughReason(int reason) {
+        return reason == FullscreenVideoPictureInPictureController.MetricsEndReason.CLOSE
+                || reason == FullscreenVideoPictureInPictureController.MetricsEndReason.CRASH
+                || reason == FullscreenVideoPictureInPictureController.MetricsEndReason.REPARENT;
     }
 
     private VersaniumYouTubePictureInPicturePolicy() {}

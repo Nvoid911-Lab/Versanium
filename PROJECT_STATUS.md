@@ -1,5 +1,17 @@
 # Versanium Project Status
 
+> Current checkpoint — 2026-10-28 JST: Brave #36838 Phase 1 source implementation
+> is complete. **Phase 1 implemented but NOT compiled/built/device-verified.**
+> Next: `READY_FOR_36838_PHASE1_PREBUILD_REVIEW`. A separate Source-of-Truth gate
+> is required before GN/build. Java-only, Chrome-only, exact HTTPS mobile YouTube
+> watch/fullscreen scope; #33522/#39765 remain unimplemented; old candidates stay
+> retired. Zoom inputs and existing lifecycle statements are unchanged.
+> This supersedes the retirement-only/current-no-port notices below, which remain
+> historical. No saved Run9 access/change, GN/build/Actions/APK/merge/release/tag/
+> Production operation or PR body edit occurred.
+> See [implementation, verification and limits](docs/versanium/brave-36838-phase1/implementation.md).
+
+
 > Current policy — 2026-10-28 JST: the former Versanium YouTube PiP,
 > Diagnostics/unsafe diagnostics and Background candidates are **retired / superseded**.
 > Their generators, runtime plumbing, dedicated apply controllers and tests are removed.

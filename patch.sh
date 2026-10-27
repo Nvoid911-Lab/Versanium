@@ -262,6 +262,9 @@ python3 "$SCRIPT_DIR/tools/apply_environment_zoom.py" || {
     exit 1
 }
 
+# Brave #36838 Phase 1: fresh fixed156 source only; never reuse saved Run9.
+python3 "$SCRIPT_DIR/tools/youtube_pip_phase1/apply.py" --root "$PWD" || exit 1
+
 python3 "$SCRIPT_DIR/tools/versanium/apply.py" --root "$PWD" || exit 1
 
 export PATCHED=1

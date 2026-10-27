@@ -437,3 +437,19 @@ WAITING_FOR_EXPLICIT_TEST_BUILD_APPROVAL.
 > Next: `READY_FOR_BRAVE_36838_33522_39765_READONLY_PORT_ANALYSIS`.
 
 User device trials did not resolve the PiP lifecycle failure. Stop the old three-candidate approach and remove its product/experiment/apply paths, while retaining historical evidence and all Zoom bytes. This supersedes prior candidate-development and recovery directions; earlier decisions remain historical. The three Brave references define future read-only analysis scope, not a verified or implemented port.
+
+
+## 2026-10-28: Implement restricted Brave #36838 Phase 1; require prebuild review
+
+> Current checkpoint — 2026-10-28 JST: Brave #36838 Phase 1 source implementation
+> is complete. **Phase 1 implemented but NOT compiled/built/device-verified.**
+> Next: `READY_FOR_36838_PHASE1_PREBUILD_REVIEW`. A separate Source-of-Truth gate
+> is required before GN/build. Java-only, Chrome-only, exact HTTPS mobile YouTube
+> watch/fullscreen scope; #33522/#39765 remain unimplemented; old candidates stay
+> retired. Zoom inputs and existing lifecycle statements are unchanged.
+> This supersedes the retirement-only/current-no-port notices below, which remain
+> historical. No saved Run9 access/change, GN/build/Actions/APK/merge/release/tag/
+> Production operation or PR body edit occurred.
+> See [implementation, verification and limits](docs/versanium/brave-36838-phase1/implementation.md).
+
+Adopt the approved design with seven commits and a single default-off gate in commits1–6. The final source integration enables the gate. Persistent-video leave callbacks are detached before DOM/UI teardown to prevent reentrant task dismissal; all protection is already off in EXITING. This ordering refinement and API-double/parse-only validation limits are recorded in the implementation report. Entry does not resume media, media never falls back to a new current tab, config change ends the session, and screen lock follows ordinary stop. No build or device result is implied.

@@ -18,6 +18,7 @@ import org.chromium.build.annotations.NullMarked;
 import org.chromium.build.annotations.Nullable;
 import org.chromium.chrome.browser.ActivityTabProvider;
 import org.chromium.chrome.browser.fullscreen.FullscreenManager;
+import org.chromium.chrome.browser.fullscreen.FullscreenOptions;
 import org.chromium.chrome.browser.tab.Tab;
 import org.chromium.chrome.browser.tab.TabObserver;
 import org.chromium.chrome.browser.tab.TabHidingType;
@@ -32,6 +33,8 @@ import org.chromium.chrome.browser.media.VersaniumYouTubePictureInPicturePolicy.
 
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Chrome-only owner transaction. Strongly retained by the host's video controller. */
 @NullMarked
@@ -43,6 +46,22 @@ public final class VersaniumYouTubePictureInPictureController {
     private final ActivityTabProvider mTabs;
     private final FullscreenManager mFullscreen;
     private final Runnable mLeaveUpstream;
+    private final Runnable mConfirmEntry;
+    private @Nullable Tab mUiTab;
+    private long mUiEpoch;
+    private boolean mUpstreamCleanupDone;
+    private final FullscreenManager.Observer mUiObserver = new FullscreenManager.Observer() {
+        @Override
+        public void onEnterFullscreen(Tab tab, FullscreenOptions options) {
+            mUiTab = tab;
+            mUiEpoch = mEpoch;
+        }
+
+        @Override
+        public void onExitFullscreen(Tab tab) {
+            if (mUiTab == tab) mUiTab = null;
+        }
+    };
     private State mState = State.INACTIVE;
     private long mGeneration;
     private long mEpoch;
@@ -115,12 +134,14 @@ public final class VersaniumYouTubePictureInPictureController {
 
     VersaniumYouTubePictureInPictureController(
             Activity activity, ActivityTabProvider tabs, FullscreenManager fullscreen,
-            Runnable leaveUpstream) {
+            Runnable leaveUpstream, Runnable confirmEntry) {
         ThreadUtils.assertOnUiThread();
         mActivity = activity;
         mTabs = tabs;
         mFullscreen = fullscreen;
         mLeaveUpstream = leaveUpstream;
+        mConfirmEntry = confirmEntry;
+        if (VersaniumYouTubePictureInPicturePolicy.ENABLED) mFullscreen.addObserver(mUiObserver);
     }
 
     long beginEntry(@Nullable Tab tab, boolean upstream) {
@@ -128,9 +149,12 @@ public final class VersaniumYouTubePictureInPictureController {
         Owner owner = VersaniumYouTubePictureInPicturePolicy.capture(mActivity, tab, upstream, mEpoch);
         if (owner == null || mDestroyed || mState == State.EXITING) return 0;
         if (mOwner != null) {
-            return mOwner.tab == owner.tab && mOwner.live(mActivity, mEpoch) ? mGeneration : 0;
+            if (mOwner.tab == owner.tab && mOwner.live(mActivity, mEpoch)) return mGeneration;
+            invalidate();
+            return 0;
         }
         mOwner = owner;
+        seedUiOwner(owner);
         mBlockCurrentMedia = true;
         mCandidate = null;
         observe(owner.tab);
@@ -142,7 +166,7 @@ public final class VersaniumYouTubePictureInPictureController {
         PostTask.postDelayedTask(TaskTraits.UI_DEFAULT, () -> {
             if (!matches(generation, owner) || mState != State.ENTERING) return;
             if (mActivity.isInPictureInPictureMode() && owner.live(mActivity, mEpoch)) {
-                mState = State.ACTIVE;
+                mConfirmEntry.run();
             } else {
                 rollback(generation);
             }
@@ -152,6 +176,7 @@ public final class VersaniumYouTubePictureInPictureController {
 
     void rollback(long generation) {
         if (generation == 0 || generation != mGeneration || mState != State.ENTERING) return;
+        mBlockCurrentMedia = false;
         clear();
     }
 
@@ -171,6 +196,7 @@ public final class VersaniumYouTubePictureInPictureController {
         mOwner = null;
         mCandidate = null;
         mUpstreamEntered = false;
+        mUpstreamCleanupDone = false;
         mGeneration = ++sGeneration;
         mState = State.INACTIVE;
     }
@@ -197,6 +223,8 @@ public final class VersaniumYouTubePictureInPictureController {
         mCandidate = null;
         mExitUiDone = false;
         mExitDecisionDone = !classify;
+        // Detach persistent-video callbacks before external DOM/UI calls can reenter VIDEO.
+        leaveUpstreamOnce();
         if (!classify) suspendOwner(owner);
         if (classify) {
             PostTask.postDelayedTask(TaskTraits.UI_DEFAULT, () -> {
@@ -235,8 +263,7 @@ public final class VersaniumYouTubePictureInPictureController {
             mExitObserver = null;
         }
         // The handler's identity guard rejects an unrelated/new tab fullscreen.
-        mFullscreen.onExitFullscreen(owner.tab);
-        mLeaveUpstream.run();
+        clearOwnerUi(owner);
         finishIfReady();
     }
 
@@ -245,7 +272,7 @@ public final class VersaniumYouTubePictureInPictureController {
     }
 
     private void suspendOwner(Owner owner) {
-        if (!owner.live(mActivity, mEpoch)) return;
+        if (!owner.attached(mActivity, mEpoch)) return;
         MediaSession session = MediaSession.fromWebContents(owner.webContents);
         if (session != null) session.suspend(SuspendType.SYSTEM);
     }
@@ -271,16 +298,18 @@ public final class VersaniumYouTubePictureInPictureController {
     void onDestroy() {
         Owner owner = mOwner;
         if (owner != null) {
+            mState = State.EXITING;
+            leaveUpstreamOnce();
             if (!owner.webContents.isDestroyed() && owner.documentEpoch == mEpoch
                     && owner.tab.getWebContents() == owner.webContents) {
                 MediaSession session = MediaSession.fromWebContents(owner.webContents);
                 if (session != null) session.suspend(SuspendType.SYSTEM);
                 owner.webContents.exitFullscreen();
             }
-            mFullscreen.onExitFullscreen(owner.tab);
-            mLeaveUpstream.run();
+            clearOwnerUi(owner);
         }
         clear();
+        if (VersaniumYouTubePictureInPicturePolicy.ENABLED) mFullscreen.removeObserver(mUiObserver);
         mDestroyed = true;
     }
 
@@ -308,6 +337,7 @@ public final class VersaniumYouTubePictureInPictureController {
             }
             if (candidate != null && mActivity.isInPictureInPictureMode()) {
                 mOwner = candidate;
+                seedUiOwner(candidate);
                 mCandidate = null;
                 mGeneration = ++sGeneration;
                 mState = State.ENTERING;
@@ -322,8 +352,12 @@ public final class VersaniumYouTubePictureInPictureController {
             mBlockCurrentMedia = false;
             return true;
         }
-        if (mState == State.EXITING || !owner.live(mActivity, mEpoch)
-                || owner.tab != mTabs.get() || !mActivity.isInPictureInPictureMode()) return false;
+        if (mState == State.EXITING) return false;
+        if (!owner.live(mActivity, mEpoch) || owner.tab != mTabs.get()
+                || !mActivity.isInPictureInPictureMode()) {
+            invalidate();
+            return false;
+        }
         mState = State.ACTIVE;
         if (mUpstreamEntered) return false;
         mUpstreamEntered = true;
@@ -392,9 +426,12 @@ public final class VersaniumYouTubePictureInPictureController {
         if (!VersaniumYouTubePictureInPicturePolicy.ENABLED) return action;
         long generation = mGeneration;
         Owner owner = mOwner;
+        Tab tab = mTabs.get();
+        WebContents wc = tab == null ? null : tab.getWebContents();
         return () -> {
             if (mDestroyed || generation != mGeneration || mActivity.isDestroyed()
                     || mActivity.isFinishing() || mActivity.isChangingConfigurations()) return;
+            if (mTabs.get() != tab || (tab != null && tab.getWebContents() != wc)) return;
             if (owner != null && (!matches(generation, owner)
                     || !owner.live(mActivity, mEpoch))) return;
             action.run();
@@ -415,6 +452,7 @@ public final class VersaniumYouTubePictureInPictureController {
             Owner candidate = mCandidate;
             if (candidate != null && candidate.tab == tab && candidate.live(mActivity, mEpoch)) {
                 mOwner = candidate;
+                seedUiOwner(candidate);
                 mCandidate = null;
                 mGeneration = ++sGeneration;
                 mState = State.ENTERING;
@@ -428,7 +466,7 @@ public final class VersaniumYouTubePictureInPictureController {
                 PostTask.postDelayedTask(TaskTraits.UI_DEFAULT, () -> {
                     if (!matches(generation, adopted) || mState != State.ENTERING) return;
                     if (mActivity.isInPictureInPictureMode() && adopted.live(mActivity, mEpoch)) {
-                        mState = State.ACTIVE;
+                        mConfirmEntry.run();
                     } else rollback(generation);
                 }, VersaniumYouTubePictureInPicturePolicy.ENTRY_TIMEOUT_MS);
             }
@@ -449,7 +487,8 @@ public final class VersaniumYouTubePictureInPictureController {
         VersaniumYouTubePictureInPictureController controller = locate(activity);
         if (controller == null) return false;
         if (reason != TabHidingType.ACTIVITY_HIDDEN) {
-            controller.invalidate();
+            Owner owner = controller.mOwner;
+            if (owner != null && owner.tab == tab) controller.invalidate();
             return false;
         }
         return controller.preserve(tab, fullscreenTab);
@@ -460,5 +499,37 @@ public final class VersaniumYouTubePictureInPictureController {
         if (handler != callback) return false;
         VersaniumYouTubePictureInPictureController controller = locate(handler);
         return controller != null && controller.preserve(fullscreenTab, fullscreenTab);
+    }
+
+    boolean requiresUpstreamDismiss(int reason) {
+        return VersaniumYouTubePictureInPicturePolicy.ENABLED && mBlockCurrentMedia
+                && VersaniumYouTubePictureInPicturePolicy.passthroughReason(reason);
+    }
+
+    boolean drainLeaveCallbacks(List<Runnable> callbacks) {
+        if (!VersaniumYouTubePictureInPicturePolicy.ENABLED || !mBlockCurrentMedia) return false;
+        List<Runnable> captured = new ArrayList<>(callbacks);
+        callbacks.clear();
+        for (Runnable callback : captured) callback.run();
+        return true;
+    }
+
+    private void seedUiOwner(Owner owner) {
+        if (mUiTab == null && mFullscreen.getPersistentFullscreenMode()) {
+            mUiTab = owner.tab;
+            mUiEpoch = owner.documentEpoch;
+        }
+    }
+
+    private void clearOwnerUi(Owner owner) {
+        if (mUiTab != owner.tab || mUiEpoch != owner.documentEpoch) return;
+        mUiTab = null;
+        mFullscreen.onExitFullscreen(owner.tab);
+    }
+
+    private void leaveUpstreamOnce() {
+        if (mUpstreamCleanupDone) return;
+        mUpstreamCleanupDone = true;
+        mLeaveUpstream.run();
     }
 }
