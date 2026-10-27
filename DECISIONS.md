@@ -391,3 +391,29 @@ untracked host helpers/evidence. Exact generated source matches host post-fix,
 but distinct whole patch.sh hashes are not interchangeable without host-byte
 review. Preserve historical host pins. Successful reconciliation permits the
 next saved integration review, not a Test Build, release or host re-analysis.
+
+## 2026-10-27 — Close saved integration review; hold explicit Test Build gate
+
+Accept the user-supplied completed saved integration/graph/Siso evidence for
+reviewed product d1e3261690917bb29d75947c3e9d6bf89c44f728. Saved Default reuse
+PASS, GN regeneration NOT REQUIRED; gn clean FORBIDDEN for the recorded saved
+workspace. Changed sources still require incremental recompilation. Whole-file
+patch.sh comparison is reported resolved to the reviewed shard2 one-line fix;
+retain distinct historical hashes. Never re-execute the old saved patch.sh or
+old saved tools/apply_youtube_candidates.py. Preserve current source, graph/args,
+Siso v1.6.3 / ProdCIPD=true binary and saved state, evidence and untracked files.
+Exact binary/state identity, paths/hashes and freshness facts are appended in
+[stage reconciliation](docs/versanium/post-nullaway-stage-reconciliation.md#2026-10-27-jst--completed-saved-integration-review--current-state).
+This records provided host evidence, not new host verification/build success.
+
+### Test Build Gate
+
+Test Build NOT APPROVED; require explicit user approval in a later step.
+Candidate only after approval: saved out/Default via Siso/autoninja incremental
+chrome_public_apk using reviewed current source, without old patch/generator or
+GN gen/clean. Refresh/present Context and check live host capacity/concurrency
+before execution. This docs-only checkpoint authorizes normal commit/push, not
+build execution. Actions/APK/merge/release/tag/Production remain NOT APPROVED;
+keep PR5 Draft/Open/unmerged. No PR body change is needed for this checkpoint;
+its historical entries remain historical. Next gate:
+WAITING_FOR_EXPLICIT_TEST_BUILD_APPROVAL.

@@ -1,5 +1,42 @@
 # Versanium Project Status
 
+## 2026-10-27 JST — Saved integration review complete / Test Build NOT APPROVED
+
+Current checkpoint supersedes pending saved integration/full-script/graph review
+items in the historical entries below. Reviewed product commit:
+`d1e3261690917bb29d75947c3e9d6bf89c44f728`, Primary branch
+`next-test/156-zoom-transfer-pip`; branch/PR5 HEAD verified before docs edits,
+PR5 Draft/Open/unmerged. Product code is unchanged by this checkpoint.
+
+User-reported completed saved integration review: saved `out/Default` graph reuse
+PASS; GN regeneration NOT REQUIRED based on graph/Siso evidence; `gn clean`
+FORBIDDEN for the specified saved workspace; incremental recompilation REQUIRED.
+Old saved patch.sh/generator must not be re-executed. Whole-script comparison is
+reported resolved to only the reviewed shard2 one-line fix; historical distinct
+script hashes remain preserved. Siso v1.6.3 / ProdCIPD=true and saved state reusable.
+Deps/inputs audit:7+7 queries rc=0, source/header/Java visibility PASS,
+protected state unchanged; content3 objects require rebuild, exclusive-access3
+CURRENT. These are supplied host results, not a new local host audit/build.
+
+Exact saved paths, Siso binary/state identity, evidence SHA256s, source/graph
+identities and limits are recorded in the appended current checkpoint in
+[stage reconciliation](docs/versanium/post-nullaway-stage-reconciliation.md#2026-10-27-jst--completed-saved-integration-review--current-state).
+Prior95/99 repository test results remain historical; no new integration success
+is inferred. Existing three untracked host files and all evidence are preserved.
+
+### Test Build Gate
+
+Test Build remains **NOT APPROVED**. Start only after explicit user approval in
+a later step. Candidate then: current saved source + saved `out/Default`,
+Siso/autoninja incremental `chrome_public_apk`; no reapply or GN regen/clean.
+Refresh/present Context and check live host capacity/concurrency before execution.
+Actions/APK/merge/release/tag/Production remain **NOT APPROVED**.
+This work unit is documentation validation/commit/normal push only; no build/GN/
+Actions/APK/source apply/merge/release performed. PR5 remains Draft/Open/unmerged;
+its body retains historical entries and is not edited by this checkpoint.
+Next gate: **WAITING_FOR_EXPLICIT_TEST_BUILD_APPROVAL**.
+
+
 ## 2026-10-27 JST — Shard2 patch.sh repository reconciliation
 
 This latest entry supersedes the earlier stage-only note that shard2 was still
