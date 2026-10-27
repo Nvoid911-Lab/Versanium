@@ -81,6 +81,15 @@
              Log.e(TAG, "Error entering PiP with bounds %s", bounds, e);
          }
      }
+@@ -378,7 +389,7 @@
+             // us back into a good state.
+             PostTask.postDelayedTask(
+                     TaskTraits.UI_USER_BLOCKING,
+-                    this::unpauseVideoDuringUnstashIfNeeded,
++                    mVersaniumPip.guardDelayed(this::unpauseVideoDuringUnstashIfNeeded),
+                     UNSTASH_DELAY_MILLIS);
+         }
+     }
 @@ -443,6 +454,7 @@
       * later, when the activity is restarted.
       */
@@ -122,7 +131,17 @@
      public void onFrameworkExitedPictureInPicture() {
          Log.i(TAG, "Framework exited picture in picture");
          onExitedPictureInPicture(MetricsEndReason.RESUME);
-@@ -619,6 +643,7 @@
+@@ -580,7 +604,8 @@
+                         @Override
+                         public void onExitFullscreen(Tab tab) {
+                             Log.i(TAG, "Exiting fullscreen");
+-                            dismissActivityIfNeeded(mActivity, MetricsEndReason.LEFT_FULLSCREEN);
++                            dismissActivityIfNeeded(mActivity, MetricsEndReason.LEFT_FULLSCREEN,
++                                    tab, tab.getWebContents());
+                         }
+                     };
+ 
+@@ -619,6 +644,7 @@
          // Do not check if we're in PiP mode or not, since we're called during transitions into and
          // out of it.  The framework won't try to auto-enter if we're already there anyway.
          final boolean allowed = canDoPictureInPicture(false);
@@ -130,3 +149,97 @@
          if (!allowed && !mIsAutoEnterAllowed) {
              // Don't notify the framework if we were not and continue to be not allowed.  In the
              // case where we're allowed, the bounds for the source rect can change even if we were
+@@ -667,10 +693,16 @@
+      * This will also update our auto-PiP preference with the framework, if it's changed.
+      */
+     private void dismissActivityIfNeeded(Activity activity, @MetricsEndReason int reason) {
++        dismissActivityIfNeeded(activity, reason, null, null);
++    }
++
++    private void dismissActivityIfNeeded(Activity activity, @MetricsEndReason int reason,
++            @Nullable Tab sourceTab, @Nullable WebContents sourceWc) {
+         // Something interesting happened -- make sure we've updated our preference for auto-PiP
+         // with the framework, if applicable.
+         Log.i(TAG, "Dismiss activity with reason " + reason);
+         updateAutoPictureInPictureStatusIfNeeded();
++        if (mVersaniumPip.handleDismiss(reason, sourceTab, sourceWc)) return;
+         mDismissPending = false;
+ 
+         if (!isPipSessionActive()) {
+@@ -687,7 +719,8 @@
+             Log.i(TAG, "Posting deferred callback to dismiss activity.");
+             PostTask.postDelayedTask(
+                     TaskTraits.UI_USER_BLOCKING,
+-                    () -> dismissActivityIfNeeded(activity, reason),
++                    mVersaniumPip.guardDelayed(
++                            () -> dismissActivityIfNeeded(activity, reason, sourceTab, sourceWc)),
+                     MIN_EXIT_DELAY_MILLIS);
+             return;
+         }
+@@ -736,7 +769,7 @@
+             mWebContents = mTab.getWebContents();
+             if (mWebContents == null) return;
+             mWebContentsObserver =
+-                    new DismissActivityOnWebContentsObserver(mActivity, mWebContents);
++                    new DismissActivityOnWebContentsObserver(mActivity, mTab, mWebContents);
+         }
+ 
+         /** Clean up everything, and unregister `this`. */
+@@ -756,18 +789,19 @@
+ 
+         @Override
+         public void onActivityAttachmentChanged(Tab tab, @Nullable WindowAndroid window) {
+-            if (window != null) dismissActivityIfNeeded(mActivity, MetricsEndReason.REPARENT);
++            if (window != null) dismissActivityIfNeeded(mActivity, MetricsEndReason.REPARENT,
++                    tab, mWebContents);
+         }
+ 
+         @Override
+         public void onClosingStateChanged(Tab tab, boolean closing) {
+-            dismissActivityIfNeeded(mActivity, MetricsEndReason.CLOSE);
++            dismissActivityIfNeeded(mActivity, MetricsEndReason.CLOSE, tab, mWebContents);
+             cleanupWebContentsObserver();
+         }
+ 
+         @Override
+         public void onCrash(Tab tab) {
+-            dismissActivityIfNeeded(mActivity, MetricsEndReason.CRASH);
++            dismissActivityIfNeeded(mActivity, MetricsEndReason.CRASH, tab, mWebContents);
+             cleanupWebContentsObserver();
+         }
+ 
+@@ -852,9 +886,15 @@
+     private class DismissActivityOnWebContentsObserver extends WebContentsObserver {
+         private final Activity mActivity;
+ 
+-        public DismissActivityOnWebContentsObserver(Activity activity, WebContents webContents) {
++        private final Tab mSourceTab;
++        private final WebContents mSourceWebContents;
++
++        public DismissActivityOnWebContentsObserver(
++                Activity activity, Tab tab, WebContents webContents) {
+             super(webContents);
+             mActivity = activity;
++            mSourceTab = tab;
++            mSourceWebContents = webContents;
+         }
+ 
+         @Override
+@@ -890,7 +930,8 @@
+                 PostTask.postDelayedTask(
+                         TaskTraits.UI_BEST_EFFORT, mUpdateAutoPipRunnable, AUTO_PIP_UPDATE_DELAY);
+             } else {
+-                dismissActivityIfNeeded(mActivity, MetricsEndReason.WEB_CONTENTS_LEFT_FULLSCREEN);
++                dismissActivityIfNeeded(mActivity, MetricsEndReason.WEB_CONTENTS_LEFT_FULLSCREEN,
++                        mSourceTab, mSourceWebContents);
+             }
+         }
+     }
+@@ -911,6 +952,7 @@
+      */
+     @VisibleForTesting
+     /* package */ @Nullable MediaSession getMediaSession() {
++        if (mVersaniumPip.ownsMediaRouting()) return mVersaniumPip.ownerMediaSession();
+         if (getWebContents() == null) return null;
+         return MediaSession.fromWebContents(getWebContents());
+     }

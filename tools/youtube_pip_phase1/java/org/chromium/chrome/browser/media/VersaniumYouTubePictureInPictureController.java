@@ -131,6 +131,7 @@ public final class VersaniumYouTubePictureInPictureController {
             return mOwner.tab == owner.tab && mOwner.live(mActivity, mEpoch) ? mGeneration : 0;
         }
         mOwner = owner;
+        mBlockCurrentMedia = true;
         mCandidate = null;
         observe(owner.tab);
         mGeneration = ++sGeneration;
@@ -344,5 +345,59 @@ public final class VersaniumYouTubePictureInPictureController {
 
     void onNewIntent() {
         invalidate();
+    }
+
+    /** The two fullscreen signals must carry the originating tab/WC. */
+    boolean handleDismiss(int reason, @Nullable Tab sourceTab, @Nullable WebContents sourceWc) {
+        if (!VersaniumYouTubePictureInPicturePolicy.ENABLED) return false;
+        Owner owner = mOwner;
+        if (owner == null) {
+            if (reason == FullscreenVideoPictureInPictureController.MetricsEndReason.NEW_TAB) {
+                mCandidate = null;
+                observe(null);
+            }
+            return false;
+        }
+        boolean lifecycle = reason == FullscreenVideoPictureInPictureController.MetricsEndReason.START
+                || reason == FullscreenVideoPictureInPictureController.MetricsEndReason.RESUME;
+        boolean sourceMatches = lifecycle
+                || (sourceTab == owner.tab && sourceWc == owner.webContents);
+        if (sourceMatches && mTabs.get() == owner.tab && owner.live(mActivity, mEpoch)
+                && VersaniumYouTubePictureInPicturePolicy.transientReason(reason)
+                && VersaniumYouTubePictureInPicturePolicy.protectedState(
+                        mState, mEnteredAt, mActivity.isInPictureInPictureMode())
+                && (lifecycle || mActivity.isInPictureInPictureMode())) return true;
+        if (reason == FullscreenVideoPictureInPictureController.MetricsEndReason.NEW_TAB) {
+            beginExit(mGeneration, false, true);
+            return true; // The incoming foreground tab must never be moved to the back.
+        }
+        // A non-owner fullscreen event is not ours to suppress or use for owner cleanup.
+        if (!lifecycle && !sourceMatches) return false;
+        if (reason == FullscreenVideoPictureInPictureController.MetricsEndReason.RESUME
+                && !mActivity.isInPictureInPictureMode()) beginExit(mGeneration, true, false);
+        else beginExit(mGeneration, false, true);
+        return false;
+    }
+
+    boolean ownsMediaRouting() { return mBlockCurrentMedia; }
+
+    @Nullable MediaSession ownerMediaSession() {
+        Owner owner = mOwner;
+        return owner != null && owner.live(mActivity, mEpoch)
+                ? MediaSession.fromWebContents(owner.webContents) : null;
+    }
+
+    /** Invalidates queued upstream work even after cleanup, before another entry occurs. */
+    Runnable guardDelayed(Runnable action) {
+        if (!VersaniumYouTubePictureInPicturePolicy.ENABLED) return action;
+        long generation = mGeneration;
+        Owner owner = mOwner;
+        return () -> {
+            if (mDestroyed || generation != mGeneration || mActivity.isDestroyed()
+                    || mActivity.isFinishing() || mActivity.isChangingConfigurations()) return;
+            if (owner != null && (!matches(generation, owner)
+                    || !owner.live(mActivity, mEpoch))) return;
+            action.run();
+        };
     }
 }
