@@ -9,6 +9,33 @@
    "java/src/org/chromium/chrome/browser/media/MediaCaptureDevicesDispatcherAndroid.java",
    "java/src/org/chromium/chrome/browser/media/MediaCaptureNotificationServiceImpl.java",
    "java/src/org/chromium/chrome/browser/media/MediaLauncherActivity.java",
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+@@ -1602,9 +1602,15 @@
+             FullscreenVideoPictureInPictureController controller =
+                     ensureFullscreenVideoPictureInPictureController();
+             if (controller != null) {
+-                controller.onEnteredPictureInPictureMode();
++                if (controller.onVersaniumFrameworkEntered()) {
++                    controller.onEnteredPictureInPictureMode();
++                    controller.onVersaniumEntryComplete();
++                }
+             }
+         } else {
++            if (mFullscreenVideoPictureInPictureController != null) {
++                mFullscreenVideoPictureInPictureController.onVersaniumFrameworkExiting();
++            }
+             if (mActorPipController != null) {
+                 mActorPipController.onFrameworkExitedPictureInPicture();
+             }
+@@ -1680,6 +1686,7 @@
+         startUmaSession();
+ 
+         if (mFullscreenVideoPictureInPictureController != null) {
++            mFullscreenVideoPictureInPictureController.onVersaniumNewIntent();
+             Log.i(TAG, "onNewIntentWithNative: exiting picture in picture if needed");
+             mFullscreenVideoPictureInPictureController.onFrameworkExitedPictureInPicture();
+         }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
 @@ -154,6 +154,7 @@
@@ -19,16 +46,25 @@
  
      /** Did we last tell the framework that auto-enter is allowed (true) or not? */
      private boolean mIsAutoEnterAllowed;
-@@ -183,6 +184,8 @@
+@@ -183,6 +184,9 @@
          mActivity = activity;
          mActivityTabProvider = activityTabProvider;
          mFullscreenManager = fullscreenManager;
 +        mVersaniumPip = new VersaniumYouTubePictureInPictureController(
-+                activity, activityTabProvider, fullscreenManager);
++                activity, activityTabProvider, fullscreenManager,
++                () -> onExitedPictureInPicture(MetricsEndReason.RESUME));
          mPowerManager = (PowerManager) mActivity.getSystemService(Activity.POWER_SERVICE);
  
          sControllers.put(mActivity, this);
-@@ -332,9 +335,15 @@
+@@ -283,6 +287,7 @@
+         FullscreenVideoPictureInPictureController controller = sControllers.get(activity);
+         if (controller != null) {
+             controller.mIsAutoEnterAllowed = false;
++            controller.mVersaniumPip.updateCandidate(null, false);
+         }
+ 
+         if (!activity.getPackageManager()
+@@ -332,9 +337,15 @@
              }
          }
  
@@ -45,3 +81,52 @@
              Log.e(TAG, "Error entering PiP with bounds %s", bounds, e);
          }
      }
+@@ -443,6 +454,7 @@
+      * later, when the activity is restarted.
+      */
+     public void onDestroy() {
++        mVersaniumPip.onDestroy();
+         sControllers.remove(mActivity);
+         removeObserversIfNeeded();
+     }
+@@ -458,6 +470,7 @@
+     // Closing used to suspend media as a side-effect of hiding the page, but that no longer happens
+     // on large form factors (see IsBackgroundMediaSuspendEnabled), so suspend it here.
+     public void onStop() {
++        mVersaniumPip.onStop();
+         if (mShouldSuspendMediaOnStop) {
+             mShouldSuspendMediaOnStop = false;
+ 
+@@ -469,6 +482,7 @@
+     }
+ 
+     public void onResume() {
++        mVersaniumPip.onResume();
+         // Pip was restored rather than closed, so media should keep playing.
+         mShouldSuspendMediaOnStop = false;
+         // Unconditionally dismiss pip, because the activity has been resumed.  This can happen if
+@@ -517,6 +531,16 @@
+      * Notify us that the framework has exited from Picture in Picture mode. Perform any cleanup
+      * required. It's okay to call this even when we don't believe that we're in PiP mode.
+      */
++    public boolean onVersaniumFrameworkEntered() {
++        return mVersaniumPip.onFrameworkEntered(canDoPictureInPicture(false));
++    }
++
++    public void onVersaniumEntryComplete() { mVersaniumPip.onEntryComplete(); }
++
++    public void onVersaniumFrameworkExiting() { mVersaniumPip.beginFrameworkExit(); }
++
++    public void onVersaniumNewIntent() { mVersaniumPip.onNewIntent(); }
++
+     public void onFrameworkExitedPictureInPicture() {
+         Log.i(TAG, "Framework exited picture in picture");
+         onExitedPictureInPicture(MetricsEndReason.RESUME);
+@@ -619,6 +643,7 @@
+         // Do not check if we're in PiP mode or not, since we're called during transitions into and
+         // out of it.  The framework won't try to auto-enter if we're already there anyway.
+         final boolean allowed = canDoPictureInPicture(false);
++        mVersaniumPip.updateCandidate(mActivityTabProvider.get(), allowed);
+         if (!allowed && !mIsAutoEnterAllowed) {
+             // Don't notify the framework if we were not and continue to be not allowed.  In the
+             // case where we're allowed, the bounds for the source rect can change even if we were

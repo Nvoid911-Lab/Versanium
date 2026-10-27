@@ -42,6 +42,7 @@ public final class VersaniumYouTubePictureInPictureController {
     private final Activity mActivity;
     private final ActivityTabProvider mTabs;
     private final FullscreenManager mFullscreen;
+    private final Runnable mLeaveUpstream;
     private State mState = State.INACTIVE;
     private long mGeneration;
     private long mEpoch;
@@ -113,11 +114,13 @@ public final class VersaniumYouTubePictureInPictureController {
     };
 
     VersaniumYouTubePictureInPictureController(
-            Activity activity, ActivityTabProvider tabs, FullscreenManager fullscreen) {
+            Activity activity, ActivityTabProvider tabs, FullscreenManager fullscreen,
+            Runnable leaveUpstream) {
         ThreadUtils.assertOnUiThread();
         mActivity = activity;
         mTabs = tabs;
         mFullscreen = fullscreen;
+        mLeaveUpstream = leaveUpstream;
     }
 
     long beginEntry(@Nullable Tab tab, boolean upstream) {
@@ -232,6 +235,7 @@ public final class VersaniumYouTubePictureInPictureController {
         }
         // The handler's identity guard rejects an unrelated/new tab fullscreen.
         mFullscreen.onExitFullscreen(owner.tab);
+        mLeaveUpstream.run();
         finishIfReady();
     }
 
@@ -273,8 +277,72 @@ public final class VersaniumYouTubePictureInPictureController {
                 owner.webContents.exitFullscreen();
             }
             mFullscreen.onExitFullscreen(owner.tab);
+            mLeaveUpstream.run();
         }
         clear();
         mDestroyed = true;
+    }
+
+    void updateCandidate(@Nullable Tab tab, boolean upstream) {
+        if (!VersaniumYouTubePictureInPicturePolicy.ENABLED || mDestroyed) return;
+        if (mState != State.INACTIVE) {
+            if (mOwner != null && mTabs.get() != mOwner.tab) invalidate();
+            return;
+        }
+        mCandidate = VersaniumYouTubePictureInPicturePolicy.capture(mActivity, tab, upstream, mEpoch);
+        observe(mCandidate == null ? null : mCandidate.tab);
+        if (mCandidate != null) sLocators.put(mActivity, new WeakReference<>(this));
+    }
+
+    /** False suppresses only a duplicate callback for our owned session. */
+    boolean onFrameworkEntered(boolean upstream) {
+        if (!VersaniumYouTubePictureInPicturePolicy.ENABLED || mDestroyed) return true;
+        Owner owner = mOwner;
+        if (owner == null && mState == State.INACTIVE) {
+            Owner candidate = mCandidate;
+            if (candidate == null || !candidate.live(mActivity, mEpoch)
+                    || candidate.tab != mTabs.get()) {
+                candidate = VersaniumYouTubePictureInPicturePolicy.capture(
+                        mActivity, mTabs.get(), upstream, mEpoch);
+            }
+            if (candidate != null && mActivity.isInPictureInPictureMode()) {
+                mOwner = candidate;
+                mCandidate = null;
+                mGeneration = ++sGeneration;
+                mState = State.ENTERING;
+                mEnteredAt = SystemClock.elapsedRealtime();
+                mBlockCurrentMedia = true;
+                observe(candidate.tab);
+                sLocators.put(mActivity, new WeakReference<>(this));
+                owner = candidate;
+            }
+        }
+        if (owner == null) {
+            mBlockCurrentMedia = false;
+            return true;
+        }
+        if (mState == State.EXITING || !owner.live(mActivity, mEpoch)
+                || owner.tab != mTabs.get() || !mActivity.isInPictureInPictureMode()) return false;
+        mState = State.ACTIVE;
+        if (mUpstreamEntered) return false;
+        mUpstreamEntered = true;
+        return true;
+    }
+
+    void onEntryComplete() {
+        Owner owner = mOwner;
+        if (owner != null && (!owner.live(mActivity, mEpoch) || owner.tab != mTabs.get())) invalidate();
+    }
+
+    void beginFrameworkExit() {
+        if (mOwner != null) beginExit(mGeneration, true, false);
+        else {
+            mCandidate = null;
+            observe(null);
+        }
+    }
+
+    void onNewIntent() {
+        invalidate();
     }
 }
