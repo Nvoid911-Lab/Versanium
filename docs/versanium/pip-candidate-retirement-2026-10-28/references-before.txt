@@ -1,0 +1,1114 @@
+.github/workflows/build.yml:98:          path: versanium-recovery-control/diagnostics/vmstat.txt
+ARCHITECTURE.md:3:Content diagnostic transport is scoped WebContentsImpl→new default no-op native
+ARCHITECTURE.md:5:actual WebContents PiP observer→unchanged scoped logger. No Chrome dependency or
+ARCHITECTURE.md:12:WebContents exit can reenter again. PiP reason6 move/cleanup runs persistent-false
+ARCHITECTURE.md:32:Native diagnostic uses a default no-op ExclusiveAccessContext hook overridden
+ARCHITECTURE.md:44:be reentry/chain, not independent root requests. PiP persistent screen-state
+ARCHITECTURE.md:45:preserves fullscreen; Base multiwindow PiP guard is disabled when EAM enabled.
+ARCHITECTURE.md:55:AOriginForward uses existing UI-thread PiP controller registry/current Tab
+ARCHITECTURE.md:66:branch-local diagnostics; no exit/lifecycle behavior is changed.
+ARCHITECTURE.md:123:- `docs/` — feature investigations/reviews including zoom, Titanium updates, accessibility, and YouTube PiP investigation.
+ARCHITECTURE.md:206:- YouTube PiP regression awareness.
+ARCHITECTURE.md:213:- `feature/f11-toolbar` — F11/toolbar and certificate-diagnostic lineage.
+ARCHITECTURE.md:214:- `feature/youtube-pip` — PiP diagnostic/experimental history; do not treat it as stable integration merely because the branch exists.
+ARCHITECTURE.md:239:The review branch upgrades exact Titanium/Vanadium/Chromium inputs to 156.0.8078.47 with the original ancestry/ref gates retained. Current successful 155 recovery remains historical and cannot supply a new156/candidate APK.
+ARCHITECTURE.md:243:YouTube candidates are separate opt-in flags for standard PiP suppression and background document visibility. HTTPS main-document host allowlist, normal-profile gating and actual display classification limit execution. No play()/autoplay relaxation is added. Existing native PiP/fullscreen gates remain. Pause/visibility diagnostics do not prove a native suspension cause. A weak tab listener updates candidates outside native zoom callbacks, avoiding JNI→zoom→script recursion and strong lifecycle retention.
+ARCHITECTURE.md:247:The PR5 follow-up supersedes the original frame-scoped JavaScript CHECK exception. Generic ExecuteJavaScript/CanExecuteJavaScript/WebContentsAndroid::EvaluateJavaScript remain pinned upstream behavior. A dedicated boolean+callback WebContents JNI route runs only a compiled fixed candidate payload, with native flags and live/active/outermost/normal-profile/HTTPS YouTube checks. No script parameter or marker grants permission. Its generated UTF16 header is in the existing Android native target and provenance; the Java owner is already a content JNI source. Actual native body compilation, device behavior and independent security review remain unverified.
+ARCHITECTURE.md:249:Zoom archives preserve every finite double exponent, matching legacy storage; SAF restore explicitly rejects numerical overflow/underflow for the Android font envelope before submitting any replacement. Existing values are never rounded/dropped to force an import through. This differs from the50–300% slider UI and Blink rendering bounds; an exact legacy-value warning distinguishes the saved default from the bounded thumb. The PiP candidate owns only its own reflected attribute change and revokes that ownership on subsequent site mutations; it restores before DeX/option disable or releasing a detached video. Same-document movement remains model-tested only. See the PR5 report for exact artifact pins and the SAF/runner readiness checklist.
+ARCHITECTURE.md:259:Diagnostics only observes existing PiP controller stages in regular live HTTPS YouTube tabs and live Activity; no fullscreen permission/AppOps/recent-task probing, candidate authorization, JS pause wrapping or script-result callback. Both Java and native candidate entry require a PiP/background candidate flag. Native options force diagnostics=false. Fixed-payload JNI and generic JavaScript restrictions remain. Background/PiP DOM behavior is unchanged. User reports the prior156 manual APK works except diagnosis/PiP issues; the new correction still requires integration/device validation.
+ARCHITECTURE.md:261:### Preserved Run9 diagnostic-update boundary
+ARCHITECTURE.md:263:The APK-completed saved Run9 tree may only be considered for reuse through the new diagnostic-update helper, not by weakening the historical three-accessor helper. The new chain requires original provenance, prior applied evidence, saved post-correction provenance, exact four-file pre/post hashes, unchanged JNI/GN/payload hashes, existing arm64 Test GN/toolchain and byte-parsed saved targets. Its default is external-evidence-only. A future explicit apply may write those four sources while proving output bytes unchanged. Java and both native objects are separate compile gates before any APK target. GN regeneration, sync, patch/build scripts, cleaning and path movement are stop conditions, not recovery actions.
+ARCHITECTURE.md:265:Flag metadata is authenticated as a derivation, not an observed-hash exception: fixed Chromium HEAD bytes → the exact 11-name patch.sh expiry loop in order → the exact three candidate entries and formatting. HEAD, intermediate and final hashes are pinned, and the saved final bytes must equal the reproduced bytes. This corrects the earlier candidate-only fixture while retaining fail-closed behavior.
+ARCHITECTURE.md:269:PiP diagnosis additionally observes existing decision/dismiss branches and persistent-video call boundaries without duplicate permission/eligibility queries. stop_suspend remains pre-call; stop_suspend_called follows actual invocation. No exit/stop policy changes are made. Entry callbacks, app session activity, fullscreen observers, Activity stopping and actual MediaSession suspension are distinct evidence boundaries. Video zoom and PiP remain separate candidates with an unverified layout interaction.
+ARCHITECTURE.md:271:Configuration A transaction is independent of previous apply controllers. Its inputs are the user-validated diagnostic applied record and after-apk provenance, plus exact b341 installed/A40-file manifest. It reconstructs A Java from fixed HEAD and pinned patch selection, writes only that file after external backup/intent/full output inventory, and records a new source-diff provenance. Verify is pre-compilation-only; generated output changes after real builds require a new after-build provenance comparison. No B path is exposed.
+ARCHITECTURE.md:273:Origin diagnostic candidate adds fixed logging calls inside FullscreenHtmlApiHandlerBase's existing request/dispatch branches, routed via the existing PiP controller with same-tab/live/normal-profile/YouTube checks. Both classes are existing chrome_java sources. Conditions, getter counts and exit policy remain unchanged. A actual logs establish move/suspend execution but not the request origin. Old apply paths are not valid for this expanded two-file selection; B remains separately deferred.
+ARCHITECTURE.md:277:Native→content diagnostic host preparation is isolated in prepare_content_diagnostic.py
+ARCHITECTURE.md:278:and content_diagnostic_graph.py. Product415/old helpers/manifests remain immutable.
+ARCHITECTURE.md:282:docs/versanium/content-diagnostic-host-preparation.md.
+ARCHITECTURE.md:285:SAME reviewed candidate source, never Default output artifacts or APK/signing.
+ARCHITECTURE.md:286:Source-only apply/verify precedes candidate analysis; separate receipt binds full
+DECISIONS.md:58:**Decision:** DeX/mobile zoom, F11 toolbar/certificate work, Titanium version-update work, and YouTube PiP diagnostics may exist as separate branch histories. Branch presence does not mean automatic integration into stable/main.
+DECISIONS.md:60:**Specific note:** YouTube PiP diagnostic work remains experimental unless explicitly integrated after review.
+DECISIONS.md:124:**Proposed change:** Use autoninja -j 6 for chrome_java and chrome_public_apk in recovery only. Scheduling is changed without changing GN inputs or cleaning incremental state. Six is an initial measured tuning candidate, not a promise of six-hour completion. Keep telemetry for comparison. Production remains blocked; Run 39624481319 is cancelled and a new Test dispatch requires user selection.
+DECISIONS.md:126:## 2026-10-23 — Propose 156 Test with explicit candidate and recovery separation
+DECISIONS.md:128:**Evidence:** Primary d64b78b and successful recovery Run39765620887 reuse the 155 tree from original source6e7517e. User confirmed F11 and persistent smartphone YouTube problems with working DeX. This was not a test of newly applied independent playback fixes. Official latest stable at work start is v156.0.8078.47.
+DECISIONS.md:130:**Review proposal:** Preserve upstream merge history/exact pins; adapt the zoom overlay's context to retain Chromium's newer CHECK. Add confirmed SAF backup/restore of absolute zoom values, retaining internal keys/migration marker and profile privacy. Add separately switchable, bounded YouTube-only PiP-attribute/background-visibility candidates and minimal non-content diagnostics. Keep these statuses distinct from build/device success.
+DECISIONS.md:134:**Remaining review blockers:** AndroidX package access and real preference UI/type validation, whole native/GN/renderer integration, inline PiP fullscreen limitations, native-vs-page pause diagnosis and actual Windows/WSL capacity. Notion/Project Sources need a verified refresh after reviewed integration, not before. A separate main documentation PR does not authorize code promotion or Release.
+DECISIONS.md:145:**Environment movement:** Restore only the candidate-owned PiP attribute; observed intervening site mutations revoke ownership even when the final value is again false. Restore still-owned detached elements before releasing references. Retain bounded attempts and opt-in/mobile-only changes.
+DECISIONS.md:164:## 2026-10-24 — Remove unsafe diagnostic probes; separate PiP exit investigation
+DECISIONS.md:166:Context v1.9 records successful manual156 build/sign/install and diagnostic-only crash loops. Real pinned MediaWebContentsObserver requires fullscreen_player_ and picture_in_picture_allowed_in_fullscreen_ for the permission getter; our unconditional diagnostic query violated that contract. Remove the probe rather than weakening CHECKs. No stack means user root cause remains unconfirmed. Make diagnostics passive Java stage logging, exclude it from both candidate gates and always disable page diagnostic instrumentation. Retain candidate DOM behavior that improved tab playback. Do not alter PiP dismissal/MediaSession without event-order evidence. Persisted diagnosis should no longer reach this hazard after a future compatible update; no data-deletion/reproduction request or tested recovery claim. Keep saved Run9 untouched; its narrow recovery gate must reject this wider change.
+DECISIONS.md:170:The completed Run9 output contains useful real156 work but predates four applied source changes. Do not relax or repurpose `prepare_run9.py`. Add a distinct read-only-first controller which authenticates the original ZIP, ebfc correction evidence, saved post-build provenance, exact source hashes, unchanged generated/JNI/GN inputs, toolchain and current graph. A future apply needs separate authorization and may alter only the four reviewed files with external backups/evidence. Require chrome_java and the two graph-derived native objects before any separately approved APK continuation. Saved output implies neither reuse nor completion. The next APK tests diagnostic crash removal and collects PiP event order; it is not a PiP-fix APK.
+DECISIONS.md:174:The b401856 host preflight exposed that selected-source testing had omitted the 11 patch.sh expiry edits before adding the three candidate records. Reject the resulting candidate-only293f hash as a pipeline expectation. Reproduce fixed HEADc155 → expiry-only47f → candidatesdc5 with exact patch.sh names/order and candidate formatting, then compare saved bytes directly. The reported real hash equals reproduceddc5, but cloud-side direct comparison is unavailable without the host file. Do not treat a newly observed digest as an allowlist or bypass provenance. The stopped preflight made no source/output change and does not authorize apply/build.
+DECISIONS.md:176:## 2026-10-24 — Video fullscreen rendering candidate (unbuilt)
+DECISIONS.md:178:Keep persisted default/site/environment values and backup formats. Restore upstream temporary zoom priority before environment lookup/save; temporary JNI adjustments must not persist. Render exponent0 only for outermost DOM fullscreen with a media fullscreen-player ID, preserving existing temporary entries. Re-evaluate on media fullscreen entry/exit and existing refresh. F11 alone is excluded and pause does not remove the override. Actual visual resolution/root cause and rotation/media ordering remain unverified; see docs/versanium/video-fullscreen-zoom-review.md. Prior diagnostic APK is user-confirmed working in diagnosis-only tests. Do not reuse/relax the four-file apply controller for this wider native change.
+DECISIONS.md:180:## 2026-10-24 — Preserve both PiP comparison outcomes; instrument existing branches
+DECISIONS.md:182:Candidate OFF is a blocked-entry observation; ON confirms entry then exit. The latter demonstrates a conditional eligibility/transition difference, superseding blanket "ineffective" interpretations. At +88ms the fixed50ms dismissal grace has elapsed, but old dismiss/stop logs precede real branch actions. Add actual branch and suspend-completion diagnostics, preserving getter counts/short circuit and all playback/exit rules. Do not ignore fullscreen6/7 or disable onStop based only on timing. Trace persistent-video, browser fullscreen origins and renderer effective state as hypotheses; no causal stack is present. Retain video zoom work and report its not-yet-built status separately.
+DECISIONS.md:194:User A logs establish OFF video permission denial and ON reason6 move success/cleanup, later inactive7, returned SYSTEM suspend then media stop/framework exit. Update old execution uncertainty for this A trial only. Existing PiP guard is conditional multiwindow behavior, not a global protection. Add fixed same-tab safe labels at actual Base handler request/dispatch sites to identify the first caller; preserve condition evaluation/getter counts and all exit/stop rules. No grace-only fix or blanket suppression without a transition/user-intent distinction. Do not treat persistent-video call return as renderer completion or new A logs as evidence for unapplied B. Restart/current display/candidate settings for new posts remain instructed rather than fully re-reported.
+DECISIONS.md:198:Add a new41-file selection (A40 plus Base) and independent explicit two-file apply controller. Require A applied.updated_provenance and after-apk equality/current reconstruction, not pre-A diagnostic inputs. Preserve original A helpers/manifests and B exclusion. Test fixed-source recipes, repeated/mismatched state and second-file failure without automatic rollback. Real chrome_java/NullAway then APK/signing remain later authorization gates, with a distinct ConfigAOrigin artifact and retained A distributions. Filtered origin-log absence never proves absence of the underlying event.
+DECISIONS.md:228:Preserve full log and brief-visible-PiP/audio-stop/no-crash/restart report.
+DECISIONS.md:234:document safe scoped native ingress/guard/context diagnostics and lifetime/JNI/
+DECISIONS.md:237:## 2026-10-25 — Adopt bounded EAM native diagnostics, defer content ingress
+DECISIONS.md:276:fullscreen/PiP cleanup fix is established. Prioritize ingress + persistent-false
+DECISIONS.md:277:dispatch only if another diagnostic is needed, with actual scoped content observer
+DECISIONS.md:287:MediaSession diagnostics or exit behavior change. Preserve old manifests/helpers;
+DECISIONS.md:323:warnings-as-errors=true overrides, after content candidate source-only apply and
+DECISIONS.md:329:## 2026-10-26: Applied candidate and bounded acquisition provenance audit
+DECISIONS.md:331:Accept user-reported candidate10 apply/verify PASS under7b60873 as latest host
+DECISIONS.md:362:## 2026-10-27 — Reconcile dead diagnostic labels in the current generator
+DECISIONS.md:366:current content/PiP native route and passive authorization boundaries. Current
+DECISIONS.md:389:Keep b69195c stage hooks and current content/PiP route intact; do not include
+DECISIONS.md:403:old saved tools/apply_youtube_candidates.py. Preserve current source, graph/args,
+DECISIONS.md:412:Candidate only after approval: saved out/Default via Siso/autoninja incremental
+PROJECT_STATUS.md:8:`next-test/156-zoom-transfer-pip`; branch/PR5 HEAD verified before docs edits,
+PROJECT_STATUS.md:30:a later step. Candidate then: current saved source + saved `out/Default`,
+PROJECT_STATUS.md:51:Repository tests99 PASS (previous95 plus4 context-menu regressions), source/PiP
+PROJECT_STATUS.md:54:User reports shard2 exit0/no warnings/errors/constant diagnostic/OOM and later
+PROJECT_STATUS.md:71:mobile/null1. Native/JNI, passive diagnostic gates, zoom/F11/identity/signing unchanged.
+PROJECT_STATUS.md:78:Local repository validation: selected source reproduction, diagnostic/decision
+PROJECT_STATUS.md:93:mobile,null and passive diagnostic/native scopes. Current source tests now
+PROJECT_STATUS.md:96:candidate DOM model37 PASS. These are NOT real Chromium NullAway/ErrorProne.
+PROJECT_STATUS.md:109:Latest host report (2026-10-26 JST): content candidate10 apply/verify PASS under
+PROJECT_STATUS.md:126:Default args/output/old helper gate unchanged. Candidate source-only apply/verify
+PROJECT_STATUS.md:127:must precede candidate analysis; no Native-only analysis may validate new code.
+PROJECT_STATUS.md:131:Latest product candidate: content ingress + cleanup persistent-false diagnostics
+PROJECT_STATUS.md:137:See content-fullscreen-diagnostic-review.md and content-diagnostic-host-preparation.md.
+PROJECT_STATUS.md:143:Latest Native device trial: Galaxy S23, diagnosis/background/PiP ON, restart
+PROJECT_STATUS.md:144:confirmed, brief PiP/audio stop/no crash. Full72-stage log saved. Actual EAM
+PROJECT_STATUS.md:150:See native-diagnostic-device-review-2026-10-25.md. No product/host changes or B.
+PROJECT_STATUS.md:153:android_clang_arm64, no compile at native-diagnostic-evidence-NQzDtk. Audit failed
+PROJECT_STATUS.md:159:Latest native preparation: standalone prepare_native_diagnostic.py and new
+PROJECT_STATUS.md:166:See native-diagnostic-build-preparation.md. No real-host apply/GN/compile.
+PROJECT_STATUS.md:168:Latest candidate (2026-10-25 JST): EAM JNI entry/controller selected-branch/
+PROJECT_STATUS.md:169:context-output native diagnostics and synchronous nesting depth implemented.
+PROJECT_STATUS.md:170:Normal non-shutdown profile, HTTPS exact YouTube, diagnosis ON and live actual
+PROJECT_STATUS.md:173:initial ingress remains deferred/unmeasured; not a PiP fix. See
+PROJECT_STATUS.md:176:Latest Forward② evidence (2026-10-25 JST): restart confirmed; PiP briefly
+PROJECT_STATUS.md:182:Native diagnostic scope/lifetime/JNI/target design documented; no product fix,
+PROJECT_STATUS.md:192:Latest candidate: AOriginForward adds wrapper-entry and existing Activity
+PROJECT_STATUS.md:196:and excludes B. New diagnostic does not establish the initial native caller;
+PROJECT_STATUS.md:201:no visible PiP, audio stopped, no crash. Framework entry precedes accepted exit
+PROJECT_STATUS.md:210:Latest ConfigA evidence: user reports A signed APK4cae4391…c18317, same certificate and actual Java/APK compile/install success. New A OFF log identifies video permission denial after active fullscreen passes, no entry; ON confirms reason6 moveTaskToBack(true) returned true, reason7 then inactive, SYSTEM suspend returned, media_stopped and framework exit. First fullscreen-exit requester is still unproven. Supplied A posts do not directly reconfirm all instructed conditions/restart/crash outcomes; do not inherit older APK outcomes as new evidence. Two-Java-file origin diagnostic candidate records existing Base handler request branches only, with current normal YouTube tab gates, no extra permission/eligibility queries or exit-policy changes. B remains unapplied; existing zoom work is preserved. See docs/versanium/config-a-pip-origin-review.md. No new build/apply authorized here.
+PROJECT_STATUS.md:216:Latest preparation: stage A selects installed60b zoom plus257b PiP branch diagnostics; stage B adds3452 video zoom only after A device logs. No branch rollback. Temporary selected-source assembly asserts exact one-file A and two-file B deltas and records hashes in docs/versanium/ab-selection-manifest.json. Real saved-tree comparison must start from actual diagnostic applied.json + after-apk-provenance.json; no real-host gate/application is claimed. See docs/versanium/ab-test-preparation.md. Prior restart is directly user-reported; future restart remains instruction until reported. No apply/build/Actions/GN/sync/merge/release.
+PROJECT_STATUS.md:218:Latest PiP comparison (2026-10-24 JST): installed Diagnostic APK, smartphone YouTube100%, diagnosis/background ON, restart after changes user-reported. PiP candidate OFF: audio continues/home but no PiP, attempt blocked/no entry in supplied log; tab playback/manual stop work. PiP candidate ON: framework entry confirmed, dismiss6 +88ms, dismiss7 +181ms, stop_suspend +328ms (pre-call only), framework exit +374ms; tab and inline-home playback continue, manual stop/crash safety retained in reports. Candidate effect is conditional and must not be called globally ineffective. Narrow branch-only instrumentation is added; dismissal/stop policy remains unchanged pending first-cause evidence. Video zoom candidate at3452edd is retained and still unbuilt; these earlier APK logs do not validate it. See [comparison](docs/versanium/pip-device-comparison-2026-10-24.md). No build or saved-tree apply is authorized.
+PROJECT_STATUS.md:220:Current 2026-10-24 JST follow-up: user checkpoint confirms Diagnostic APK d01c7633… built/signed/installed with the same certificate; diagnosis-only smartphone/DeX playback and restart show no crash in reported conditions. Video fullscreen size tracks page zoom with diagnosis ON/OFF and also in old Titanium F11 Test (corrected comparison). New zoom correction defers to temporary zoom, avoids saving temporary setter changes, and applies a rendering-only100% override for DOM fullscreen plus effective video, restoring current environment zoom on exit. It is NOT compiled/device-tested. See [video zoom review](docs/versanium/video-fullscreen-zoom-review.md). Prior unbuilt-diagnostics status below is historical. Neither saved Run9 nor the four-file diagnostic recovery helper is modified/reused. PiP remains unresolved; no build/Actions/merge/Release authorized by this update.
+PROJECT_STATUS.md:224:Last reviewed: 2026-10-24 JST (manual156 APK/device evidence; diagnostic CHECK hazard corrected, new APK unbuilt)
+PROJECT_STATUS.md:249:- relevant preserved branches include `feature/dex-mobile-zoom`, `feature/f11-toolbar`, `feature/youtube-pip`, and `update/titanium-155.0.8059.79`
+PROJECT_STATUS.md:304:- F11 toolbar/certificate diagnostic work is preserved
+PROJECT_STATUS.md:305:- YouTube PiP investigation remains a separate experimental history
+PROJECT_STATUS.md:314:- retain awareness of the Titanium/Chromium YouTube PiP issue during browser validation
+PROJECT_STATUS.md:350:Next: review/merge the recovery PR into migration/versanium; verify upstream/PiP awareness required by RULES before authorizing a new manual Test run. Dispatch the new branch revision with runner_provider=ideapad, f11_test_build=true, resume_ideapad=true. Never rerun Run #5. Review telemetry and validate the APK on Galaxy S23 and DeX. Refresh Notion/Project Sources after authoritative integration and reviewed synchronization settle; the October 19 Context is stale regarding IdeaPad and build state.
+PROJECT_STATUS.md:365:Run [39765620887](https://github.com/Nvoid911-Lab/Versanium/actions/runs/39765620887) is **success**, using the saved original 155 source through the IdeaPad recovery route. It did not reapply a new PiP fix. The user confirmed F11, smartphone YouTube PiP/tab-background failures and working DeX playback/PiP. Mobile/DeX zoom is in use; backup/restore is now required. APK binary inclusion has not been independently inspected.
+PROJECT_STATUS.md:367:A review branch `next-test/156-zoom-transfer-pip` proposes the official stable Titanium 156.0.8078.47 input, native patch adaptation, SAF zoom backup/restore, opt-in YouTube-only candidates/diagnostics and an isolated fresh IdeaPad tree with provenance. These are **implemented review candidates with limited local checks, not built or device-verified**. See [next-Test review](docs/versanium/next-test-156-review.md) for exact revisions, test scopes and the device matrix.
+PROJECT_STATUS.md:371:Outstanding before calling it build-ready: pinned AndroidX package access (network proxy HTTP403), actual SAF preference screen/type/lifecycle verification, complete JNI/native/GN integration checks where feasible, local Windows/WSL/account/capacity evidence, and review of the limited inline-PiP candidate. Main still has old Titanium-facing presentation; a separate documentation-only main PR is proposed without promoting code or releasing an APK.
+PROJECT_STATUS.md:378:The review branch now preserves legacy finite zoom values in backups, explicitly rejects numerically unsafe SAF restores without changing current data, and restores only owned PiP attributes across same-document display moves. The frame-wide native CHECK exception has been replaced by a dedicated fixed-payload JNI route; generic JavaScript APIs retain pinned upstream restrictions. Migration/root branch state remains unchanged pending PR5 review. Exact AndroidX snapshots, cloud403 classification, unverified SAF/native/device conditions and read-only build-host/ref/input steps are in the review report. PR6 remains a separate unmerged main presentation change. No Actions/build/Release/tag/main merge was performed.
+PROJECT_STATUS.md:395:## 2026-10-24 — Manual156 success and diagnostic crash blocker
+PROJECT_STATUS.md:397:User Context v1.9 sections17–18 report real object/APK incremental success, existing-key signing and S23 installation. Signed APK SHA256:87c5b11aea148856f13cc7aab46a5ac1d2b4a0590ae068c19a2e7a52fa5837cf. Run9 remains failure; no new Actions artifact. F11/zoom/backup/restart basics work. Diagnostics alone crashes mobile and DeX; background-only improves tab playback but PiP flashes/closes; PiP-only does not improve defaults. Earlier unbuilt/host-unverified statements above are historical. Data-clearing recovery prevents claiming untouched155 data migration success.
+PROJECT_STATUS.md:399:Static investigation found an unconditional diagnostic native permission getter whose observer CHECKs require a fullscreen player. This hazard is removed, but no crash stack confirms the user's root cause. Diagnosis now only logs existing controller stages; it cannot authorize candidate JNI/JS or result callbacks. Background candidate code remains unchanged. No speculative PiP exit/suspension fix is included. See [device review](docs/versanium/156-device-diagnostics-review.md) for evidence, tests and safe next comparison. New code is NOT built/device-tested. The old three-token Run9 recovery controller must not be used for this correction. No Actions, saved-tree apply, merge, Release or tag. External Notion/Project Sources updates are not claimed.
+PROJECT_STATUS.md:403:A separate read-only-first helper and [reviewable preparation](docs/versanium/next-test-diagnostic-build-preparation.md) now define how to compare the APK-completed saved Run9 tree with the diagnostic correction. Exact selected-source comparison identifies four changed applied files: PiP controller Java, TabImpl Java, RFH C++, and about_flags C++. The fixed payload header, WebContents JNI/API/implementation, BUILD.gn and flag metadata are unchanged and pinned by hash. Old `prepare_run9.py` remains unchanged and strict.
+PROJECT_STATUS.md:405:Real-host preflight has NOT run. It requires the original ZIP, prior ebfc applied evidence and an actual saved post-correction provenance JSON; it recomputes source/GN/toolchain provenance and derives the RFH/about_flags objects plus chrome_java from the saved graph. Future apply is explicit and separately authorized; future narrow gates are chrome_java then both actual C++ objects, with provenance before any separately approved APK continuation. PiP remains unresolved. No saved-tree mutation, build, Actions, merge, Release or tag occurred in this preparation.
+PROJECT_STATUS.md:407:The first real-host read-only attempt at controller b401856 stopped safely before mutation/compilation on flag-metadata hash drift. Investigation proved the old expected293f hash was from a selected-source fixture that skipped patch.sh's 11 expiry overrides and added only the three Versanium flags. Fixed HEADc155 → ordered expiry-only47f → exact candidate insertion now reproduces dc5, equal to the user-reported saved hash. The helper now derives and directly compares this pipeline; it does not allowlist the observed hash alone. Actual host bytes were not uploaded, so cloud evidence is exact generation plus SHA equality; the corrected host preflight remains pending.
+PROJECT_STATUS.md:414:see content-diagnostic-host-preparation.md JNI correction section.
+PROJECT_STATUS.md:422:2026-10-26 latest CIPD collection v2-5N3hJj user report: depot4be4e4628e093c4ad50210db5dcfa05a88280bda matches expected, tracked clean; central root chromium and3 exact package/subdir/instances found. Manifest sizes/hash correspond to reported actual jars. Primary LUCI iid/caspb/manifest sources confirm rawURLBase64(digest+tag02)=SHA256. New external receipt and isolated-output→GN-only steps in cipd-content-receipt-and-gn-preparation.md. Local consistency is not independent authenticity; actual receipt not run. Candidate58/Default/controller7b preserved; no output/GN/analysis.
+README.md:19:The recorded successful [155-series IdeaPad recovery run](https://github.com/Nvoid911-Lab/Versanium/actions/runs/39765620887) reused its preserved source. It does not contain the new 156-series candidates under review. Device testing confirmed F11, and continued YouTube PiP/background issues on the smartphone while DeX worked.
+RULES.md:33:- Feature/diagnostic histories may remain on dedicated branches until intentionally integrated.
+RULES.md:45:  - known Titanium/Chromium YouTube PiP behavior and any relevant fixes/regressions.
+docs/environment-zoom-integration-review.md:5:PiP、署名、Secrets、runner、main、feature/f11-toolbarは変更していない。
+docs/titanium-155.0.8059.79-update.md:44:取得範囲の変更はDEPSのみ。これにはズーム対象、関連Java/API/GN、PiP Controller、
+docs/versanium/156-device-diagnostics-review.md:7:Reported normal: branding/F11, environment zoom, export/import, restart persistence, displayed upstream version. Data deletion/reinstallation was used to recover the diagnosis crash; this does NOT demonstrate preservation during an untouched155 upgrade. Default mobile YouTube still fails PiP/tab playback; default DeX works. Diagnostics alone crashes both displays and loops on restart. PiP candidate alone (diagnostics OFF) has no improvement. Background candidate alone (diagnostics OFF) preserves tab playback, but home PiP appears then closes and playback stops. Fullscreen/inline, precise timing and exception/stack were not supplied. Do not infer them.
+docs/versanium/156-device-diagnostics-review.md:13:- [MediaWebContentsObserver](https://github.com/chromium/chromium/blob/1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775/content/browser/media/media_web_contents_observer.cc#L321) `IsPictureInPictureAllowedForFullscreenVideo()` requires UI thread and CHECKs `fullscreen_player_.has_value()` and `picture_in_picture_allowed_in_fullscreen_.has_value()`. Retrieved file SHA256 `28ec2033b17901278ecd73f5a09ac8f1956ab49eeec1582f716ec085d01196b8`.
+docs/versanium/156-device-diagnostics-review.md:14:- WebContentsImpl forwards the permission query to that observer. The upstream Java controller `canDoPictureInPicture` short-circuits on `hasActiveEffectivelyFullscreenVideo()` first. Our diagnostic string instead called the permission getter unconditionally, including auto_blocked/resume/exit events. No catch in Java can make a native CHECK safe.
+docs/versanium/156-device-diagnostics-review.md:15:- This establishes a reachable invalid diagnostic query, compatible with the report, **not the root cause of the user's crash without its CHECK/stack**. No new crash record was supplied or accessed. Other lifecycle/JS causes are not excluded by static review.
+docs/versanium/156-device-diagnostics-review.md:17:The correction removes fullscreen/permission, AppOps and recent-task probes from the logger. It records only stages already chosen by the controller and Activity inPiP/changing booleans. Existing initialized-library, HTTPS exact YouTube host, regular/live-tab/WebContents gates remain; destroyed/finishing Activity is rejected. No extra PiP decision calls, broad catch, native CHECK removal or playback command is added. Log format is a fixed `%s` with a fixed stage/boolean record, not page text. Existing UI controller hooks remain synchronous; no new worker or observer is introduced.
+docs/versanium/156-device-diagnostics-review.md:19:Diagnostics no longer authorizes TabImpl load/show/hide/environment candidate injection or the native scope. Candidate calls have a null result callback, removing diagnosis-only JSON callbacks and their asynchronous lifecycle. The compiled payload always receives diagnostics=false, including when candidates and diagnostics are both enabled, so diagnosis cannot wrap page pause(). Fixed-code JNI and both native frame/profile/flag gates remain; generic JavaScript permissions remain upstream. The background/PiP DOM implementation is byte-identical to ebfc81c. Its existing play/pause/visibility listeners remain candidate behavior, not enabled by diagnosis alone. No automatic play or additional observer is added. Environment listeners are registered only for an actual candidate.
+docs/versanium/156-device-diagnostics-review.md:21:Recovery direction: an eventual update with the same package/key can avoid the identified getter even if the diagnostics switch was persisted, without clearing data. This is an implementation property awaiting APK/device verification, not a tested recovery recipe. Do NOT ask the user to enable diagnosis on the currently installed affected APK, reproduce the loop, delete data or reinstall again.
+docs/versanium/156-device-diagnostics-review.md:23:## PiP flash/close is a separate unresolved path
+docs/versanium/156-device-diagnostics-review.md:25:Pinned controller source permits only active effectively fullscreen video plus video permission; clearing HTML disablePictureInPicture cannot satisfy those native conditions or Android permission/transition by itself. The user's fullscreen/inline state is unknown, so candidate C does not establish attribute execution/failure or a native-entry cause.
+docs/versanium/156-device-diagnostics-review.md:27:Background candidate alters playing-document hidden/visibility delivery; it does not keep native fullscreen or MediaSession/Activity alive. Source-defined exit routes include:
+docs/versanium/156-device-diagnostics-review.md:30:- `onResume()` clears suspend-on-stop and unconditionally exits the PiP session with resume reason0.
+docs/versanium/156-device-diagnostics-review.md:31:- `onEnteredPictureInPictureMode()` sets suspend-on-stop. Later `onStop()`, if that flag and playing are true, requests MediaSession SYSTEM suspension.
+docs/versanium/156-device-diagnostics-review.md:32:- `dismissActivityIfNeeded()` may defer by the minimum-exit interval, then move the task back/exit; screen-off path suspends media. `mediaStoppedPlaying()` updates auto-PiP/playing state but explicitly does not itself dismiss active PiP.
+docs/versanium/156-device-diagnostics-review.md:34:The current code logs decision/entry/exit/dismiss/stop_suspend stages. These distinguish an entry refusal from an entered session subsequently dismissed. They do not establish whether YouTube paused first, native fullscreen was lost first, or Android resumed/stopped first. No measured order/stack exists. Do not disable onStop suspension, force fullscreen, suppress all dismissal, resume manual pauses or add autoplay/play loops on this evidence. No PiP-exit behavior change is included in this correction.
+docs/versanium/156-device-diagnostics-review.md:38:- Exact156 + selectedVanadium/F11/zoom/SAF/PiP patch application PASS. Expected changed-anchor negative test emits a patch error. Generic JS body equality retained.
+docs/versanium/156-device-diagnostics-review.md:41:- Unchanged DOM candidate:37 model checks PASS; not real playback. Migration/recovery39 tests PASS. Historical Run9 exact-patch test now explicitly uses controllerebfc81c, not future incompatible changes.
+docs/versanium/156-device-diagnostics-review.md:48:Keep diagnosis OFF for normal acceptance first. Compare defaults vs background-only on the same video, recording mobile/DeX and inline/fullscreen explicitly; test tab switch and home separately, plus manual pause (must stay paused). Check F11, zoom/backup/restart, Twitch, private and same-document mobile→DeX→mobile. PiP-only is a separate test, not all flags together.
+docs/versanium/156-device-diagnostics-review.md:50:Only after the corrected APK is built/reviewed and safe startup is established, optionally collect a short diagnostic-only sample; do not repeat on the affected APK. From an already working rish shell, `logcat -b main -v threadtime -s cr_VersaniumPiP:I VersaniumPiP:I '*:S'` displays only our stage records (Chromium Log adds the cr_ prefix). Record the brief interval from home to exit and stop collection. Share only stage/boolean lines and the explicit test conditions; no URL/title/Cookie/config dump. Existing crash evidence, if already available, should be restricted locally to exception/CHECK and relevant stack with account/URL/path details removed. No broad log dump or new unsafe reproduction is required. This logging procedure is not device-verified.
+docs/versanium/ab-pipeline-coverage-review.md:13:(line248), MIXED profile changes (255–256) → zoom overlay → YouTube candidates →
+docs/versanium/ab-pipeline-coverage-review.md:46:It contains both the inherited live-context function and the zoom candidate.
+docs/versanium/ab-pipeline-coverage-review.md:58:PiP controller Java, A→B only host_zoom_map_impl.cc and web_contents_impl.cc.
+docs/versanium/ab-selection-manifest.json:21:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/ab-selection-manifest.json:31:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "a75358c25f758ecd385fb8d5148900378af46ad838eb634f165122897a6daa65",
+docs/versanium/ab-selection-manifest.json:63:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/ab-selection-manifest.json:73:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "5e485b0002d6d78b05e8ebb2c24e9f9b61406bc4833ba925528a02a62ef592a4",
+docs/versanium/ab-selection-manifest.json:105:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/ab-selection-manifest.json:115:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "5e485b0002d6d78b05e8ebb2c24e9f9b61406bc4833ba925528a02a62ef592a4",
+docs/versanium/ab-selection-manifest.json:135:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java"
+docs/versanium/ab-test-preparation.md:14:| installed |60b00375def663584dfd5c6fd249d25498eeafb2, actual Run9 applied record| Diagnostic APK d01c7633 baseline | Already user-built |
+docs/versanium/ab-test-preparation.md:15:| A | installed product + diagnostics.patch from257b37413ef119e249d9d903b8712af5ba919b7b; retain60b zoom patch | First-blocked reason / entered-then-exited sequence | chrome_java |
+docs/versanium/ab-test-preparation.md:21:Baseline metadata is reproduced using the authenticated actual expiry/candidate
+docs/versanium/ab-test-preparation.md:28:Start from the actual four-file diagnostic `applied.json` and
+docs/versanium/ab-test-preparation.md:74:A first: match installed Diagnostic APK, phone/YouTube100%, diagnosis/background
+docs/versanium/ab-test-preparation.md:75:ON, compare PiP candidate OFF then ON. Record first failed branch vs confirmed
+docs/versanium/ab-test-preparation.md:79:Do not call PiP fixed or video sizing verified before device evidence.
+docs/versanium/changed-files.tsv:14:synchronization	docs/youtube-pip-investigation.md
+docs/versanium/cipd-collector-large-record-review.md:256:  sel=json.loads(Path('docs/versanium/content-fullscreen-diagnostic-selection.json').read_text())
+docs/versanium/cipd-collector-large-record-review.md:291:Default/args, candidate58,3 future argument overrides and future isolated analysis
+docs/versanium/cipd-content-receipt-and-gn-preparation.md:6:resolved by that HOST report, not by a locally executed collector. Candidate58
+docs/versanium/cipd-content-receipt-and-gn-preparation.md:119:backing VHD location, RAM and idle status. Full candidate58/provenance, processor
+docs/versanium/config-a-apply.md:9:unchanged. The base is the installed diagnostic four-file correction, not the
+docs/versanium/config-a-apply.md:10:original unpatched Run9. A changes only PiP controller Java; B is unavailable in
+docs/versanium/config-a-apply.md:13:The source recipe uses fixed saved Chromium HEAD Java, applies the60b diagnostic
+docs/versanium/config-a-apply.md:15:257b selected diagnostic patch. It requires the resulting A hash in the reviewed
+docs/versanium/config-a-apply.md:20:with diagnostic applied.post_update_provenance and after-apk record, original
+docs/versanium/config-a-apply.md:38:directory below is the user-confirmed diagnostic build evidence.
+docs/versanium/config-a-apply.md:43:RUN9_BASE='/home/takuma/versanium/diagnostic-preflight-7f6a921-8mZuLC'
+docs/versanium/config-a-apply.md:87:installed Diagnostic signed APK and its evidence outside generated output.
+docs/versanium/config-a-apply.md:91:with correct SCRIPT_DIR/$0 as in the successful diagnostic signing procedure.
+docs/versanium/config-a-apply.md:101:remain user evidence. Capture PiP candidate OFF vs ON separately with diagnosis/
+docs/versanium/config-a-apply.md:103:site safety. PiP remains unresolved. B must wait for A logs and a new reviewed
+docs/versanium/config-a-origin-apply.md:17:| PiP controller Java |5e485b0002d6d78b05e8ebb2c24e9f9b61406bc4833ba925528a02a62ef592a4|ad3efea4a6b741de0816240ac87c4f0784dd4b1fb77c396be9ad67f4822366b7|
+docs/versanium/config-a-origin-apply.md:21:fixed Chromium HEAD in scratch. It applies257b diagnostic patch to reproduce A
+docs/versanium/config-a-origin-apply.md:22:controller, then reconstructs with5faa diagnostic patch and exact5faa Base
+docs/versanium/config-a-origin-apply.md:114:   under the NEW origin evidence. Never overwrite ConfigA or previous Diagnostic
+docs/versanium/config-a-origin-apply.md:127:On the future reviewed APK, first check safe normal launch. Compare known① PiP
+docs/versanium/config-a-origin-apply.md:128:candidate OFF and② ON separately, diagnosis/background ON, phone YouTube100%,
+docs/versanium/config-a-origin-apply.md:138:not. Same-tab/normal/HTTPS/YouTube/null/teardown filters can suppress records:
+docs/versanium/config-a-origin-apply.md:141:even with local labels; do not assert PiP fixed or ignore all fullscreen exits.
+docs/versanium/config-a-origin-forward-apply.md:21:in scratch,257b and5faa diagnostics and Base transform reproduce the baseline
+docs/versanium/config-a-origin-forward-apply.md:83:   current idle/capacity/graph state. Preserve previous signed AOrigin/A/Diagnostic
+docs/versanium/config-a-origin-forward-apply.md:107:   Require absent destination; retain AOrigin/A/Diagnostic. Existing apksigner
+docs/versanium/config-a-origin-forward-manifest.json:12:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "ad3efea4a6b741de0816240ac87c4f0784dd4b1fb77c396be9ad67f4822366b7",
+docs/versanium/config-a-origin-forward-manifest.json:34:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/config-a-origin-forward-manifest.json:57:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "86911a7b454877bdabea1a836d03b0524b6b54772bde24fdcd6be5080c3f1993",
+docs/versanium/config-a-origin-forward-manifest.json:79:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/config-a-origin-forward-native-manifest.json:3:    "chrome/browser/ui/exclusive_access/versanium_fullscreen_diagnostic_scope.h"
+docs/versanium/config-a-origin-forward-native-manifest.json:14:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "86911a7b454877bdabea1a836d03b0524b6b54772bde24fdcd6be5080c3f1993",
+docs/versanium/config-a-origin-forward-native-manifest.json:43:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/config-a-origin-forward-native-manifest.json:66:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "86911a7b454877bdabea1a836d03b0524b6b54772bde24fdcd6be5080c3f1993",
+docs/versanium/config-a-origin-forward-native-manifest.json:79:      "chrome/browser/ui/exclusive_access/versanium_fullscreen_diagnostic_scope.h": "581a8b3bf62ac58cb2cfb9cc6c8620cb0dcf0bca1f7f84bcdc4b3f7cc532553e",
+docs/versanium/config-a-origin-forward-native-manifest.json:96:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/config-a-origin-forward-native-review.md:1:# EAM native diagnostic implementation — 2026-10-25 JST
+docs/versanium/config-a-origin-forward-native-review.md:4:native-diagnostic-device-review-2026-10-25.md with complete log. This trial confirms
+docs/versanium/config-a-origin-forward-native-review.md:15:native-diagnostic-build-preparation.md: independent source-only transaction
+docs/versanium/config-a-origin-forward-native-review.md:22:branches, and synchronous reentry. This is diagnosis, not a PiP fix. Initial
+docs/versanium/config-a-origin-forward-native-review.md:24:Forward② full log and reported brief-PiP/audio-stop/no-crash/restart remain in
+docs/versanium/config-a-origin-forward-native-review.md:33:their manifests are unchanged and cannot apply this candidate.
+docs/versanium/config-a-origin-forward-native-review.md:37:- generic ExclusiveAccessContext interface: default no-op diagnostic hook;
+docs/versanium/config-a-origin-forward-native-review.md:87:It also gates diagnostic switch, normal non-shutdown BrowserContext and HTTPS
+docs/versanium/config-a-origin-forward-native-review.md:88:exact youtube.com/www.youtube.com/m.youtube.com before crossing JNI. These are
+docs/versanium/config-a-origin-forward-native-review.md:89:privacy/scope checks, not re-execution of PiP eligibility or fullscreen permission.
+docs/versanium/config-a-origin-forward-native-review.md:95:profile and HTTPS exact allowed YouTube. No new eligibility/permission getter,
+docs/versanium/config-a-origin-forward-native-review.md:109:sWebContentsMap. The diagnostic does not construct a substitute wrapper; null
+docs/versanium/config-a-origin-forward-native-review.md:136:generic WebContentsDelegate/observer diagnostic hook, implemented at Android
+docs/versanium/config-a-origin-forward-native-review.md:142:claiming the current candidate identifies every initial request.
+docs/versanium/config-a-origin-forward-native-review.md:144:Current candidate is sufficient to test EAM JNI entry, guard branch and nesting
+docs/versanium/config-a-origin-forward-review.md:1:# AOriginForward diagnostic candidate — 2026-10-24 JST
+docs/versanium/config-a-origin-forward-review.md:19:- FullscreenVideoPictureInPictureController: tab-only reporting bridge. It checks
+docs/versanium/config-a-origin-forward-review.md:21:  identical, and calls the existing scoped diagnostic logger. No Activity is
+docs/versanium/config-a-origin-forward-review.md:25:  The existing logger still gates diagnostic flag/library/activity teardown/live
+docs/versanium/config-a-origin-forward-review.md:26:  WebContents/normal profile/HTTPS exact YouTube. It logs no page-derived string.
+docs/versanium/config-a-origin-forward-review.md:32:It still contains the separately reviewed B candidate in the branch: **do not
+docs/versanium/config-a-origin-forward-review.md:44:## What the next diagnostic could distinguish
+docs/versanium/config-a-origin-forward-review.md:70:|RenderFrameHostImpl::ExitFullscreen before actual delegate call|renderer_api_exit|Actual originating frame must be live, current primary main frame, normal context, HTTPS exact YouTube and diagnostic enabled. No permission getter/CHECK changes. Compile saved graph's render_frame_host_impl.o in //content/browser:browser first.|
+docs/versanium/config-a-origin-forward-review.md:76:YouTube/flag gates. Avoid global mutable origin state across nested delegate
+docs/versanium/config-a-origin-forward-review.md:90:Removing diagnostic calls/bridge restores exact original bytes. Repeated and
+docs/versanium/config-a-origin-forward-review.md:101:Existing AOrigin/Run9/diagnostic/A apply helpers and B product patch are unchanged.
+docs/versanium/config-a-origin-forward2-review.md:3:User directly confirms settings-change restart; visible result: **PiP briefly
+docs/versanium/config-a-origin-forward2-review.md:5:no-visible-PiP result. Complete supplied log, without normalization, is
+docs/versanium/config-a-origin-forward2-review.md:46:Selected Vanadium patches and current PiP transforms do not modify the EAM
+docs/versanium/config-a-origin-forward2-review.md:91:### PiP guard versus persistent-video processing
+docs/versanium/config-a-origin-forward2-review.md:93:Base's multiwindow PiP guard is inside edge-to-edge-on-2D AND **!EAM feature**.
+docs/versanium/config-a-origin-forward2-review.md:94:Its comment explicitly covers fullscreen→PiP. EAM observed enabled means that
+docs/versanium/config-a-origin-forward2-review.md:101:Android PiP/persistent-video state before cleanup. This is a possible policy
+docs/versanium/config-a-origin-forward2-review.md:102:interaction, not proof that an unconditional PiP guard belongs there: genuine
+docs/versanium/config-a-origin-forward2-review.md:108:PiP requires/stays fullscreen and preserves current fullscreen on persistent
+docs/versanium/config-a-origin-forward2-review.md:112:PiP entry itself should end fullscreen. Page/renderer API, browser cleanup or
+docs/versanium/config-a-origin-forward2-review.md:124:|A specific browser PiP-transition-only cleanup initiates the first exit|Guard only that caller/transition, retaining explicit/security/tab-close exits|Must distinguish initiating call from recursive notification and test move/back/return, manual exit, DeX|
+docs/versanium/config-a-origin-forward2-review.md:125:|Renderer API ingress initiates the exit|Investigate document/fullscreen/persistent transition; possibly narrow candidate behavior there|A real page exit is not safely suppressible solely because domain is YouTube|
+docs/versanium/config-a-origin-forward2-review.md:130:background candidate's tab playback, explicit pause, DeX and other sites; B is
+docs/versanium/config-a-origin-forward2-review.md:131:not selected and no common zoom/PiP cause is established.
+docs/versanium/config-a-origin-forward2-review.md:138:HTTPS exact allowed YouTube, diagnosis flag, and matching live current Java tab.
+docs/versanium/config-a-origin-forward2-review.md:156:JNI design candidate: typed fixed integer enum and actual Java WebContents
+docs/versanium/config-a-origin-forward2-review.md:157:reference, native→Java synchronous static diagnostic reporter in existing
+docs/versanium/config-a-origin-manifest.json:21:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/config-a-origin-manifest.json:31:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "5e485b0002d6d78b05e8ebb2c24e9f9b61406bc4833ba925528a02a62ef592a4",
+docs/versanium/config-a-origin-manifest.json:64:      "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/config-a-origin-manifest.json:74:      "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "ad3efea4a6b741de0816240ac87c4f0784dd4b1fb77c396be9ad67f4822366b7",
+docs/versanium/config-a-origin2-review.md:4:result: **no visible PiP, audio stopped, no crash**. This is compatible with an
+docs/versanium/config-a-origin2-review.md:5:Android framework PiP entry callback followed by a short exit; framework entry
+docs/versanium/config-a-origin2-review.md:57:the scoped logger also gates controller/activity/library/HTTPS YouTube/diagnosis.
+docs/versanium/config-a-origin2-review.md:61:## Narrow next diagnostic proposal (not applied or built)
+docs/versanium/config-a-origin2-review.md:79:A browser-generated PiP transition exit might eventually be distinguished from
+docs/versanium/config-a-pip-origin-review.md:1:# Configuration A PiP origin investigation — 2026-10-24 JST
+docs/versanium/config-a-pip-origin-review.md:11:The user confirms all-flags-OFF launch/playback, with tab stopping, absent PiP
+docs/versanium/config-a-pip-origin-review.md:12:and zoom-linked video size still present. A includes no B zoom candidate.
+docs/versanium/config-a-pip-origin-review.md:14:For the two new log posts, smartphone/YouTube100%, diagnosis/background ON and
+docs/versanium/config-a-pip-origin-review.md:18:Earlier Diagnostic APK's directly reported outcomes/restarts remain separate
+docs/versanium/config-a-pip-origin-review.md:20:the logs. Full supplied stage logs are retained in `config-a-pip-device.log`.
+docs/versanium/config-a-pip-origin-review.md:22:### ① PiP candidate OFF: video permission failure, not no fullscreen
+docs/versanium/config-a-pip-origin-review.md:26:active-effectively-fullscreen passed and the fullscreen-video PiP permission
+docs/versanium/config-a-pip-origin-review.md:29:not an entered PiP being closed. HTML disablePictureInPicture, candidate execution,
+docs/versanium/config-a-pip-origin-review.md:32:### ② PiP candidate ON: real exit action and real SYSTEM suspend call
+docs/versanium/config-a-pip-origin-review.md:57:the same request without distinguishing user exit from PiP transition. Candidate
+docs/versanium/config-a-pip-origin-review.md:67:- `ChromeActivity.onPictureInPictureModeChanged(true)` invokes the PiP controller.
+docs/versanium/config-a-pip-origin-review.md:78:  persistent mode or notify-on-next-exit warrants it. The PiP observer then
+docs/versanium/config-a-pip-origin-review.md:89:- Existing multiwindow PiP guard runs only inside
+docs/versanium/config-a-pip-origin-review.md:92:  !Activity.isInPictureInPictureMode(), previous !multiwindow and incoming
+docs/versanium/config-a-pip-origin-review.md:95:  are not known from supplied stage logs or candidate settings.
+docs/versanium/config-a-pip-origin-review.md:97:  the permission/active state is already false when dismiss6 updates auto-PiP
+docs/versanium/config-a-pip-origin-review.md:103:The first request source is still unproven. A normal PiP-induced layout change,
+docs/versanium/config-a-pip-origin-review.md:104:YouTube response and real user/navigation/lifecycle exit cannot yet be safely
+docs/versanium/config-a-pip-origin-review.md:108:## Limited diagnostic candidate: fixed source labels at real request sites
+docs/versanium/config-a-pip-origin-review.md:120:request. The callback marker alone does not. No extra feature/PiP/permission
+docs/versanium/config-a-pip-origin-review.md:125:The PiP controller provides a static bridge used by the existing Base class.
+docs/versanium/config-a-pip-origin-review.md:128:YouTube logger. Null/mismatched/private/destroyed tabs safely emit nothing.
+docs/versanium/config-a-pip-origin-review.md:140:in this diagnostic candidate; the prior unbuilt B native changes remain in the
+docs/versanium/config-a-pip-origin-review.md:145:PiP controller
+docs/versanium/config-a-pip-origin-review.md:163:only the origin diagnostic: all39 non-controller inputs from manifest A matched,
+docs/versanium/config-a-pip-origin-review.md:168:integration or device success of the new origin candidate.
+docs/versanium/config-a-pip-origin-review.md:173:used for this new two-Java-file origin diagnostic. Before any separately
+docs/versanium/content-diagnostic-host-preparation.md:5:first content ingress and persistent-false diagnostics, NOT a PiP fix. B/video
+docs/versanium/content-diagnostic-host-preparation.md:19:`source-applied.json` is in native-diagnostic-evidence-NQzDtk. Graph, APK
+docs/versanium/content-diagnostic-host-preparation.md:43:  git -C "$CONTENT_CONTROL" fetch --no-tags https://github.com/Nvoid911-Lab/Versanium.git next-test/156-zoom-transfer-pip
+docs/versanium/content-diagnostic-host-preparation.md:47:  PYTHONDONTWRITEBYTECODE=1 python3 "$CONTENT_CONTROL/tools/versanium/prepare_content_diagnostic.py" \
+docs/versanium/content-diagnostic-host-preparation.md:50:    --native-source-record /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/source-applied.json \
+docs/versanium/content-diagnostic-host-preparation.md:51:    --build-evidence /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/graph-reaudit-ZFshuZ \
+docs/versanium/content-diagnostic-host-preparation.md:52:    --signed-apk /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/signed-test/Versanium-156.0.8078.47_Test_ConfigAOriginForwardNative.apk \
+docs/versanium/content-diagnostic-host-preparation.md:181:in `toolchain.ninja`. The helper now checks all these together, unique candidate,
+docs/versanium/content-diagnostic-host-preparation.md:195:ambiguous candidates, duplicate decoded outputs, missing native/Java dependency
+docs/versanium/content-diagnostic-host-preparation.md:281:evidence must match the final candidate. No output generation or build performed.
+docs/versanium/content-diagnostic-host-preparation.md:284:## Candidate already applied (2026-10-26 JST)
+docs/versanium/content-fullscreen-diagnostic-review.md:1:# Content ingress / persistent-false diagnostic product — 2026-10-25 JST
+docs/versanium/content-fullscreen-diagnostic-review.md:5:Native device evidence/full log remains in native-diagnostic-device-review-2026-10-25.md.
+docs/versanium/content-fullscreen-diagnostic-review.md:7:content-diagnostic-host-preparation.md for exact record linkage and new independent
+docs/versanium/content-fullscreen-diagnostic-review.md:17:The existing PiP observer matches its actual super.getWebContents() to the
+docs/versanium/content-fullscreen-diagnostic-review.md:29:|cleanup_false_request / cleanup_false_returned|Stored PiP leave callback called setHasPersistentVideo(false) for current live contents. Return is not renderer completion.|
+docs/versanium/content-fullscreen-diagnostic-review.md:43:  diagnostic switch, normal non-shutdown BrowserContext, live active primary
+docs/versanium/content-fullscreen-diagnostic-review.md:44:  main frame and HTTPS exact youtube.com/www.youtube.com/m.youtube.com.
+docs/versanium/content-fullscreen-diagnostic-review.md:45:  These are privacy/liveness scope checks, not PiP permission/eligibility.
+docs/versanium/content-fullscreen-diagnostic-review.md:53:  live Activity/WebContents, HTTPS YouTube/diagnosis/native-library gates.
+docs/versanium/content-fullscreen-diagnostic-review.md:62:  asynchronously. Existing PiP cleanup keeps its original captured WebContents;
+docs/versanium/content-fullscreen-diagnostic-review.md:71:  Java_WebContentsObserverProxy_versaniumContentFullscreenDiagnostic(JNIEnv*,
+docs/versanium/content-fullscreen-diagnostic-review.md:87:|renderer_api_enter before dispatch/EAM|Trace the renderer/fullscreen transition or site-request handling; possibly a caller-specific candidate adjustment|Cannot generally reject genuine page/user exit or bypass permission|
+docs/versanium/content-fullscreen-diagnostic-review.md:100:candidate and should not be inferred from stopped notifications.
+docs/versanium/content-fullscreen-diagnostic-review.md:104:New content-fullscreen-diagnostic-selection.json describes10 before/after file
+docs/versanium/content-fullscreen-diagnostic-selection.json:3:    "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "4933a796e052de59ba56308be78948e472ec73e221efdd3ad29c7a433a55e7e7",
+docs/versanium/content-fullscreen-diagnostic-selection.json:16:    "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": "86911a7b454877bdabea1a836d03b0524b6b54772bde24fdcd6be5080c3f1993",
+docs/versanium/content-fullscreen-diagnostic-selection.json:45:    "chrome/browser/ui/exclusive_access/versanium_fullscreen_diagnostic_scope.h": "581a8b3bf62ac58cb2cfb9cc6c8620cb0dcf0bca1f7f84bcdc4b3f7cc532553e",
+docs/versanium/content-fullscreen-diagnostic-selection.json:61:    "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+docs/versanium/ideapad-recovery.md:13:Before dispatch, review/approve this change, complete the upstream/PiP review required by RULES, and start the existing IdeaPad runner. This change itself does not dispatch a build. The preserved original repository must still be at 6e7517e6de89e5a1230cebf906470795112466a3; do not git pull it. The workflow checks out new control code in its own child directory. Keep the terminal open and the PC awake during the authorized run.
+docs/versanium/migration-report.md:19:- Lab PiP diagnostics: `33a7f9b3d9e5d72e8df27920d6f99523ace2d963` (separate experimental branch).
+docs/versanium/migration-report.md:22:merges of the stable update and latest F11 certificate diagnostics. No conflicts.
+docs/versanium/migration-report.md:24:PiP diagnostics are preserved as a separate branch, not silently made part of stable branding.
+docs/versanium/migration-report.md:32:Primary received the Lab F11, zoom, update, and PiP branch heads by normal fast-forward/new-ref pushes.
+docs/versanium/migration-report.md:80:- Certificate diagnostic console heading uses Versanium; its key/certificate logic is unchanged.
+docs/versanium/migration-report.md:96:- Existing historical build/review/PiP records and their original repository/run references.
+docs/versanium/migration-report.md:122:Only a console heading changed in the certificate diagnostic inherited from the latest Lab commit.
+docs/versanium/migration-report.md:130:lifecycle/reentry protections and native patches are retained. No PiP behavior change was added.
+docs/versanium/native-diagnostic-build-preparation.md:4:exit0 at native-diagnostic-evidence-NQzDtk; no compilation. Post-GN parser failed
+docs/versanium/native-diagnostic-build-preparation.md:22:New prepare_native_diagnostic.py imports NO historical apply/preflight helper.
+docs/versanium/native-diagnostic-build-preparation.md:52:RUN9_NATIVE_EVIDENCE=$(mktemp -d /home/takuma/versanium/native-diagnostic-evidence-XXXXXX)
+docs/versanium/native-diagnostic-build-preparation.md:53:python3 "$RUN9_CONTROL/tools/versanium/prepare_native_diagnostic.py" \
+docs/versanium/native-diagnostic-build-preparation.md:187:|6|Existing key signing|Unchanged reviewed common.sh flow, same Test identity/certificate, new external Test_ConfigAOriginForwardNative APK name; preserve Forward/AOrigin/A/Diagnostic distributions.|
+docs/versanium/native-diagnostic-build-preparation.md:205:a PiP fix. B remains separate and unselected. Model/fixture/JNI generation are
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:4:content-fullscreen-diagnostic-review.md. It is not applied/built on saved Native;
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:7:User conditions: Galaxy S23, Native configuration, diagnosis/background/PiP
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:8:candidates ON, browser restart after settings directly confirmed. Visible result:
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:9:**PiP briefly displayed, audio stopped, no crash.** Complete supplied72 stage
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:10:lines plus header are retained in native-diagnostic-device-2026-10-25.log.
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:48:Chromium pin1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775. Native diagnostic
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:59:one native caller; the current diagnostic has no content-side ingress marker.
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:60:Multiwindow callback alone is not an exit request. The selected Base PiP guard
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:96:### From accepted fullscreen exit to early PiP cleanup
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:99:dismissActivityIfNeeded immediately invokes onExitedPictureInPicture(reason),
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:100:even though the framework exit callback arrives much later. Active app-side PiP
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:115:Blink HTMLVideoElement changes is_auto_picture_in_picture_, persistent CSS and
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:116:player display state. GetDisplayType gives video PiP while the auto-PiP bit is
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:117:true. Clearing it can remove the renderer's PiP exception. WebMediaPlayerImpl's
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:123:frame-hidden explicit-pause condition BEFORE its video-PiP exception; PiP is
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:128:JS background candidate visibility masking does not change native page visibility,
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:142:There is a concrete policy interaction: renderer/Android PiP retaining fullscreen
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:144:The code intentionally treats fullscreen exit as PiP cancellation. EAM's
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:153:|Candidate|Evidence / decision|
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:155:|Guard a proven browser-generated PiP transition exit at its origin|Potentially narrow and useful, but that origin has not been identified. Retain genuine user/security/tab-close exits.|
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:162:separate, unapplied candidate with no established shared cause.
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:164:## Smallest useful NEXT diagnostic scope, before authorizing another APK
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:167:candidate would answer two specific remaining questions:
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:180:→Java observer→existing current-tab scoped PiP reporter. Fixed pin contains
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:188:normal non-shutdown profile, HTTPS exact YouTube and diagnosis flag at both ends.
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:194:false requested vs no fullscreen player. Still cannot identify exact YouTube JS
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:196:proves actionable, evaluate a narrow fix BEFORE adding media diagnostics.
+docs/versanium/native-diagnostic-device-review-2026-10-25.md:229:APK result. Native diagnostic execution on device is user evidence; signed APK
+docs/versanium/native-graph-escape-reaudit.md:3:User-host evidence: `/home/takuma/versanium/native-diagnostic-evidence-NQzDtk`.
+docs/versanium/native-graph-escape-reaudit.md:42:4. native manifest, native product transform and prepare_native_diagnostic.py
+docs/versanium/native-graph-escape-reaudit.md:64:RUN9_NATIVE_EVIDENCE='/home/takuma/versanium/native-diagnostic-evidence-NQzDtk'
+docs/versanium/native-graph-escape-reaudit.md:91:Compiler and PiP result remain unverified. No saved-source/GN change, build,
+docs/versanium/next-test-156-review.md:4:Status: **candidates implemented; limited local validation; NOT built or device-verified**. Review target is migration/versanium through a feature PR. No Actions dispatch/rerun, production Release/tag or main merge is authorized/performed.
+docs/versanium/next-test-156-review.md:8:Read live Primary `Nvoid911-Lab/Versanium` integration `d64b78be40b15dee889c24c67ba689777e090ca7`, PROJECT_STATUS/RULES/ARCHITECTURE/DECISIONS, historical migration and PiP investigations and recovery code. Secondary is `Nvoid911/Versanium`. Its prior integration `8a9c9e9ab37c88c0eedab2f151f96907eabc2583` is an ancestor of Primary, not independent development. Main refs remain out of scope. No accessible Notion/Project Sources tool or local snapshot was available; their contents/agreements have not been invented or marked refreshed.
+docs/versanium/next-test-156-review.md:10:Run https://github.com/Nvoid911-Lab/Versanium/actions/runs/39765620887 is completed/success. API jobs confirm `Resume preserved IdeaPad Test` and upload succeeded, while normal preflight/Build/staging were skipped. Run controller HEAD is d64b78b; check_resume.py requires original repository `6e7517e6de89e5a1230cebf906470795112466a3`, old Chromium/Vanadium inputs and patched HEAD prefix 8b1224debc. It does not fetch, patch or regenerate GN. Original 6e7517e contains investigation documentation, not the separate diagnostic apply step. `feature/youtube-pip` has diagnostics, not a playback fix. APK bytes were not inspected. Thus this successful 155 APK confirmed persistence of the original problem, NOT failure of an included independent repair candidate.
+docs/versanium/next-test-156-review.md:12:User device evidence: Galaxy S23 / Android16 / One UI8.5; F11 works; smartphone YouTube home/PiP and tab background playback fail; DeX works; separate zoom settings are in use. New import/export and candidates below have no device result yet.
+docs/versanium/next-test-156-review.md:24:## PiP: facts, hypotheses, implemented scope
+docs/versanium/next-test-156-review.md:26:Issue #335 rechecked: open, comments=0. Existing AutoPictureInPictureAndroid and capture feature overrides are already present. Existing patch.sh also disables IsBackgroundMediaSuspendEnabled via its renderer policy edit. These inherited broad policies are retained, not reintroduced as a new fix. They do not establish that YouTube permits PiP or that its page scripts will keep playing.
+docs/versanium/next-test-156-review.md:28:156's real FullscreenVideoPictureInPictureController still checks active effectively-fullscreen video, video PiP allowance, device PiP feature, Activity state and recent tasks before requesting Android PiP. F11 is not video fullscreen. An inline video can still fail the fullscreen gate. The failure condition on this device is unproven; flags alone do not prove resolution.
+docs/versanium/next-test-156-review.md:32:1. `versanium-youtube-pip-candidate`: normal top-level HTTPS youtube.com/www.youtube.com/m.youtube.com only; on mobile, remove the standard video's disablePictureInPicture suppression. Does not fake fullscreen, bypass Android permission or request autoplay. Repeated site reassertions are bounded to eight adjustments per video. Inline PiP is intentionally NOT claimed solved.
+docs/versanium/next-test-156-review.md:33:2. `versanium-youtube-background-candidate`: same site/main-document/private restrictions; on mobile only while a video is already playing, provide visible/hidden getters and suppress visibilitychange propagation. Paused/ended video returns the real visibility and is never resumed. No play() call, no resume loop, no autoplay/user-activation bypass. Unknown DOM descriptors retain baseline behavior. Changing to DeX turns the visibility override off through the actual Activity display bridge (independent of manual zoom classification); other sites are untouched.
+docs/versanium/next-test-156-review.md:34:3. `versanium-youtube-diagnostics`: controller decision bools, AppOps PiP mode, recent-task state and API enter true/false/exception; tab load/show/hide/environment stages with fixed booleans for applied candidate, paused/visibility observations. Raw script result strings are never logged. Private tabs are excluded. No URLs, titles, IDs, Cookie or config dump.
+docs/versanium/next-test-156-review.md:36:Background visibility masking can change YouTube's analytics, quality/resource decisions, battery use and any hidden-page housekeeping. Some page capture listeners may have registered before this load-complete injection; they can still run. Native MediaSession/renderer suspension may also remain a cause. The opt-in diagnostic also delegates the original video.pause method unchanged while noting method calls and user-activation state. A captured method call is evidence of a JS path, including possible user handlers; absence does NOT exclude earlier captured references or prove native suspension. No stack is recorded. More invasive document-start or native/MediaSession work requires evidence; this candidate does not claim those paths are fixed. PiP failure recovery remains Chromium's existing path, unchanged.
+docs/versanium/next-test-156-review.md:38:Brave source was re-fetched at fixed `46cfe58223924f363192475396dcb196ec29423d` (YouTubeScriptInjectorTabHelper and BraveFullscreenVideoPictureInPictureController). Its main-document controls and asynchronous fullscreen/Activity integration support the hypotheses but are substantially broader. Its files are MPL-2.0; copying them would require preserved notices and covered-source availability. No Brave implementation was copied; these small independent experiments use standard document/video APIs. Existing GPLv2/BSD/upstream notices remain.
+docs/versanium/next-test-156-review.md:42:The original 752eda5 review head permitted generic ExecuteJavaScript on eligible frames, including with diagnostics alone. That exception is removed. ExecuteJavaScript, CanExecuteJavaScript and WebContentsAndroid::EvaluateJavaScript bodies now match pristine pinned156 byte-for-byte; ExecuteJavaScriptMethod is untouched. The early marker check is also removed. A marker is neither authentication nor a permission mechanism.
+docs/versanium/next-test-156-review.md:44:The only new route is TabImpl.applyVersaniumYoutubeCandidate → WebContents.applyVersaniumYoutubeCandidate(boolean mobile, callback) → WebContentsImpl @NativeMethods → WebContentsAndroid::ApplyVersaniumYoutubeCandidate → RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate. Neither Java/JNI nor the native executor accepts script text. A generated, UTF16 fixed payload from the reviewed candidate.js is included by the Android RFH target, listed in content/browser/BUILD.gn, and hashed in provenance. Native code constructs only four boolean options; experiment switches are read natively, not taken from Java. Existing WebContentsImpl content_java / content_jni_headers sources already contain the modified Java file, so no additional JNI target or dependency cycle is introduced. The interface's default no-op keeps other implementations/test fakes compatible; the real WebContentsImpl overrides it.
+docs/versanium/next-test-156-review.md:46:Both entry and executor check a live, active, outermost normal-profile HTTPS youtube.com/www.youtube.com/m.youtube.com frame, initialized command line, non-shutdown profile and at least one explicit experiment flag. No frame initialization, process-wide JS permission, test API, user activation, autoplay exemption or arbitrary script parameter is used. Diagnostics alone runs only this same fixed diagnostic payload; it does not grant generic callers access. A detached/navigated/private/disabled request is dropped without invoking the generic CHECK. The script independently checks current top-document/host and does not play or force fullscreen. UI-thread execution and frame-specific IPC retain Chromium navigation semantics; actual navigation races/device behavior remain unverified.
+docs/versanium/next-test-156-review.md:50:### PiP attribute ownership on a same-document screen move
+docs/versanium/next-test-156-review.md:52:While playing on mobile, the candidate records the exact original reflected attribute before clearing it. On DeX or PiP-option disable it restores that exact value ONLY if the element still has the candidate's false/absent result and no intervening attribute mutation was observed. MutationObserver records, including pending true→false site writes before callback delivery, revoke ownership. Own writes drain only their own records. A later site-owned value is never restored from an older snapshot. Still-owned removed nodes are restored before their ownership references are released; attempt counts remain bounded per video/document. Missing observer or an element-specific property override causes safe no-op. A no-op site assignment that produces no DOM mutation expresses no observable value change; the candidate cannot infer that site's intention.
+docs/versanium/next-test-156-review.md:54:The same document mobile→DeX→mobile, site-owned true→false/changed attribute, option disable and detached element paths pass DOM-model tests. Actual video attributes, MutationObserver timing, PiP eligibility and Samsung Activity/display movement still require device comparison. This is a reversible suppression-attribute experiment, not an established repair for the original155 failure.
+docs/versanium/next-test-156-review.md:74:After fresh pinned fetch/hooks/patches and GN, build-provenance.json records repository and patched Chromium commits, exact upstream pins, actual Java/resource overlays, patch inputs, GN hash, extension index, DEPS, frozen depot_tools commit, GN version and clang binary hash. Depot self-update is disabled after dependency hooks and before GN/compilation. A separate artifact preserves it. Existing key generation/signing and Test identity stay unchanged. New IdeaPad builds retain the 20-hour IdeaPad timeout and compiles use -j6 initially, with validation of the numeric limit; this is a conservative tuning candidate, not an ETA or proof of current available memory.
+docs/versanium/next-test-156-review.md:85:- YouTube DOM-model checks 37 PASS: host/frame scope, independent flags, manual stop remains stopped, mobile→DeX fallback. This is not an actual YouTube/Chromium test.
+docs/versanium/next-test-156-review.md:86:- Exact-source selected integration: real 156 files + selected Vanadium hunks + zoom/SAF source/resource copies + F11 anchors + existing renderer policy + PiP hooks/flags PASS. Changed-anchor rejection still fails before writes as intended.
+docs/versanium/next-test-156-review.md:95:- No GN generation, full native compilation, APK link/install or real media/session testing. Features are review candidates, not confirmed fixes.
+docs/versanium/next-test-156-review.md:96:- Review the inline-video limitation and the background candidate's scope/impact, then gather minimal diagnostics to localize the remaining native-vs-site stop path.
+docs/versanium/next-test-156-review.md:99:## Minimal private diagnostic and device matrix
+docs/versanium/next-test-156-review.md:101:After review and a user-initiated Test build only, enable diagnostics and compare each candidate separately. In an existing rish shell (`whoami` returns shell), use:
+docs/versanium/next-test-156-review.md:104:logcat -v brief -T 1 -s VersaniumPiP:I VersaniumYT:I '*:S' > /sdcard/Download/Versanium-pip-diagnostic.log
+docs/versanium/next-test-156-review.md:107:While collecting, reproduce one controlled case, return to shell and press Ctrl+C. Share only the two named tags for that case plus your case label, with no broad logcat/dumpsys or page contents. Do not capture URLs/titles/accounts. No appOps/permission dump is needed; diagnostic mode is a small integer, and Android PiP permission is checked separately in Settings.
+docs/versanium/next-test-156-review.md:111:| YouTube home→PiP, inline video | compare baseline/PiP candidate | regression compare | new candidate unverified; fullscreen gate remains |
+docs/versanium/next-test-156-review.md:112:| YouTube home→PiP, video fullscreen | compare attributes/permission/decision/API | regression compare | unverified |
+docs/versanium/next-test-156-review.md:114:| YouTube tab switch | background flag off/on | regression compare | unverified |
+docs/versanium/next-test-156-review.md:116:| Screen move/recreation/private tabs | no mixed state or diagnostics in private | same | model/bridge partial; device unverified |
+docs/versanium/next-test-156-review.md:117:| Twitch home/tab/PiP | unchanged | unchanged | domain model passed; device unverified |
+docs/versanium/next-test-156-review.md:141:python tools/youtube_pip/tests/check_source_integration.py --source-tree /path/to/pristine-pinned-selected-files --output-dir /new/output/path
+docs/versanium/next-test-156-review.md:142:node tools/youtube_pip/tests/test_candidate.cjs
+docs/versanium/next-test-156-review.md:198:No dispatch is authorized now. After review, select Primary Nvoid911-Lab/Versanium → Versanium Build → ref `next-test/156-zoom-transfer-pip` at the reviewed final SHA. Do NOT select unchanged migration/versanium or main and expect these156 changes. For the prepared IdeaPad path use runner_provider=ideapad, resume_ideapad=false, f11_test_build=true. Label remains versanium-ideapad, Test identity remains io.github.nvoid911.versanium.test. If using an explicitly chosen cloud provider instead, choose its existing constrained provider label only after capacity/authorization checks; no fallback is automatic. VERSANIUM_RELEASE_APPROVED remains false; production remains Lab-only. The legacy default-main form caveat above still applies: if the selected-ref screen does not expose these exact inputs, STOP; do not dispatch to test it or edit runner labels ad hoc.
+docs/versanium/next-test-156-review.md:200:All candidate flags default off. After a future APK, compare baseline, diagnostics-only, PiP-only and background-only with browser restart; explicitly test mobile→DeX→mobile in one live document, site/manual pause, navigation/private tabs and Twitch. A single candidate-bearing APK can compare flags off/on; no candidate is a confirmed original-cause fix. Expected future artifact Versanium-Test / Versanium-156.0.8078.47_Test.apk is NOT generated here.
+docs/versanium/next-test-diagnostic-build-preparation.md:1:# Next Test diagnostic correction: preserved Run9 preparation
+docs/versanium/next-test-diagnostic-build-preparation.md:11:1. verify that the diagnostics-only startup/playback crash loop is no longer
+docs/versanium/next-test-diagnostic-build-preparation.md:13:2. collect the order of existing PiP controller stages when mobile PiP appears
+docs/versanium/next-test-diagnostic-build-preparation.md:16:It must not be described as a PiP fix. The background candidate's reported
+docs/versanium/next-test-diagnostic-build-preparation.md:18:change PiP exit, Activity stop/resume, MediaSession suspension, fullscreen
+docs/versanium/next-test-diagnostic-build-preparation.md:24:`156-device-diagnostics-review.md` for exact APK hashes and device results.
+docs/versanium/next-test-diagnostic-build-preparation.md:28:Applying pinned Chromium156 plus selected Vanadium/F11/zoom/PiP inputs at
+docs/versanium/next-test-diagnostic-build-preparation.md:34:| `chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java` | `ec5d0045...f91cb88` | `a75358c2...6daa65` | `chrome_java` |
+docs/versanium/next-test-diagnostic-build-preparation.md:58:`/home/takuma/versanium/diagnostic-preflight-b401856-A0I5mG`.
+docs/versanium/next-test-diagnostic-build-preparation.md:64:three candidate records but omitted patch.sh lines36–38. Thus `293f...` is the
+docs/versanium/next-test-diagnostic-build-preparation.md:65:fixed HEAD plus only three candidate records—an intermediate state that never
+docs/versanium/next-test-diagnostic-build-preparation.md:75:   apply_youtube_candidates.py: `dc5a9275...b88b`.
+docs/versanium/next-test-diagnostic-build-preparation.md:87:`tools/versanium/prepare_diagnostic_update.py` is independent of
+docs/versanium/next-test-diagnostic-build-preparation.md:135:RUN9_NEXT_EVIDENCE='/absolute/new/evidence-diagnostic-update'
+docs/versanium/next-test-diagnostic-build-preparation.md:142:python3 "$RUN9_CONTROL/tools/versanium/prepare_diagnostic_update.py" \
+docs/versanium/next-test-diagnostic-build-preparation.md:161:python3 "$RUN9_CONTROL/tools/versanium/prepare_diagnostic_update.py" \
+docs/versanium/next-test-diagnostic-build-preparation.md:170:python3 "$RUN9_CONTROL/tools/versanium/prepare_diagnostic_update.py" \
+docs/versanium/next-test-diagnostic-build-preparation.md:224:PiP fixed based on compilation: device acceptance must first show diagnosis no
+docs/versanium/next-test-diagnostic-build-preparation.md:225:longer loops, then separately capture stage order for the brief PiP exit while
+docs/versanium/next-test-diagnostic-build-preparation.md:232:  exact three candidate insertions: final `dc5a9275...b88b` PASS. This matches
+docs/versanium/next-test-diagnostic-build-preparation.md:234:  possible. The former `293f...` candidate-only fixture is identified/rejected.
+docs/versanium/next-test-diagnostic-build-preparation.md:238:- Existing source integration now includes the real expiry-before-candidate
+docs/versanium/nullaway-cipd-host-followup.md:1:# Applied candidate / CIPD provenance follow-up — 2026-10-26 JST
+docs/versanium/nullaway-cipd-host-followup.md:231:2. Record tool/processor hashes above, candidate58-after/updated_provenance,
+docs/versanium/nullaway-cipd-host-followup.md:268:  git -C "$CONTENT_CONTROL" fetch --no-tags https://github.com/Nvoid911-Lab/Versanium.git next-test/156-zoom-transfer-pip
+docs/versanium/nullaway-cipd-host-followup.md:278:invariants=['tools/versanium/prepare_content_diagnostic.py','tools/versanium/content_diagnostic_graph.py','docs/versanium/content-fullscreen-diagnostic-selection.json','tools/apply_content_fullscreen_origin.py']
+docs/versanium/nullaway-cipd-host-followup.md:286:  PYTHONDONTWRITEBYTECODE=1 python3 "$CONTENT_CONTROL/tools/versanium/prepare_content_diagnostic.py" \
+docs/versanium/nullaway-cipd-host-followup.md:289:    --native-source-record /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/source-applied.json \
+docs/versanium/nullaway-cipd-host-followup.md:290:    --build-evidence /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/graph-reaudit-ZFshuZ \
+docs/versanium/nullaway-cipd-host-followup.md:291:    --signed-apk /home/takuma/versanium/native-diagnostic-evidence-NQzDtk/signed-test/Versanium-156.0.8078.47_Test_ConfigAOriginForwardNative.apk \
+docs/versanium/nullaway-cipd-host-followup.md:299:make another baseline pass. If Default or candidate drifted, stop and retain
+docs/versanium/nullaway-isolated-output-plan.md:6:The existing prepare_content_diagnostic.py gate is UNCHANGED, not bypassed.
+docs/versanium/nullaway-isolated-output-plan.md:86:   new external evidence. This is required BEFORE candidate NullAway validation:
+docs/versanium/nullaway-isolated-output-plan.md:87:   current unapplied Native sources would validate Native, not the new diagnostic.
+docs/versanium/nullaway-isolated-output-plan.md:88:   Source58-after/changed10 and updated provenance are the common candidate basis.
+docs/versanium/nullaway-isolated-output-plan.md:90:3. Snapshot candidate sources, tools, processor scripts and Default output state;
+docs/versanium/nullaway-isolated-output-plan.md:97:6. Record separate NullAway verification receipt. Recheck candidate58/provenance,
+docs/versanium/nullaway-isolated-output-plan.md:104:   and separate NullAway results must be reported individually. If candidate
+docs/versanium/nullaway-isolated-output-plan.md:119:it) and candidate hash/provenance records into external evidence. Compare them
+docs/versanium/nullaway-isolated-output-plan.md:156:no package/signing values need to be shared. Record original/candidate args
+docs/versanium/nullaway-isolated-output-plan.md:222:  WebContentsObserver and PIP controller; no stale Native source hashes. Mixed
+docs/versanium/nullaway-isolated-output-plan.md:225:  candidate bytes, nested @NullUnmarked / existing suppressions and checker flags.
+docs/versanium/nullaway-isolated-output-plan.md:269:Receipt must include candidate58-after and full analysis source hash maps, tool/
+docs/versanium/nullaway-isolated-output-plan.md:272:cert/key material needed. Match receipt to subsequent Default candidate at build
+docs/versanium/nullaway-isolated-output-plan.md:292:## Applied candidate / processor provenance update (2026-10-26 JST)
+docs/versanium/nullaway-isolated-output-plan.md:294:User confirms content candidate10 apply/verify PASS under original controller
+docs/versanium/pip-device-comparison-2026-10-24.md:1:# Smartphone PiP comparison — 2026-10-24 JST
+docs/versanium/pip-device-comparison-2026-10-24.md:3:Historical Diagnostic-APK comparison below remains intact. New ConfigA logs
+docs/versanium/pip-device-comparison-2026-10-24.md:6:[ConfigA source-origin follow-up](config-a-pip-origin-review.md). Earlier
+docs/versanium/pip-device-comparison-2026-10-24.md:9:These are user-provided results/logs from the installed Diagnostic APK, NOT the
+docs/versanium/pip-device-comparison-2026-10-24.md:10:unbuilt video-fullscreen-zoom candidate at3452edd. Both conditions use Galaxy S23
+docs/versanium/pip-device-comparison-2026-10-24.md:11:phone display, YouTube zoom100%, diagnostics ON and background candidate ON.
+docs/versanium/pip-device-comparison-2026-10-24.md:16:| Condition | PiP candidate OFF | PiP candidate ON |
+docs/versanium/pip-device-comparison-2026-10-24.md:18:| Video fullscreen → home | Audio continues; no PiP displayed | PiP appears briefly, closes, playback stops |
+docs/versanium/pip-device-comparison-2026-10-24.md:20:| Non-fullscreen → home | Not reported in this comparison | Playback continues; no PiP |
+docs/versanium/pip-device-comparison-2026-10-24.md:37:exit callback. They also run while no PiP session exists. Neither record alone
+docs/versanium/pip-device-comparison-2026-10-24.md:38:proves a PiP close. canDoPictureInPicture tests active fullscreen, then video
+docs/versanium/pip-device-comparison-2026-10-24.md:39:permission, device support, optionally current PiP, Activity reconfiguration,
+docs/versanium/pip-device-comparison-2026-10-24.md:73:candidate ON condition changes observed eligibility/entry in this combined setup.
+docs/versanium/pip-device-comparison-2026-10-24.md:74:Do not summarize it as "PiP candidate ineffective". This comparison is not an
+docs/versanium/pip-device-comparison-2026-10-24.md:79:Sources are the exact pin1d17a2e, selected Vanadium overlays and applied diagnostic
+docs/versanium/pip-device-comparison-2026-10-24.md:82:- ChromeActivity.onPictureInPictureModeChanged(true) invokes the controller.
+docs/versanium/pip-device-comparison-2026-10-24.md:91:  DOM fullscreen exit here. A layout/media-state reaction or YouTube script is
+docs/versanium/pip-device-comparison-2026-10-24.md:99:  guard against exiting while Activity.isInPictureInPictureMode(); feature and
+docs/versanium/pip-device-comparison-2026-10-24.md:101:  harmless PiP housekeeping, or that this guard was active on this phone.
+docs/versanium/pip-device-comparison-2026-10-24.md:107:  activity, then recalculates auto-PiP through the existing single call, and
+docs/versanium/pip-device-comparison-2026-10-24.md:122:policy and YouTube reaction remain distinct hypotheses. Do not substitute log
+docs/versanium/pip-device-comparison-2026-10-24.md:125:## Narrow diagnostic change, not an exit-policy repair
+docs/versanium/pip-device-comparison-2026-10-24.md:132:passes. No diagnostic invocation of canDoPictureInPicture or permission getter
+docs/versanium/pip-device-comparison-2026-10-24.md:133:is added. Private/non-YouTube/destroyed contexts still do not emit logs; therefore
+docs/versanium/pip-device-comparison-2026-10-24.md:158:earlier Diagnostic APK before the zoom candidate was built, so the new zoom
+docs/versanium/pip-device-comparison-2026-10-24.md:160:proven. The unbuilt zoom candidate's fullscreen-ID reset and UpdateZoom may
+docs/versanium/pip-device-comparison-2026-10-24.md:161:interact with PiP layout; this is an explicit future device comparison risk.
+docs/versanium/pip-device-comparison-2026-10-24.md:162:Do not call video sizing or PiP solved.
+docs/versanium/post-nullaway-shard2-reconciliation.md:4:Branch next-test/156-zoom-transfer-pip; PR5→migration/versanium.
+docs/versanium/post-nullaway-shard2-reconciliation.md:31:commands (PiP/content/zoom/F11/identity/signing/branding/extensions) stay unchanged.
+docs/versanium/post-nullaway-shard2-reconciliation.md:44:python3 tools/youtube_pip/tests/check_source_integration.py \
+docs/versanium/post-nullaway-shard2-reconciliation.md:77:Selected source integration includes context menu plus stage/current content/PiP
+docs/versanium/post-nullaway-shard2-reconciliation.md:78:checks. Passive logger Java doubles9, PiP decision/dismiss Java doubles15, candidate
+docs/versanium/post-nullaway-shard2-reconciliation.md:87:User confirms historical corrected shard2 exit0, warning/error diagnostics0,
+docs/versanium/post-nullaway-stage-reconciliation.md:4:Branch next-test/156-zoom-transfer-pip, PR5 targeting migration/versanium.
+docs/versanium/post-nullaway-stage-reconciliation.md:10:The passive crash correction removed candidate logging and callback, leaving
+docs/versanium/post-nullaway-stage-reconciliation.md:13:The authoritative patch.sh invokes tools/apply_youtube_candidates.py.
+docs/versanium/post-nullaway-stage-reconciliation.md:16:private void applyVersaniumYoutubeCandidate(String stage)
+docs/versanium/post-nullaway-stage-reconciliation.md:17:→ private void applyVersaniumYoutubeCandidate()
+docs/versanium/post-nullaway-stage-reconciliation.md:18:applyVersaniumYoutubeCandidate("show"/"hide"/"load")
+docs/versanium/post-nullaway-stage-reconciliation.md:19:→ applyVersaniumYoutubeCandidate()
+docs/versanium/post-nullaway-stage-reconciliation.md:20:active.applyVersaniumYoutubeCandidate("environment")
+docs/versanium/post-nullaway-stage-reconciliation.md:21:→ active.applyVersaniumYoutubeCandidate()
+docs/versanium/post-nullaway-stage-reconciliation.md:26:CHECK/permission and contents.applyVersaniumYoutubeCandidate(mobile, null) remain.
+docs/versanium/post-nullaway-stage-reconciliation.md:27:reportTitaniumYoutubePip(String stage) still uses its label and is unchanged.
+docs/versanium/post-nullaway-stage-reconciliation.md:40:zoom/SAF/F11/common transforms, latest content/PiP generators and flag edits.
+docs/versanium/post-nullaway-stage-reconciliation.md:46:python3 tools/youtube_pip/tests/check_source_integration.py \
+docs/versanium/post-nullaway-stage-reconciliation.md:86:these later shard/family audit references. Their raw receipts, exit/diagnostic
+docs/versanium/post-nullaway-stage-reconciliation.md:99:- Actual PiP decision/dismiss method Java doubles15: PASS.
+docs/versanium/post-nullaway-stage-reconciliation.md:100:- Candidate DOM model37: PASS.
+docs/versanium/post-nullaway-stage-reconciliation.md:133:`Nvoid911-Lab/Versanium`, branch `next-test/156-zoom-transfer-pip`.
+docs/versanium/post-nullaway-stage-reconciliation.md:153:  integration, PiP correction, device success, or a build-duration guarantee.
+docs/versanium/post-nullaway-stage-reconciliation.md:155:  old `patch.sh` or saved old `tools/apply_youtube_candidates.py`.
+docs/versanium/post-nullaway-stage-reconciliation.md:197:Header visibility: `versanium_fullscreen_diagnostic_scope.h` deps=2/inputs=2;
+docs/versanium/post-nullaway-stage-reconciliation.md:198:`versanium_youtube_candidate.h` deps=1/inputs=1.
+docs/versanium/post-nullaway-stage-reconciliation.md:232:Candidate path for later approval: retain the reviewed current saved source and
+docs/versanium/post-nullaway-stage-reconciliation.md:234:`chrome_public_apk` only. This is a candidate plan, not an executable instruction
+docs/versanium/repository-runner-selection.md:88:3. **YouTube PiP investigation**
+docs/versanium/repository-runner-selection.md:89:   - Titanium/Chromiumで確認されているYouTube PiP問題の調査・修正検討を並行して維持する。
+docs/versanium/repository-runner-selection.md:92:これらは別々の作業ではあるが、次回Test build candidateを決める際には必ず同じpre-build判断に含める。
+docs/versanium/repository-runner-selection.md:96:ChatGPTが要件・upstream・build・PiP・runner方針を整理し、repository変更とstatic validationを行う。
+docs/versanium/run9-incremental-recovery.md:5:Run9 https://github.com/Nvoid911-Lab/Versanium/actions/runs/39951209951 ran `next-test/156-zoom-transfer-pip` at **7d9102f4f0e35dec9f69425de44cd889836a88ac**, completed/failure. API step records confirm the Build failure and successful provenance upload. The user's build log reports GN generation and chrome_java success, followed by APK compilation failure at the three `candidate_url.host_piece()` calls. It reports43763 done/1 failed/21902 remaining. Those counts are NOT a time estimate or a guarantee that a particular number of tasks can be reused.
+docs/versanium/run9-incremental-recovery.md:7:Pinned Chromium **1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775** url/gurl.h has `std::string_view host() const LIFETIME_BOUND`, no host_piece(). Exact raw header SHA256: **64379fac91a7d4949e7b0c2da12e26952f36ed98dbbd5506fc4480bf8c3f88aa**. The prior model invented host_piece(), and our source review missed it. That model pass was not a real API compile. The fix changes ONLY these three accessor calls in execution_scope.patch. HTTPS, exact youtube.com/www.youtube.com/m.youtube.com matching, live/active/outermost frame, regular non-shutdown profile and explicit native experiment-flag restrictions are unchanged. Generic JavaScript restrictions stay unchanged.
+docs/versanium/run9-incremental-recovery.md:28:- Exactly one definition of the log-confirmed **obj/content/browser/browser/render_frame_host_impl.o** in the existing .ninja files, with rule exactly `cxx` and the sole explicit input exactly `../../content/browser/renderer_host/render_frame_host_impl.cc` (relative to unchanged out/Default). Other toolchain-prefixed outputs are different targets and do not create ambiguity. Missing/duplicate exact-target definitions, wrong rules/sources, and unsupported output shapes reject. The helper reads ASCII build syntax as bytes, supports Ninja `$` newline continuations, and distinguishes explicit input from implicit/order-only/validation dependencies. It never requires whole-file UTF-8 decoding, uses no `errors="ignore"`, and does not modify any .ninja file. Variable/escaped candidate paths are not normalized into a match; unreviewed candidate forms stop instead of guessing.
+docs/versanium/run9-incremental-recovery.md:142:- Selected exact156/Vanadium/zoom/F11/PiP source patch application and generic JavaScript restrictions retained: PASS. Intentional changed-anchor rejection emits an expected patch error.
+docs/versanium/titanium-occurrences.tsv:36:B	docs/youtube-pip-investigation.md	7	52	upstream component/attribution or historical record	[Build #1](https://github.com/Nvoid911-Lab/android-titanium-browser/actions/runs/38403963131) は公開ページ上で
+docs/versanium/titanium-occurrences.tsv:37:B	docs/youtube-pip-investigation.md	8	20	upstream component/attribution or historical record	Success、4時間18分17秒、`titanium-f11-arm64-test`（139 MB）を確認できる。
+docs/versanium/titanium-occurrences.tsv:38:B	docs/youtube-pip-investigation.md	9	10	upstream component/attribution or historical record	WorkflowのTitaniumコミットは `a5909598c55da64751d70a8d2facf4a555eab554`。
+docs/versanium/titanium-occurrences.tsv:39:B	docs/youtube-pip-investigation.md	18	1	upstream component/attribution or historical record	TitaniumもWorkflow起点のコミットまでは確認済みだが、実行中のUpdateが作るコミットはログ未確認。
+docs/versanium/titanium-occurrences.tsv:40:B	docs/youtube-pip-investigation.md	21	48	external upstream component/reference or protected original-brand test input	[Issue #335](https://github.com/jqssun/android-titanium-browser/issues/335) は公開ページ上でOpen、コメント0。
+docs/versanium/titanium-occurrences.tsv:41:B	docs/youtube-pip-investigation.md	28	45	upstream component/attribution or historical record	調査の固定対象はChromium 155.0.8059.39と上記Vanadium参照、TitaniumのF11ブランチ。
+docs/versanium/titanium-occurrences.tsv:42:B	docs/youtube-pip-investigation.md	32	158	upstream component/attribution or historical record	| バックグラウンド停止 | `content/public/renderer/render_frame_media_playback_options.cc` の `IsBackgroundMediaSuspendEnabled`。通常Androidは停止を許可し、large form factorの例外がある。Titaniumのpatch.shはこのファイルの `#if BUILDFLAG(IS_ANDROID)` を `#if 0` に置換する。対象版にそのアンカーは存在し、適用後は関数がfalseを返す。既にブラウザー側のこの停止ポリシーを全サイトで外している。 |
+docs/versanium/titanium-occurrences.tsv:43:B	docs/youtube-pip-investigation.md	40	1	upstream component/attribution or historical record	Titaniumは再生ポリシーを変更する一方、YouTube専用の非表示検知／PiP用設定変更を持っていない。
+docs/versanium/titanium-occurrences.tsv:44:B	docs/youtube-pip-investigation.md	82	25	upstream component/attribution or historical record	Chromium由来部分のBSD告知も保持する。Titaniumの既存LICENSEだけでBrave由来部分を再ライセンスしない。
+docs/versanium/video-fullscreen-zoom-review.md:3:User checkpoint reports Diagnostic APK SHA256
+docs/versanium/video-fullscreen-zoom-review.md:7:earlier unbuilt diagnostic-correction status; original Actions Run9 remains failed.
+docs/versanium/video-fullscreen-zoom-review.md:8:PiP stage results for that APK remain unavailable. Video fullscreen size follows
+docs/versanium/video-fullscreen-zoom-review.md:11:diagnostic-specific regression is established.
+docs/versanium/video-fullscreen-zoom-review.md:34:  an optional without the unsafe PiP permission CHECK. WebContents now calls
+docs/versanium/video-fullscreen-zoom-review.md:40:scoped fullscreen-rendering candidate. No device trace proves those defects
+docs/versanium/video-fullscreen-zoom-review.md:52:Selected exact156 + Vanadium/F11/zoom/SAF/PiP patch application PASS, including
+docs/versanium/video-fullscreen-zoom-review.md:67:Do not reuse or relax the four-file diagnostic apply helper: this change modifies
+docs/versanium/video-fullscreen-zoom-review.md:80:restoration successful based on these models alone. PiP/background playback
+docs/youtube-pip-investigation.md:1:# YouTubeのPiPとバックグラウンド再生調査
+docs/youtube-pip-investigation.md:3:PiP・再生動作の変更は実装していない。以下はソース調査と公開run情報で、実機で原因を確定した結果ではない。
+docs/youtube-pip-investigation.md:23:ユーザーの観測（本体でYouTube停止、DeX/Twitchで動作、Chromeで再現、Braveで動作、Premiumなし、
+docs/youtube-pip-investigation.md:33:| Auto PiPフラグ | `chrome/browser/chrome_browser_field_trials.cc` のdesktop Android分岐をアンカーに `media::kAutoPictureInPictureAndroid` を含む無条件のfeature overrideを挿入し、元の分岐を `#if 0` にする既存パッチ。フラグだけで動画の許可やAndroid Activity条件を満たせるわけではない。 |
+docs/youtube-pip-investigation.md:34:| Background capturingフラグ | `media::kAndroidEnableBackgroundMediaCapturing` はcapture用のfeatureで、YouTube動画の再生継続を直接保証しない。 |
+docs/youtube-pip-investigation.md:35:| ホーム移動 | ChromeActivity.onUserLeaveHint → FullscreenVideoPictureInPictureController.attemptPictureInPicture。canDoPictureInPictureはactive effectively-fullscreen video、動画のPiP許可、端末のPiP機能、Activityの終了／再構成、最近のtask条件を確認する。ブラウザーのF11によるtoolbar非表示は、動画がeffectively fullscreenになることと別。 |
+docs/youtube-pip-investigation.md:37:| タブ切替 | 非表示のWebContentsになることと、Android Activityがホームへ移動することは別。ページのvisibilitychange、ブラウザーのmedia/session処理、YouTubeのJSが停止させる可能性がある。PiPが起動しないことだけではタブ停止を説明できない。 |
+docs/youtube-pip-investigation.md:40:Titaniumは再生ポリシーを変更する一方、YouTube専用の非表示検知／PiP用設定変更を持っていない。
+docs/youtube-pip-investigation.md:45:1. **YouTubeの非表示検知による停止**：Braveに明示的なYouTube対策があるため有力。
+docs/youtube-pip-investigation.md:49:   `disablePictureInPicture`、player設定、動画全画面かが候補。Premium／地域／動画種別は比較条件であり、
+docs/youtube-pip-investigation.md:60:- [YouTubeScriptInjectorTabHelper](https://github.com/brave/brave-core/blob/46cfe58223924f363192475396dcb196ec29423d/browser/android/youtube_script_injector/youtube_script_injector_tab_helper.cc):
+docs/youtube-pip-investigation.md:61:  YouTubeドメイン／main documentに限定し、background video playbackのfeature＋ユーザー設定で
+docs/youtube-pip-investigation.md:63:  別のPiP処理ではYouTubeの実験設定のPiP blocking flagsを書き換える。
+docs/youtube-pip-investigation.md:65:- [BraveFullscreenVideoPictureInPictureController](https://github.com/brave/brave-core/blob/46cfe58223924f363192475396dcb196ec29423d/android/java/org/chromium/chrome/browser/media/BraveFullscreenVideoPictureInPictureController.java):
+docs/youtube-pip-investigation.md:66:  screen lock時の停止／再開、YouTube用PiPセッションのentry/dismiss、新規タブの取り扱いがある。
+docs/youtube-pip-investigation.md:67:- [Chromium Controllerへの接続パッチ](https://github.com/brave/brave-core/blob/46cfe58223924f363192475396dcb196ec29423d/patches/chrome-android-java-src-org-chromium-chrome-browser-media-FullscreenVideoPictureInPictureController.java.patch):
+docs/youtube-pip-investigation.md:74:修正候補は、まず停止原因の記録と最小比較。その後、**YouTubeだけ・ユーザーが選択した場合だけ**の
+docs/youtube-pip-investigation.md:75:background playbackとPiP設定を別々に実装する。PiP entry条件・失敗時の復帰・シークレット・画面移動を検証する。
+docs/youtube-pip-investigation.md:76:YouTubeのvisibilityを固定すると、サイトの非表示時の節電・更新抑制・視聴状態等も変わる。
+docs/youtube-pip-investigation.md:78:YouTube実験設定の名前／DOMは変更され得るため、既知条件を満たさなければ何もしない設計と回帰テストが必要。
+docs/youtube-pip-investigation.md:94:   fullscreen / video allows PiP / Activity finishing / changingConfigurations / PiP API result /
+docs/youtube-pip-investigation.md:96:   タイトル、URL、cookies、headers、YouTubeのconfig全文、認証情報は記録しない。
+patch.sh:49:feature_overrides.EnableFeature(media::kAutoPictureInPictureAndroid);\
+patch.sh:50:feature_overrides.EnableFeature(media::kContextMenuPictureInPictureAndroid);\
+patch.sh:265:python3 "$SCRIPT_DIR/tools/apply_youtube_candidates.py" || exit 1
+tools/apply_content_fullscreen_origin.py:1:"""Content ingress / persistent-false diagnostics only, via existing observer boundary."""
+tools/apply_content_fullscreen_origin.py:11:PIP='chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java'
+tools/apply_content_fullscreen_origin.py:12:FILES=(WC+'.h',WC+'.cc',OBS,PROXY+'.h',PROXY+'.cc',JPROXY,JOBS,RFH,MEDIA,PIP)
+tools/apply_content_fullscreen_origin.py:20:    if 'VersaniumContentFullscreenDiagnostic' in text or 'versaniumContentFullscreenDiagnostic' in text or 'content_diag_' in text:
+tools/apply_content_fullscreen_origin.py:27:        one('  // Invoked when the renderer process has toggled the tab into/out of', '''  // Fixed diagnostic enums only. Implementations must not mutate state or pump tasks.
+tools/apply_content_fullscreen_origin.py:28:  virtual void VersaniumContentFullscreenDiagnostic(int) {}
+tools/apply_content_fullscreen_origin.py:32:        one('  void ExitFullscreen(bool will_cause_resize) override;', '''  void ReportVersaniumContentFullscreenDiagnostic(int stage);
+tools/apply_content_fullscreen_origin.py:35:        one('void WebContentsImpl::ExitFullscreenMode(bool will_cause_resize) {', '''void WebContentsImpl::ReportVersaniumContentFullscreenDiagnostic(int stage) {
+tools/apply_content_fullscreen_origin.py:41:          "versanium-youtube-diagnostics")) return;
+tools/apply_content_fullscreen_origin.py:48:      !(url.host() == "youtube.com" || url.host() == "www.youtube.com" ||
+tools/apply_content_fullscreen_origin.py:49:        url.host() == "m.youtube.com")) return;
+tools/apply_content_fullscreen_origin.py:51:      &WebContentsObserver::VersaniumContentFullscreenDiagnostic, stage);
+tools/apply_content_fullscreen_origin.py:57:  ReportVersaniumContentFullscreenDiagnostic(3);
+tools/apply_content_fullscreen_origin.py:64:    content_diag_weak->ReportVersaniumContentFullscreenDiagnostic(4);
+tools/apply_content_fullscreen_origin.py:68:  ReportVersaniumContentFullscreenDiagnostic(5);
+tools/apply_content_fullscreen_origin.py:73:    content_diag_weak->ReportVersaniumContentFullscreenDiagnostic(6);
+tools/apply_content_fullscreen_origin.py:76:        one('''        fullscreen_contents->ExitFullscreen(true);''','''        fullscreen_contents->ReportVersaniumContentFullscreenDiagnostic(8);
+tools/apply_content_fullscreen_origin.py:79:        one('''      opener->ExitFullscreen(true);''','''      opener->ReportVersaniumContentFullscreenDiagnostic(9);
+tools/apply_content_fullscreen_origin.py:84:    ReportVersaniumContentFullscreenDiagnostic(7);
+tools/apply_content_fullscreen_origin.py:90:    ReportVersaniumContentFullscreenDiagnostic(10);
+tools/apply_content_fullscreen_origin.py:95:    if (!has_persistent_video) ReportVersaniumContentFullscreenDiagnostic(14);
+tools/apply_content_fullscreen_origin.py:109:      contents->ReportVersaniumContentFullscreenDiagnostic(1);
+tools/apply_content_fullscreen_origin.py:119:        ->ReportVersaniumContentFullscreenDiagnostic(2);
+tools/apply_content_fullscreen_origin.py:124:        one(' private:\n', ' private:\n  void VersaniumContentFullscreenDiagnostic(int stage) override;\n')
+tools/apply_content_fullscreen_origin.py:126:        one('void WebContentsObserverProxy::MediaStoppedPlaying(','''void WebContentsObserverProxy::VersaniumContentFullscreenDiagnostic(int stage) {
+tools/apply_content_fullscreen_origin.py:130:  auto obj = Java_WebContentsObserverProxy_getForVersaniumDiagnostic(env, web_contents());
+tools/apply_content_fullscreen_origin.py:132:  Java_WebContentsObserverProxy_versaniumContentFullscreenDiagnostic(env, obj, stage);
+tools/apply_content_fullscreen_origin.py:138:     * Called when media stopped playing.''','''    /** Fixed internal diagnostic enum; no state mutation or page execution. */
+tools/apply_content_fullscreen_origin.py:139:    public void versaniumContentFullscreenDiagnostic(int stage) {}
+tools/apply_content_fullscreen_origin.py:146:    static @Nullable WebContentsObserverProxy getForVersaniumDiagnostic(
+tools/apply_content_fullscreen_origin.py:156:        one('''    public void mediaStoppedPlaying(int id) {''','''    public void versaniumContentFullscreenDiagnostic(int stage) {
+tools/apply_content_fullscreen_origin.py:161:            observersIterator.next().versaniumContentFullscreenDiagnostic(stage);
+tools/apply_content_fullscreen_origin.py:174:    if (!value) web_contents_impl()->ReportVersaniumContentFullscreenDiagnostic(11);
+tools/apply_content_fullscreen_origin.py:180:    web_contents_impl()->ReportVersaniumContentFullscreenDiagnostic(12);
+tools/apply_content_fullscreen_origin.py:188:        ->ReportVersaniumContentFullscreenDiagnostic(13);
+tools/apply_content_fullscreen_origin.py:190:    elif name==PIP:
+tools/apply_content_fullscreen_origin.py:194:                        if (webContents == getWebContents()) reportTitaniumYoutubePip("content_diag_cleanup_false_request");
+tools/apply_content_fullscreen_origin.py:196:                        if (!webContents.isDestroyed() && webContents == getWebContents()) reportTitaniumYoutubePip("content_diag_cleanup_false_returned");
+tools/apply_content_fullscreen_origin.py:202:        public void versaniumContentFullscreenDiagnostic(int stage) {
+tools/apply_content_fullscreen_origin.py:204:            if (actual == null || actual.isDestroyed() || actual != FullscreenVideoPictureInPictureController.this.getWebContents()) return;
+tools/apply_content_fullscreen_origin.py:210:            reportTitaniumYoutubePip(label);
+tools/apply_content_fullscreen_origin.py:214:    else:raise RuntimeError('Unexpected content diagnostic path: '+name)
+tools/apply_fullscreen_delegate_origin.py:1:"""Add fixed-label Java forwarding diagnostics on top of AOrigin; no exit changes."""
+tools/apply_fullscreen_delegate_origin.py:7:CONTROLLER = PREFIX + 'media/FullscreenVideoPictureInPictureController.java'
+tools/apply_fullscreen_delegate_origin.py:8:CALL = ('org.chromium.chrome.browser.media.FullscreenVideoPictureInPictureController.'
+tools/apply_fullscreen_delegate_origin.py:14:        for (FullscreenVideoPictureInPictureController controller : sControllers.values()) {
+tools/apply_fullscreen_delegate_origin.py:16:                controller.reportTitaniumYoutubePip(origin);
+tools/apply_fullscreen_delegate_origin.py:42:        raise RuntimeError('unexpected delegate diagnostic path')
+tools/apply_fullscreen_delegate_origin.py:44:        raise RuntimeError('delegate diagnostic already present')
+tools/apply_fullscreen_delegate_origin.py:47:            raise RuntimeError('delegate diagnostic anchor mismatch: ' + path)
+tools/apply_fullscreen_native_origin.py:10:SCOPE = ROOT+'exclusive_access/versanium_fullscreen_diagnostic_scope.h'
+tools/apply_fullscreen_native_origin.py:11:SCOPE_TEXT = '''// Diagnostic-only synchronous depth; no owner pointers or asynchronous attribution.
+tools/apply_fullscreen_native_origin.py:12:#ifndef CHROME_BROWSER_UI_EXCLUSIVE_ACCESS_VERSANIUM_FULLSCREEN_DIAGNOSTIC_SCOPE_H_
+tools/apply_fullscreen_native_origin.py:13:#define CHROME_BROWSER_UI_EXCLUSIVE_ACCESS_VERSANIUM_FULLSCREEN_DIAGNOSTIC_SCOPE_H_
+tools/apply_fullscreen_native_origin.py:14:namespace versanium_fullscreen_diagnostic {
+tools/apply_fullscreen_native_origin.py:23:}  // namespace versanium_fullscreen_diagnostic
+tools/apply_fullscreen_native_origin.py:28:    if ('versanium_fullscreen_diagnostic' in text or 'reportNativeFullscreenDiagnostic' in text
+tools/apply_fullscreen_native_origin.py:29:            or 'ReportNativeFullscreenDiagnostic' in text):
+tools/apply_fullscreen_native_origin.py:30:        raise RuntimeError('Native diagnostic already applied: '+name)
+tools/apply_fullscreen_native_origin.py:33:        if text.count(before)!=1:raise RuntimeError('Native diagnostic anchor mismatch: '+name+' '+before[:70])
+tools/apply_fullscreen_native_origin.py:38:  // Diagnostic hook: fixed stage numbers, no permission/eligibility queries.
+tools/apply_fullscreen_native_origin.py:40:  virtual void ReportNativeFullscreenDiagnostic(content::WebContents*,
+tools/apply_fullscreen_native_origin.py:45:  void ReportNativeFullscreenDiagnostic(content::WebContents* contents,
+tools/apply_fullscreen_native_origin.py:49:        one('void ExclusiveAccessContextAndroid::ExitFullscreen() {', '''void ExclusiveAccessContextAndroid::ReportNativeFullscreenDiagnostic(
+tools/apply_fullscreen_native_origin.py:55:          "versanium-youtube-diagnostics")) return;
+tools/apply_fullscreen_native_origin.py:61:      !(url.host() == "youtube.com" || url.host() == "www.youtube.com" ||
+tools/apply_fullscreen_native_origin.py:62:        url.host() == "m.youtube.com")) return;
+tools/apply_fullscreen_native_origin.py:64:  Java_ExclusiveAccessContext_reportNativeFullscreenDiagnostic(
+tools/apply_fullscreen_native_origin.py:73:            one('  eam_.fullscreen_controller()->ExitFullscreenModeForTab(wc);', '''  versanium_fullscreen_diagnostic::Scope diagnostic_scope;
+tools/apply_fullscreen_native_origin.py:74:  eac_->ReportNativeFullscreenDiagnostic(
+tools/apply_fullscreen_native_origin.py:75:      wc, 1, versanium_fullscreen_diagnostic::depth);
+tools/apply_fullscreen_native_origin.py:88:  versanium_fullscreen_diagnostic::Scope diagnostic_scope;
+tools/apply_fullscreen_native_origin.py:89:  auto diagnostic_weak = weak_ptr_factory_.GetWeakPtr();
+tools/apply_fullscreen_native_origin.py:90:  auto diagnostic_contents_weak = web_contents ? web_contents->GetWeakPtr()
+tools/apply_fullscreen_native_origin.py:92:  auto diagnose = [diagnostic_weak, diagnostic_contents_weak](int stage) {
+tools/apply_fullscreen_native_origin.py:93:    if (!diagnostic_weak || !diagnostic_contents_weak) return;
+tools/apply_fullscreen_native_origin.py:94:    diagnostic_weak->exclusive_access_manager()->context()->ReportNativeFullscreenDiagnostic(
+tools/apply_fullscreen_native_origin.py:95:        diagnostic_contents_weak.get(), stage, versanium_fullscreen_diagnostic::depth);
+tools/apply_fullscreen_native_origin.py:106:    exclusive_access_manager()->context()->ReportNativeFullscreenDiagnostic(
+tools/apply_fullscreen_native_origin.py:107:        web_contents, 8, versanium_fullscreen_diagnostic::depth);
+tools/apply_fullscreen_native_origin.py:111:  auto* diagnostic_contents = exclusive_access_tab();
+tools/apply_fullscreen_native_origin.py:112:  base::WeakPtr<content::WebContents> diagnostic_contents_weak =
+tools/apply_fullscreen_native_origin.py:113:      diagnostic_contents ? diagnostic_contents->GetWeakPtr()
+tools/apply_fullscreen_native_origin.py:116:            one('  exclusive_access_manager()->context()->ExitFullscreen();','''  if (diagnostic_contents_weak) {
+tools/apply_fullscreen_native_origin.py:117:    exclusive_access_manager()->context()->ReportNativeFullscreenDiagnostic(
+tools/apply_fullscreen_native_origin.py:118:        diagnostic_contents_weak.get(), 9, versanium_fullscreen_diagnostic::depth);
+tools/apply_fullscreen_native_origin.py:125:    void reportNativeFullscreenDiagnostic(
+tools/apply_fullscreen_native_origin.py:145:        org.chromium.chrome.browser.media.FullscreenVideoPictureInPictureController
+tools/apply_fullscreen_native_origin.py:153:            org.chromium.chrome.browser.media.FullscreenVideoPictureInPictureController
+tools/apply_fullscreen_native_origin.py:157:        one('    "fullscreen_controller.h",','    "fullscreen_controller.h",\n    "versanium_fullscreen_diagnostic_scope.h",')
+tools/apply_fullscreen_native_origin.py:158:    else:raise RuntimeError('Unexpected native diagnostic path: '+name)
+tools/apply_fullscreen_native_origin.py:164:    if (root/SCOPE).exists():raise RuntimeError('Native diagnostic scope header already exists')
+tools/apply_fullscreen_origin.py:12:        return ('org.chromium.chrome.browser.media.FullscreenVideoPictureInPictureController.'
+tools/apply_youtube_candidates.py:1:"""Generate exact-anchor, top-document-only opt-in candidate hooks after zoom; fail closed."""
+tools/apply_youtube_candidates.py:6:    diagnostics=repository/'tools/youtube_pip/diagnostics.patch'
+tools/apply_youtube_candidates.py:7:    execution=repository/'tools/youtube_pip/execution_scope.patch'
+tools/apply_youtube_candidates.py:9:    subprocess.run(['git','apply','--check',str(diagnostics)],cwd=root,check=True)
+tools/apply_youtube_candidates.py:16:        if source.count(anchor)!=1:raise RuntimeError('YouTube TabImpl hook changed')
+tools/apply_youtube_candidates.py:17:    script=(repository/'tools/youtube_pip/candidate.js').read_text()
+tools/apply_youtube_candidates.py:20:    method='''    private void applyVersaniumYoutubeCandidate() {
+tools/apply_youtube_candidates.py:25:        boolean pip = command.hasSwitch("versanium-youtube-pip-candidate");
+tools/apply_youtube_candidates.py:26:        boolean background = command.hasSwitch("versanium-youtube-background-candidate");
+tools/apply_youtube_candidates.py:27:        if (!pip && !background) return;
+tools/apply_youtube_candidates.py:30:        if (!"https".equals(address.getScheme()) || !("youtube.com".equals(address.getHost())
+tools/apply_youtube_candidates.py:31:                || "www.youtube.com".equals(address.getHost())
+tools/apply_youtube_candidates.py:32:                || "m.youtube.com".equals(address.getHost()))) return;
+tools/apply_youtube_candidates.py:34:        // Diagnostics never authorizes injection or owns a script-result callback.
+tools/apply_youtube_candidates.py:35:        contents.applyVersaniumYoutubeCandidate(mobile, null);
+tools/apply_youtube_candidates.py:39:            if (active != null) active.applyVersaniumYoutubeCandidate();
+tools/apply_youtube_candidates.py:43:    source=source.replace(marker,method+'\n'+marker+'        applyVersaniumYoutubeCandidate();\n')
+tools/apply_youtube_candidates.py:44:    source=source.replace(show,show+'        applyVersaniumYoutubeCandidate();\n')
+tools/apply_youtube_candidates.py:45:    source=source.replace(hide,hide+'        applyVersaniumYoutubeCandidate();\n')
+tools/apply_youtube_candidates.py:46:    header = root/'content/browser/renderer_host/versanium_youtube_candidate.h'
+tools/apply_youtube_candidates.py:47:    if header.exists():raise RuntimeError('Candidate header already exists; refuse stale reuse')
+tools/apply_youtube_candidates.py:49:    header.write_text('// Generated from reviewed candidate.js; no page or Java supplied script.\n'
+tools/apply_youtube_candidates.py:50:            '#ifndef CONTENT_BROWSER_RENDERER_HOST_VERSANIUM_YOUTUBE_CANDIDATE_H_\n'
+tools/apply_youtube_candidates.py:51:            '#define CONTENT_BROWSER_RENDERER_HOST_VERSANIUM_YOUTUBE_CANDIDATE_H_\n'
+tools/apply_youtube_candidates.py:52:            'namespace content {\ninline constexpr char16_t kVersaniumYoutubeCandidate[] = uR"VERSANIUM('
+tools/apply_youtube_candidates.py:54:    subprocess.run(['git','apply',str(diagnostics)],cwd=root,check=True)
+tools/apply_youtube_candidates.py:65:    text=flags.read_text();anchor='    {"versanium-youtube-diagnostics",'
+tools/apply_youtube_candidates.py:66:    if text.count(anchor)!=1:raise RuntimeError('YouTube flags anchor changed')
+tools/apply_youtube_candidates.py:69:        ('versanium-youtube-pip-candidate','Versanium YouTube PiP candidate','Normal top-level YouTube mobile tabs only: clear the HTML video PiP suppression attribute. Fullscreen and Android PiP permission remain required. Experimental; restart to disable.'),
+tools/apply_youtube_candidates.py:70:        ('versanium-youtube-background-candidate','Versanium YouTube background candidate','Normal top-level YouTube mobile tabs only: hide document visibility changes from the site. Does not resume paused video or bypass autoplay. Experimental; restart to disable.')]:
+tools/apply_youtube_candidates.py:76:    metadata_text,count=re.subn(r'  \{\n    "name": "versanium-youtube-diagnostics",.*?\n  \},\n','',metadata_text,flags=re.S)
+tools/apply_youtube_candidates.py:77:    if count!=1:raise RuntimeError('YouTube metadata anchor changed')
+tools/apply_youtube_candidates.py:78:    for name in ('versanium-youtube-background-candidate','versanium-youtube-diagnostics','versanium-youtube-pip-candidate'):
+tools/environment_zoom/chromium.patch:285:         if (mFullscreenVideoPictureInPictureController != null) {
+tools/environment_zoom/chromium.patch:286:             mFullscreenVideoPictureInPictureController.onStop();
+tools/environment_zoom/java/org/chromium/content_public/browser/EnvironmentZoom.java:99:        // PiP candidate scope is physical display, independent of manual zoom overrides.
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:45:            p.setSite(Environment.MOBILE,"youtube.com",f(100));p.setSite(Environment.DEX,"youtube.com",f(80));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:46:            equal(p.resolve(Environment.MOBILE,"youtube.com"),f(100));equal(p.resolve(Environment.DEX,"youtube.com"),f(80));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:47:            p.setDefault(Environment.DEX,f(80));check(p.hasSite(Environment.DEX,"youtube.com"));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:48:            p.setDefault(Environment.DEX,f(67));equal(p.resolve(Environment.DEX,"youtube.com"),f(80));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:49:            p.setDefault(Environment.MOBILE,f(125));equal(p.resolve(Environment.MOBILE,"youtube.com"),f(100));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:53:            p.resetSite(Environment.DEX,"youtube.com");equal(p.resolve(Environment.DEX,"youtube.com"),f(67));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:54:            equal(p.resolve(Environment.MOBILE,"youtube.com"),f(100));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:57:            check(disk.writes==writes);equal(restarted.resolve(Environment.MOBILE,"youtube.com"),f(100));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:61:                equal(restarted.resolve(Environment.MOBILE,"youtube.com"),f(100));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:62:                equal(restarted.resolve(Environment.DEX,"youtube.com"),f(67));
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:67:            privateSession.setDefault(Environment.DEX,f(120));privateSession.resetSite(Environment.MOBILE,"youtube.com");
+tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java:69:            equal(restarted.resolve(Environment.MOBILE,"youtube.com"),f(100));equal(restarted.defaultFactor(Environment.DEX),f(67));
+tools/versanium/audit_native_graph.py:8:import prepare_native_diagnostic as p
+tools/versanium/audit_native_graph.py:79:    for n in [p.MANIFEST,p.TRANSFORM,'tools/versanium/prepare_native_diagnostic.py']:
+tools/versanium/check_ab_selection.py:20:  for name in ['tools/youtube_pip/tests/check_source_integration.py','tools/versanium/flag_metadata_pipeline.py','tools/versanium/selected_patch_pipeline.py']:
+tools/versanium/check_ab_selection.py:25:  subprocess.run(['python3',str(control/'tools/youtube_pip/tests/check_source_integration.py'),'--source-tree',str(a.source),'--output-dir',str(root)],check=True)
+tools/versanium/check_ab_selection.py:39:  expected={'installed->A':{'chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java'},'A->B':{'content/browser/host_zoom_map_impl.cc','content/browser/web_contents/web_contents_impl.cc'}}
+tools/versanium/check_exclusive_access_trace.py:6:FILES = {'chrome/android/java/src/org/chromium/chrome/browser/ui/ExclusiveAccessManager.java': ('6dbe3eb0375b56d5cf3914c022d5424cbd0657712ba39ada4e7c4b3c5ed4d51e', ['.exitFullscreenModeForTab(mExclusiveAccessManagerAndroidNativePointer, webContents);', 'mFullscreenManager.setFullscreenManagerDelegate(']), 'chrome/android/java/src/org/chromium/chrome/browser/ui/ExclusiveAccessContext.java': ('031998b9e84ca80a67741194b2f6ead447677a3115425c4ce293a6ee0ea75415', ['mFullscreenManager.onExitFullscreen(mActiveTab);']), 'chrome/browser/ui/android/exclusive_access/exclusive_access_manager_android.cc': ('a9ea784edfbed8af5dfaed15168571a492d25f3ab21a677152d3eb754dcc8706', ['eam_.fullscreen_controller()->ExitFullscreenModeForTab(wc);']), 'chrome/browser/ui/android/exclusive_access/exclusive_access_manager_android.h': ('334fd5f3e7a3903a7d3ce78e81cf745b2b06591187892608be43fbe6592acc42', ['ExitFullscreenModeForTab(']), 'chrome/browser/ui/android/exclusive_access/exclusive_access_context_android.cc': ('61abd2cccc3bdfd7c49ef24221e39c066f0b8fcc03d72fa8f48830ebdc136f35', ['Java_ExclusiveAccessContext_exitFullscreenModeForTab(env, java_context_);']), 'chrome/browser/ui/exclusive_access/fullscreen_controller.cc': ('5b0036a49883b06a2cdd3b7515744f1307e214cc8a35baebc829acd291bfd1a9', ['SetTabWithExclusiveAccess(nullptr);', 'web_contents->ExitFullscreen(will_cause_resize);', 'NotifyTabExclusiveAccessLost();', 'exclusive_access_manager()->context()->ExitFullscreen();']), 'chrome/browser/ui/android/exclusive_access/BUILD.gn': ('ae23b678569062fb6770ac04cd37a4d664286a4eb0e65ab0a1726ea16b0f1c7a', ['source_set("exclusive_access")', '"exclusive_access_manager_android.cc",', '"//chrome/android:jni_headers",']), 'chrome/browser/ui/exclusive_access/BUILD.gn': ('75f090c1e5d401a102d3357a4f1cbe9ed130f899177a698369ada2928dd547f6', ['source_set("exclusive_access")', '"fullscreen_controller.cc",']), 'content/browser/renderer_host/render_widget_host_view_android.cc': ('042663d78a4d8799386d5a86f9e911ecef9f4a584c56a7ca3b87406ae8fc16d6', ['// Picture-in-Picture requires fullscreen, and stays in fullscreen.', 'pending_screen_state_.is_fullscreen = is_fullscreen;'])}
+tools/versanium/check_native_origin_jni.py:1:"""Generate diagnostic JNI from pinned Python generator; no GN or Chromium compile."""
+tools/versanium/check_native_origin_jni.py:22:        raise RuntimeError('Not selected diagnostic Java bytes')
+tools/versanium/check_native_origin_jni.py:32:    start=header.index('static void Java_ExclusiveAccessContext_reportNativeFullscreenDiagnostic(')
+tools/versanium/check_native_origin_jni.py:39:    print('Fixed156 generator20 files + diagnostic JNI signature PASS; C++ integration NOT compiled')
+tools/versanium/content_diagnostic_graph.py:123:           ('chrome/android','chrome_java',['chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java'])]
+tools/versanium/content_diagnostic_graph.py:142:        for candidate in graph['edges']:
+tools/versanium/content_diagnostic_graph.py:143:            match=pattern.fullmatch(candidate['rule'])
+tools/versanium/content_diagnostic_graph.py:145:            require(candidate['rule'] not in seen_ep_rules,'Ambiguous duplicate ErrorProne rule: '+family)
+tools/versanium/content_diagnostic_graph.py:146:            seen_ep_rules.add(candidate['rule'])
+tools/versanium/content_diagnostic_graph.py:149:            require(candidate['outputs']==[stamp],'Unexpected exact ErrorProne output: '+label)
+tools/versanium/content_diagnostic_graph.py:150:            ep_raw=recipe(graph,candidate)
+tools/versanium/content_diagnostic_graph.py:152:            require(depends_on(graph,edge,candidate),'ErrorProne action not linked to Java compile validations: '+label)
+tools/versanium/content_diagnostic_graph.py:153:            found.append((candidate,ep_raw,match.group(1)))
+tools/versanium/content_diagnostic_graph.py:156:            matches=[(candidate,ep_raw) for candidate,ep_raw,_ in found if any(path_at(out,i)==(source/name).resolve() for i in candidate['inputs'])]
+tools/versanium/content_diagnostic_graph.py:159:            for candidate,ep_raw in matches:
+tools/versanium/content_diagnostic_graph.py:160:                analysis.append({'source':name,'targets':[os.fsdecode(t) for t in candidate['outputs']],'rule':os.fsdecode(candidate['rule']),'ninja':candidate['ninja'],'nullaway_flag_observed':b'--enable-nullaway' in ep_raw,'recipe_sha256':hashlib.sha256(ep_raw).hexdigest()})
+tools/versanium/flag_metadata_pipeline.py:19:CANDIDATE_FLAGS = (
+tools/versanium/flag_metadata_pipeline.py:20:    "versanium-youtube-background-candidate",
+tools/versanium/flag_metadata_pipeline.py:21:    "versanium-youtube-diagnostics",
+tools/versanium/flag_metadata_pipeline.py:22:    "versanium-youtube-pip-candidate",
+tools/versanium/flag_metadata_pipeline.py:45:def apply_candidate_entries(data):
+tools/versanium/flag_metadata_pipeline.py:46:    """Mirror apply_youtube_candidates.py insertion order and formatting exactly."""
+tools/versanium/flag_metadata_pipeline.py:49:        r'  \{\n    "name": "versanium-youtube-diagnostics",.*?\n  \},\n',
+tools/versanium/flag_metadata_pipeline.py:55:        raise RuntimeError("Unexpected pre-existing diagnostics records")
+tools/versanium/flag_metadata_pipeline.py:56:    for name in CANDIDATE_FLAGS:
+tools/versanium/flag_metadata_pipeline.py:74:    return expiry, apply_candidate_entries(expiry)
+tools/versanium/prepare_config_a.py:11:JAVA='chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java'
+tools/versanium/prepare_config_a.py:43:        subprocess.run(['git','apply','--include='+JAVA,'-'],input=blob(control,PRODUCT,'tools/youtube_pip/diagnostics.patch'),cwd=root,check=True)
+tools/versanium/prepare_config_a.py:45:        subprocess.run(['git','apply','-R','--include='+JAVA,'-'],input=blob(control,PRODUCT,'tools/youtube_pip/diagnostics.patch'),cwd=root,check=True)
+tools/versanium/prepare_config_a.py:46:        subprocess.run(['git','apply','--include='+JAVA,'-'],input=blob(control,SELECTION,'tools/youtube_pip/diagnostics.patch'),cwd=root,check=True)
+tools/versanium/prepare_config_a.py:92:    require(prior.get('applied') is True and prior.get('target_controller')==PRODUCT,'Wrong diagnostic applied evidence')
+tools/versanium/prepare_config_a_origin.py:25:        subprocess.run(['git','apply','--include='+u.JAVA,'-'],cwd=root,input=u.blob(control,u.SELECTION,'tools/youtube_pip/diagnostics.patch'),check=True)
+tools/versanium/prepare_config_a_origin.py:28:        subprocess.run(['git','apply','--include='+u.JAVA,'-'],cwd=root,input=u.blob(control,REVIEW,'tools/youtube_pip/diagnostics.patch'),check=True)
+tools/versanium/prepare_content_diagnostic.py:14:import content_diagnostic_graph as graph
+tools/versanium/prepare_content_diagnostic.py:26:SELECTION='docs/versanium/content-fullscreen-diagnostic-selection.json'
+tools/versanium/prepare_content_diagnostic.py:29:PIP='chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java'
+tools/versanium/prepare_content_diagnostic.py:65:        for rev,patch,name in [('5faa9ad43438e1b696ed79f1ccff6effe4c2a3fb','tools/youtube_pip/diagnostics.patch',PIP),('16eca84b6014b3f34cef4908c4072db3cfa7323b','tools/youtube_pip/execution_scope.patch',RFH),('60b00375def663584dfd5c6fd249d25498eeafb2','tools/environment_zoom/chromium.patch',WC)]:
+tools/versanium/prepare_content_diagnostic.py:68:        p=r/PIP;p.write_text(forward.transform(PIP,p.read_text()))
+tools/versanium/prepare_content_diagnostic.py:87:    allowed_product={'tools/apply_content_fullscreen_origin.py','tools/apply_youtube_candidates.py','tools/youtube_pip/tests/check_source_integration.py','tools/versanium/tests/test_content_origin.py',SELECTION,'docs/versanium/native-diagnostic-device-2026-10-25.log'}
+tools/versanium/prepare_content_diagnostic.py:89:    preparation={'tools/versanium/prepare_content_diagnostic.py','tools/versanium/content_diagnostic_graph.py','tools/versanium/tests/test_content_preparation.py'}
+tools/versanium/prepare_content_diagnostic.py:91:    for n in [NATIVE_MANIFEST,'tools/apply_fullscreen_native_origin.py','tools/versanium/prepare_native_diagnostic.py']:
+tools/versanium/prepare_content_diagnostic.py:93:    for n in [SELECTION,TRANSFORM,'tools/apply_youtube_candidates.py','tools/apply_fullscreen_delegate_origin.py','tools/youtube_pip/tests/check_source_integration.py']:
+tools/versanium/prepare_content_diagnostic.py:196:        'chrome/android/chrome_java_sources.gni':['FullscreenVideoPictureInPictureController.java']}
+tools/versanium/prepare_diagnostic_update.py:1:"""Validate, and only with --apply update, four Run9 diagnostic source files.
+tools/versanium/prepare_diagnostic_update.py:19:from flag_metadata_pipeline import apply_candidate_entries, reproduce, patch_sh_flags, EXPIRY_FLAGS
+tools/versanium/prepare_diagnostic_update.py:32:    "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": (
+tools/versanium/prepare_diagnostic_update.py:51:    "content/browser/renderer_host/versanium_youtube_candidate.h": "0f21bf35573aad1e67ac16cc830cab68ddeba09be0b867fd8738f897bd805753",
+tools/versanium/prepare_diagnostic_update.py:61:FLAG_CANDIDATE_ONLY_SHA = "293f70fc5fb06168611389d93af5f99f70a3adcb77d9cea3d432a4de2d5f199c"
+tools/versanium/prepare_diagnostic_update.py:97:    if path.endswith("FullscreenVideoPictureInPictureController.java"):
+tools/versanium/prepare_diagnostic_update.py:109:                android.app.AppOpsManager.OPSTR_PICTURE_IN_PICTURE,
+tools/versanium/prepare_diagnostic_update.py:113:                + " videoAllows=" + contents.isPictureInPictureAllowedForFullscreenVideo()
+tools/versanium/prepare_diagnostic_update.py:115:                        PackageManager.FEATURE_PICTURE_IN_PICTURE)
+tools/versanium/prepare_diagnostic_update.py:118:                + " inPip=" + mActivity.isInPictureInPictureMode()
+tools/versanium/prepare_diagnostic_update.py:122:                + " inPip=" + mActivity.isInPictureInPictureMode()
+tools/versanium/prepare_diagnostic_update.py:126:        old = b'''        boolean diagnostics = command.hasSwitch("versanium-youtube-diagnostics");
+tools/versanium/prepare_diagnostic_update.py:127:        if (!pip && !background && !diagnostics) return;'''
+tools/versanium/prepare_diagnostic_update.py:128:        new = b'''        if (!pip && !background) return;'''
+tools/versanium/prepare_diagnostic_update.py:130:        start = b'''        if (diagnostics) Log.i("VersaniumYT", "stage=%s injection_requested mobile=%b", stage,mobile);
+tools/versanium/prepare_diagnostic_update.py:131:        contents.applyVersaniumYoutubeCandidate(mobile, result -> {'''
+tools/versanium/prepare_diagnostic_update.py:133:        require(begin >= 0, "Missing old diagnostic callback in " + path)
+tools/versanium/prepare_diagnostic_update.py:137:        require(end >= 0, "Unbounded old diagnostic callback in " + path)
+tools/versanium/prepare_diagnostic_update.py:138:        replacement = b'''        // Diagnostics never authorizes injection or owns a script-result callback.
+tools/versanium/prepare_diagnostic_update.py:139:        contents.applyVersaniumYoutubeCandidate(mobile, null);
+tools/versanium/prepare_diagnostic_update.py:145:            b"Log only PiP decision booleans for normal YouTube tabs. Does not change playback. Disable after testing.",
+tools/versanium/prepare_diagnostic_update.py:146:            b"Log existing PiP decision stages for normal YouTube tabs; no script injection or fullscreen permission probes. Disable after testing.",
+tools/versanium/prepare_diagnostic_update.py:152:            b'  options += command->HasSwitch("versanium-youtube-diagnostics") ? u"true" : u"false";',
+tools/versanium/prepare_diagnostic_update.py:153:            b'  options += u"false";  // Diagnostics is passive Java event logging only.',
+tools/versanium/prepare_diagnostic_update.py:158:            b'''  return candidate_command->HasSwitch("versanium-youtube-pip-candidate") ||
+tools/versanium/prepare_diagnostic_update.py:159:         candidate_command->HasSwitch("versanium-youtube-background-candidate") ||
+tools/versanium/prepare_diagnostic_update.py:160:         candidate_command->HasSwitch("versanium-youtube-diagnostics");''',
+tools/versanium/prepare_diagnostic_update.py:161:            b'''  return candidate_command->HasSwitch("versanium-youtube-pip-candidate") ||
+tools/versanium/prepare_diagnostic_update.py:162:         candidate_command->HasSwitch("versanium-youtube-background-candidate");''',
+tools/versanium/prepare_diagnostic_update.py:263:               "tools/versanium/prepare_diagnostic_update.py",
+tools/versanium/prepare_diagnostic_update.py:265:               "tools/youtube_pip/tests/check_source_integration.py"}
+tools/versanium/prepare_diagnostic_update.py:267:        require(name in allowed or name.startswith(("docs/", "tools/versanium/tests/test_diagnostic_update")),
+tools/versanium/prepare_diagnostic_update.py:269:    for name in ["tools/apply_youtube_candidates.py", "tools/youtube_pip/diagnostics.patch",
+tools/versanium/prepare_diagnostic_update.py:270:                 "tools/youtube_pip/execution_scope.patch", "tools/youtube_pip/candidate.js"]:
+tools/versanium/prepare_diagnostic_update.py:313:    require(sha(apply_candidate_entries(metadata_head)) == FLAG_CANDIDATE_ONLY_SHA,
+tools/versanium/prepare_diagnostic_update.py:314:            "Candidate-only historical fixture stage changed")
+tools/versanium/prepare_diagnostic_update.py:354:        print("READ-ONLY diagnostic update preflight PASS; saved source/output unchanged")
+tools/versanium/prepare_diagnostic_update.py:379:        print("APPLIED four reviewed diagnostic source updates; no compilation/output mutation")
+tools/versanium/prepare_native_diagnostic.py:104:    allowed={'PROJECT_STATUS.md','ARCHITECTURE.md','DECISIONS.md','tools/versanium/prepare_native_diagnostic.py','tools/versanium/audit_native_graph.py','tools/versanium/tests/test_native_preparation.py'}
+tools/versanium/prepare_native_diagnostic.py:115:    require('is_component_build = false' in args,'Unreviewed component build for TLS diagnostic')
+tools/versanium/prepare_run9.py:38:    start=next(i for i,l in enumerate(lines) if l.startswith('+bool RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed('))
+tools/versanium/prepare_run9.py:41:    require(old.count('candidate_url.host_piece()')==3,'Original scope changed')
+tools/versanium/prepare_run9.py:43:    new=old.replace('candidate_url.host_piece()','candidate_url.host()')
+tools/versanium/prepare_run9.py:64:        yield pending,False  # Candidate edges require a complete logical line.
+tools/versanium/prepare_run9.py:103:      'tools/youtube_pip/execution_scope.patch','tools/youtube_pip/tests/check_execution_scope.py',
+tools/versanium/prepare_run9.py:104:      'tools/youtube_pip/tests/check_source_integration.py','tools/versanium/prepare_run9.py'}
+tools/versanium/prepare_run9.py:139:    patch=subprocess.check_output(['git','-C',str(control),'show',BASE+':tools/youtube_pip/execution_scope.patch'],text=True)
+tools/versanium/prepare_run9.py:142:    require((control/'tools/youtube_pip/execution_scope.patch').read_text()==patch.replace('candidate_url.host_piece()','candidate_url.host()'), 'Controller patch exceeds three accessor corrections')
+tools/versanium/resume_ideapad.sh:31:mkdir -p "$CONTROL_ROOT/diagnostics"
+tools/versanium/resume_ideapad.sh:32:vmstat -t 60 > "$CONTROL_ROOT/diagnostics/vmstat.txt" &
+tools/versanium/tests/test_content_origin.py:16:  selection,sources=self.sources();s=m.transform(m.JPROXY,sources[m.JPROXY]);sig='    static @Nullable WebContentsObserverProxy getForVersaniumDiagnostic('
+tools/versanium/tests/test_content_origin.py:20:  cpp=m.transform(m.PROXY+'.cc',sources[m.PROXY+'.cc']).split('void WebContentsObserverProxy::VersaniumContentFullscreenDiagnostic(int stage) {',1)[1].split('\n}',1)[0]
+tools/versanium/tests/test_content_origin.py:21:  self.assertNotIn('GetJavaObjectChecked',cpp);self.assertIn('getForVersaniumDiagnostic',cpp)
+tools/versanium/tests/test_content_origin.py:31:ProxyLookupTest actual=getForVersaniumDiagnostic(w);if((actual!=null)!=(mode==2))throw new AssertionError();
+tools/versanium/tests/test_content_origin.py:53:  selection=json.loads((ROOT/'docs/versanium/content-fullscreen-diagnostic-selection.json').read_text())
+tools/versanium/tests/test_content_origin.py:56:   candidates=[Path(p)/n for p in ['/tmp/versanium156/config-a-origin-selected','/tmp/native-origin156','/tmp/versanium156/forward-reviewed','/tmp/versanium156/source']]
+tools/versanium/tests/test_content_origin.py:57:   p=next((p for p in candidates if p.exists() and hashlib.sha256(p.read_bytes()).hexdigest()==h),None)
+tools/versanium/tests/test_content_origin.py:66:   for call in ['CHECK(', 'DCHECK(', 'CanEnterFullscreenMode(', 'IsFullscreen()', 'ShouldPausePlaybackWhenHidden(', 'canDoPictureInPicture(']:
+tools/versanium/tests/test_content_origin.py:70:    self.assertNotIn('versanium_fullscreen_diagnostic_scope.h',changed)
+tools/versanium/tests/test_content_origin.py:71:   if n==m.PIP:
+tools/versanium/tests/test_content_origin.py:72:    signature='private void reportTitaniumYoutubePip(String stage) {'
+tools/versanium/tests/test_content_origin.py:91:   h=(out/'Proxy_jni.h').read_text();start=h.index('static void Java_WebContentsObserverProxy_versaniumContentFullscreenDiagnostic(');body=h[start:h.index('\n}',start)]
+tools/versanium/tests/test_content_origin.py:93:   lookup=h[h.index('Java_WebContentsObserverProxy_getForVersaniumDiagnostic('):]
+tools/versanium/tests/test_content_origin.py:96:  selection,sources=self.sources();source=m.transform(m.PIP,sources[m.PIP]);sig='        public void versaniumContentFullscreenDiagnostic(int stage) {'
+tools/versanium/tests/test_content_origin.py:100:  java='''public class FullscreenVideoPictureInPictureController {
+tools/versanium/tests/test_content_origin.py:105:void reportTitaniumYoutubePip(String s){calls++;label=s;}
+tools/versanium/tests/test_content_origin.py:111: FullscreenVideoPictureInPictureController c=new FullscreenVideoPictureInPictureController();c.current=new WebContents();SelectedObserver o=c.new SelectedObserver();o.actual=c.current;
+tools/versanium/tests/test_content_origin.py:113: o.versaniumContentFullscreenDiagnostic(stage);boolean expected=mode==0&&stage>=1&&stage<=14;
+tools/versanium/tests/test_content_origin.py:119:   r=Path(d);f=r/'FullscreenVideoPictureInPictureController.java';f.write_text(java)
+tools/versanium/tests/test_content_origin.py:126:  self.assertLess(b.index('Diagnostic(12)'),b.index('SetPersistentState(value)'))
+tools/versanium/tests/test_content_origin.py:127:  self.assertGreater(b.index('Diagnostic(13)'),b.index('SetPersistentState(value)'))
+tools/versanium/tests/test_content_preparation.py:13:import prepare_content_diagnostic as m
+tools/versanium/tests/test_content_preparation.py:14:import content_diagnostic_graph as g
+tools/versanium/tests/test_content_preparation.py:40:    'chrome/android/chrome_java_sources.gni':'FullscreenVideoPictureInPictureController.java'}
+tools/versanium/tests/test_content_preparation.py:67:   inputs=[m.NATIVE_MANIFEST,'tools/apply_fullscreen_native_origin.py','tools/versanium/prepare_native_diagnostic.py',m.SELECTION,m.TRANSFORM,'tools/apply_youtube_candidates.py','tools/apply_fullscreen_delegate_origin.py','tools/youtube_pip/tests/check_source_integration.py']
+tools/versanium/tests/test_content_preparation.py:85:    generator=fixture/'tools/apply_youtube_candidates.py'
+tools/versanium/tests/test_content_preparation.py:86:    before=generator.read_text();self.assertIn('applyVersaniumYoutubeCandidate(String stage)',before)
+tools/versanium/tests/test_content_preparation.py:87:    generator.write_text(before.replace('applyVersaniumYoutubeCandidate(String stage)','applyVersaniumYoutubeCandidate()'))
+tools/versanium/tests/test_content_preparation.py:88:    with self.assertRaisesRegex(RuntimeError,'Content product changed: tools/apply_youtube_candidates.py'):
+tools/versanium/tests/test_content_preparation.py:163:  pip=m.PIP
+tools/versanium/tests/test_content_preparation.py:173:  java_lines+=b'build obj/chrome/android/chrome_java.javac.jar obj/chrome/android/chrome_java.javac.jar.info: '+java_rules[1]+b' ../../'+pip.encode()+b' obj/content/public/android/content_full_java.javac.jar\n'
+tools/versanium/tests/test_content_preparation.py:179:  return source,out,proxy,observer,pip,cpp,header,jni_rule,jni_line,java_lines,java_rules
+tools/versanium/tests/test_content_preparation.py:182:   source,out,proxy,observer,pip,cpp,header,jni_rule,jni_line,java_lines,java_rules=self.make_java_graph(d)
+tools/versanium/tests/test_content_preparation.py:220: def test_java_rule_identity_outputs_and_unique_production_candidates(self):
+tools/versanium/tests/test_content_preparation.py:222:   source,out,proxy,observer,pip,cpp,header,jni_rule,jni_line,java_lines,rules=self.make_java_graph(d)
+tools/versanium/tests/test_content_preparation.py:229:   for wrong in [jni_line+java_lines.replace(name.encode(),b'other.java') for name in [proxy,observer,pip]]+[good.replace(b'content_full_java.javac.jar.info',b'content_full_java.wrong.info'),good.replace(b'compile_java.py',b'turbine.py')]:
+tools/versanium/tests/test_content_preparation.py:247:   source,out,proxy,observer,pip,cpp,header,jni_rule,jni_line,java_lines,rules=self.make_java_graph(d)
+tools/versanium/tests/test_content_preparation.py:253:   for rule,directory,family,names in [(rules[0],b'content/public/android',b'content_full_java',[proxy,observer]),(rules[1],b'chrome/android',b'chrome_java',[pip])]:
+tools/versanium/tests/test_contextmenu_patch.py:45:        candidates=[Path('/tmp/versanium156/source')/REL,Path('/tmp/versanium-contextmenu-fixed156.java')]
+tools/versanium/tests/test_contextmenu_patch.py:46:        p=next((p for p in candidates if p.is_file()),None)
+tools/versanium/tests/test_delegate_origin.py:56:                'org.chromium.chrome.browser.media.FullscreenVideoPictureInPictureController.', 'Test.')
+tools/versanium/tests/test_delegate_origin.py:61:static class FullscreenVideoPictureInPictureController {Provider mActivityTabProvider=new Provider(); void reportTitaniumYoutubePip(String s){events.add(s);}}
+tools/versanium/tests/test_delegate_origin.py:62:static Map<Object,FullscreenVideoPictureInPictureController> sControllers=new HashMap<>();
+tools/versanium/tests/test_delegate_origin.py:77: FullscreenVideoPictureInPictureController c=new FullscreenVideoPictureInPictureController();c.mActivityTabProvider.tab=tab;sControllers.put(new Object(),c);
+tools/versanium/tests/test_delegate_origin.py:89:events.clear();sControllers.clear();FullscreenVideoPictureInPictureController c=new FullscreenVideoPictureInPictureController();c.mActivityTabProvider.tab=new Tab();sControllers.put(new Object(),c);
+tools/versanium/tests/test_diagnostic_update.py:1:"""Tests for Run9 diagnostic-update preparation; no saved host or compiler is used."""
+tools/versanium/tests/test_diagnostic_update.py:10:    "diagnostic_update", ROOT / "tools/versanium/prepare_diagnostic_update.py")
+tools/versanium/tests/test_diagnostic_update.py:14:NEW = Path("/tmp/versanium156/passive-diagnostics-final")
+tools/versanium/tests/test_diagnostic_update.py:17:class DiagnosticUpdateTests(unittest.TestCase):
+tools/versanium/tests/test_diagnostic_update.py:58:        self.assertEqual(d.sha(pipeline.apply_candidate_entries(data)), d.FLAG_CANDIDATE_ONLY_SHA)
+tools/versanium/tests/test_diagnostic_update.py:65:        for name in pipeline.CANDIDATE_FLAGS:
+tools/versanium/tests/test_native_origin.py:23:   p.write_text(p.read_text().replace('void reportNativeFullscreenDiagnostic(', 'private void reportNativeFullscreenDiagnostic('))
+tools/versanium/tests/test_native_origin.py:56:   # Added state observations are diagnostic-only, never repeat permission decisions.
+tools/versanium/tests/test_native_origin.py:66:   (r/'other.cc').write_text('#include "scope.h"\nint nested(){versanium_fullscreen_diagnostic::Scope s;return versanium_fullscreen_diagnostic::depth;}\n')
+tools/versanium/tests/test_native_origin.py:70:int main(){using namespace versanium_fullscreen_diagnostic;
+tools/versanium/tests/test_native_origin.py:78:  s=m.transform(m.JAVA,self.sources()[m.JAVA]);signature='    void reportNativeFullscreenDiagnostic('
+tools/versanium/tests/test_native_origin.py:80:  body=body.replace('@Nullable ','').replace('org.chromium.chrome.browser.media.FullscreenVideoPictureInPictureController','Reporter')
+tools/versanium/tests/test_native_origin.py:98: Reporter.count=0;c.reportNativeFullscreenDiagnostic(w,stage,depth);
+tools/versanium/tests/test_native_preparation.py:13:import prepare_native_diagnostic as m
+tools/versanium/tests/test_native_preparation.py:54:   for forbidden in ['tools/apply_fullscreen_native_origin.py','docs/versanium/config-a-origin-forward-native-manifest.json','tools/versanium/prepare_native_diagnostic.py']:
+tools/versanium/tests/test_run9.py:8:BASEPATCH=subprocess.check_output(['git','-C',str(ROOT),'show',r.BASE+':tools/youtube_pip/execution_scope.patch'],text=True)
+tools/versanium/tests/test_run9.py:9:lines=BASEPATCH.splitlines();start=next(i for i,l in enumerate(lines) if l.startswith('+bool RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed('));end=next(i for i in range(start,len(lines)) if lines[i]=='+}')
+tools/versanium/tests/test_run9.py:15:  self.assertEqual(r.replacement(before,BASEPATCH),before.replace('candidate_url.host_piece()','candidate_url.host()'))
+tools/versanium/tests/test_run9.py:16:  self.assertEqual(subprocess.check_output(['git','-C',str(ROOT),'show','ebfc81cf6ef4388f0f1b29be86e0eb212bc7bce1:tools/youtube_pip/execution_scope.patch'],text=True),BASEPATCH.replace('candidate_url.host_piece()','candidate_url.host()'))
+tools/versanium/tests/test_run9.py:18:  for altered in [OLD.replace('https','http'),OLD.replace('www.youtube.com','twitch.tv'),OLD.replace('IsOffTheRecord()','IsGuest()'),OLD.replace('IsActive()','Other()')]:
+tools/versanium/tests/test_run9.py:23:   check=subprocess.run(['python3',str(ROOT/'tools/youtube_pip/tests/check_execution_scope.py'),'--applied-tree',str(root)],capture_output=True,text=True)
+tools/versanium/tests/test_run9.py:119:   (control/'tools/youtube_pip').mkdir(parents=True)
+tools/versanium/tests/test_run9.py:120:   (control/'tools/youtube_pip/execution_scope.patch').write_text(BASEPATCH.replace('host_piece()','host()'))
+tools/versanium/write_build_provenance.py:22:    for path in sorted((repository/'tools/youtube_pip').glob('*')):
+tools/versanium/write_build_provenance.py:24:    inputs['compiled_youtube_payload']=hashlib.sha256((source/'content/browser/renderer_host/versanium_youtube_candidate.h').read_bytes()).hexdigest()
+tools/youtube_pip/candidate.js:4:      !['youtube.com','www.youtube.com','m.youtube.com'].includes(location.hostname)) return null;
+tools/youtube_pip/candidate.js:10:  let state = window.__versaniumYoutubeState;
+tools/youtube_pip/candidate.js:14:    state = {mobile:false,pip:false,background:false,pauses:0,pauseMethodObserved:false,pauseWithActivation:false,visibilityEvents:0,pipAdjusted:false,backgroundInstalled:false};
+tools/youtube_pip/candidate.js:15:    Object.defineProperty(window,'__versaniumYoutubeState',{value:state});
+tools/youtube_pip/candidate.js:43:        if (record.type === 'attributes' && record.attributeName === 'disablepictureinpicture') {
+tools/youtube_pip/candidate.js:55:        record.attributeName !== 'disablepictureinpicture'));
+tools/youtube_pip/candidate.js:59:      if (!state.mobile || !state.pip) {
+tools/youtube_pip/candidate.js:61:          if (!Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') && video.disablePictureInPicture === false &&
+tools/youtube_pip/candidate.js:62:              !video.hasAttribute('disablepictureinpicture')) {
+tools/youtube_pip/candidate.js:63:            ownWrite(video, () => video.setAttribute('disablepictureinpicture',original));
+tools/youtube_pip/candidate.js:71:          if (!Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') &&
+tools/youtube_pip/candidate.js:72:              video.disablePictureInPicture === false && !video.hasAttribute('disablepictureinpicture')) {
+tools/youtube_pip/candidate.js:73:            ownWrite(video, () => video.setAttribute('disablepictureinpicture',original));
+tools/youtube_pip/candidate.js:79:        if (state.diagnostics && !watched.has(video) && typeof video.pause === 'function' &&
+tools/youtube_pip/candidate.js:84:            if (state.mobile && state.diagnostics) {
+tools/youtube_pip/candidate.js:91:        if (state.pip && observer && video.isConnected && !video.paused && !video.ended && !Object.getOwnPropertyDescriptor(video,'disablePictureInPicture') && 'disablePictureInPicture' in video && video.disablePictureInPicture === true && (attempts.get(video) || 0) < 8) {
+tools/youtube_pip/candidate.js:94:          if (!video.hasAttribute('disablepictureinpicture')) continue;
+tools/youtube_pip/candidate.js:95:          const original = video.getAttribute('disablepictureinpicture');
+tools/youtube_pip/candidate.js:96:          ownWrite(video, () => { video.disablePictureInPicture = false; });
+tools/youtube_pip/candidate.js:97:          if (video.disablePictureInPicture !== false || video.hasAttribute('disablepictureinpicture')) continue;
+tools/youtube_pip/candidate.js:106:        attributes:true,attributeFilter:['disablepictureinpicture']});
+tools/youtube_pip/candidate.js:115:  state.pip = options.pip;
+tools/youtube_pip/candidate.js:117:  state.diagnostics = !!options.diagnostics;
+tools/youtube_pip/candidate.js:120:  return {mobile:!!state.mobile,pip:!!state.pip,background:!!state.background,
+tools/youtube_pip/diagnostics.patch:1:--- a/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
+tools/youtube_pip/diagnostics.patch:2:+++ b/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
+tools/youtube_pip/diagnostics.patch:6:+            reportTitaniumYoutubePip("decision_no_contents");
+tools/youtube_pip/diagnostics.patch:11:         // Only auto-PiP if there is a playing fullscreen video that allows PiP.
+tools/youtube_pip/diagnostics.patch:13:-                || !webContents.isPictureInPictureAllowedForFullscreenVideo()) {
+tools/youtube_pip/diagnostics.patch:15:+            reportTitaniumYoutubePip("decision_no_active_fullscreen");
+tools/youtube_pip/diagnostics.patch:18:+        if (!webContents.isPictureInPictureAllowedForFullscreenVideo()) {
+tools/youtube_pip/diagnostics.patch:19:+            reportTitaniumYoutubePip("decision_video_disallows");
+tools/youtube_pip/diagnostics.patch:25:                 .hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
+tools/youtube_pip/diagnostics.patch:26:+            reportTitaniumYoutubePip("decision_device_unsupported");
+tools/youtube_pip/diagnostics.patch:27:             Log.d(TAG, "Activity does not have PiP feature.");
+tools/youtube_pip/diagnostics.patch:31:         if (checkCurrentMode && mActivity.isInPictureInPictureMode()) {
+tools/youtube_pip/diagnostics.patch:32:+            reportTitaniumYoutubePip("decision_already_in_pip");
+tools/youtube_pip/diagnostics.patch:33:             Log.d(TAG, "Activity is already in PiP.");
+tools/youtube_pip/diagnostics.patch:38:+            reportTitaniumYoutubePip("decision_changing");
+tools/youtube_pip/diagnostics.patch:44:+            reportTitaniumYoutubePip("decision_finishing");
+tools/youtube_pip/diagnostics.patch:50:+            reportTitaniumYoutubePip("decision_recent_task");
+tools/youtube_pip/diagnostics.patch:51:             Log.d(TAG, "Block pip due to recent app tasks.");
+tools/youtube_pip/diagnostics.patch:59:+    /** Fixed internal event labels only; reuses normal-profile/YouTube diagnostic gates. */
+tools/youtube_pip/diagnostics.patch:61:+        FullscreenVideoPictureInPictureController controller = sControllers.get(activity);
+tools/youtube_pip/diagnostics.patch:64:+            controller.reportTitaniumYoutubePip(origin);
+tools/youtube_pip/diagnostics.patch:68:+    private String mLastTitaniumPipDiagnostic = "";
+tools/youtube_pip/diagnostics.patch:70:+    private void reportTitaniumYoutubePip(String stage) {
+tools/youtube_pip/diagnostics.patch:73:+                        "versanium-youtube-diagnostics")
+tools/youtube_pip/diagnostics.patch:81:+        if (!"https".equals(url.getScheme()) || !("youtube.com".equals(host)
+tools/youtube_pip/diagnostics.patch:82:+                || "www.youtube.com".equals(host) || "m.youtube.com".equals(host))) return;
+tools/youtube_pip/diagnostics.patch:84:+                + " inPip=" + mActivity.isInPictureInPictureMode()
+tools/youtube_pip/diagnostics.patch:86:+        if (!record.equals(mLastTitaniumPipDiagnostic)) {
+tools/youtube_pip/diagnostics.patch:87:+            mLastTitaniumPipDiagnostic = record;
+tools/youtube_pip/diagnostics.patch:96:     public void attemptPictureInPicture() {
+tools/youtube_pip/diagnostics.patch:98:         final boolean allowed = canDoPictureInPicture();
+tools/youtube_pip/diagnostics.patch:99:+        reportTitaniumYoutubePip(allowed ? "attempt_allowed" : "attempt_blocked");
+tools/youtube_pip/diagnostics.patch:102:                 "Attempted picture-in-picture with result: " + (allowed ? "success" : "failure"));
+tools/youtube_pip/diagnostics.patch:107:-            if (!mActivity.enterPictureInPictureMode(builder.build())) return;
+tools/youtube_pip/diagnostics.patch:108:+            if (!mActivity.enterPictureInPictureMode(builder.build())) {
+tools/youtube_pip/diagnostics.patch:109:+                reportTitaniumYoutubePip("api_false");
+tools/youtube_pip/diagnostics.patch:112:+            reportTitaniumYoutubePip("api_true");
+tools/youtube_pip/diagnostics.patch:114:+            reportTitaniumYoutubePip("api_exception");
+tools/youtube_pip/diagnostics.patch:115:             Log.e(TAG, "Error entering PiP with bounds %s", bounds, e);
+tools/youtube_pip/diagnostics.patch:119:      * {@link #attemptPictureInPicture()} or because we auto-entered Picture in Picture.
+tools/youtube_pip/diagnostics.patch:121:     public void onEnteredPictureInPictureMode() {
+tools/youtube_pip/diagnostics.patch:122:+        reportTitaniumYoutubePip("framework_entered");
+tools/youtube_pip/diagnostics.patch:123:         Log.i(TAG, "Entered Picture-in-picture.");
+tools/youtube_pip/diagnostics.patch:127:+        reportTitaniumYoutubePip("persistent_video_request");
+tools/youtube_pip/diagnostics.patch:129:+        reportTitaniumYoutubePip("persistent_video_returned");
+tools/youtube_pip/diagnostics.patch:136:+            reportTitaniumYoutubePip("stop_suspend");
+tools/youtube_pip/diagnostics.patch:143:+                reportTitaniumYoutubePip("stop_suspend_called");
+tools/youtube_pip/diagnostics.patch:145:+                reportTitaniumYoutubePip(mediaSession == null ? "stop_no_session" : "stop_not_playing");
+tools/youtube_pip/diagnostics.patch:151:+        reportTitaniumYoutubePip("resume");
+tools/youtube_pip/diagnostics.patch:152:         // Pip was restored rather than closed, so media should keep playing.
+tools/youtube_pip/diagnostics.patch:154:         // Unconditionally dismiss pip, because the activity has been resumed.  This can happen if
+tools/youtube_pip/diagnostics.patch:156:      * required. It's okay to call this even when we don't believe that we're in PiP mode.
+tools/youtube_pip/diagnostics.patch:158:     public void onFrameworkExitedPictureInPicture() {
+tools/youtube_pip/diagnostics.patch:159:+        reportTitaniumYoutubePip("framework_exited");
+tools/youtube_pip/diagnostics.patch:160:         Log.i(TAG, "Framework exited picture in picture");
+tools/youtube_pip/diagnostics.patch:161:         onExitedPictureInPicture(MetricsEndReason.RESUME);
+tools/youtube_pip/diagnostics.patch:164:         // Do not check if we're in PiP mode or not, since we're called during transitions into and
+tools/youtube_pip/diagnostics.patch:166:         final boolean allowed = canDoPictureInPicture(false);
+tools/youtube_pip/diagnostics.patch:167:+        reportTitaniumYoutubePip(allowed ? "auto_allowed" : "auto_blocked");
+tools/youtube_pip/diagnostics.patch:172:      * This will also update our auto-PiP preference with the framework, if it's changed.
+tools/youtube_pip/diagnostics.patch:175:+        reportTitaniumYoutubePip("dismiss_" + reason);
+tools/youtube_pip/diagnostics.patch:176:         // Something interesting happened -- make sure we've updated our preference for auto-PiP
+tools/youtube_pip/diagnostics.patch:181:+            reportTitaniumYoutubePip("dismiss_inactive_" + reason);
+tools/youtube_pip/diagnostics.patch:186:+            reportTitaniumYoutubePip("dismiss_deferred_" + reason);
+tools/youtube_pip/diagnostics.patch:190:+            reportTitaniumYoutubePip("dismiss_move_request_" + reason);
+tools/youtube_pip/diagnostics.patch:192:+            reportTitaniumYoutubePip((moved ? "dismiss_move_true_" : "dismiss_move_false_") + reason);
+tools/youtube_pip/diagnostics.patch:193:             onExitedPictureInPicture(reason);
+tools/youtube_pip/diagnostics.patch:196:+            reportTitaniumYoutubePip("dismiss_screen_off_" + reason);
+tools/youtube_pip/diagnostics.patch:200:+            reportTitaniumYoutubePip("media_started");
+tools/youtube_pip/diagnostics.patch:203:             updateAutoPictureInPictureStatusIfNeeded();
+tools/youtube_pip/diagnostics.patch:206:+            reportTitaniumYoutubePip("media_stopped");
+tools/youtube_pip/diagnostics.patch:208:             // if it is, note that this won't cause us to exit Picture in Picture mode if we're in
+tools/youtube_pip/diagnostics.patch:212:+            reportTitaniumYoutubePip(isFullscreen ? "effective_fullscreen_true" : "effective_fullscreen_false");
+tools/youtube_pip/diagnostics.patch:215:                 updateAutoPictureInPictureStatusIfNeeded();
+tools/youtube_pip/diagnostics.patch:223:+    {"versanium-youtube-diagnostics", "Versanium YouTube PiP diagnostics",
+tools/youtube_pip/diagnostics.patch:224:+     "Log existing PiP decision stages for normal YouTube tabs; no script injection or fullscreen permission probes. Disable after testing.",
+tools/youtube_pip/diagnostics.patch:225:+     kOsAndroid, SINGLE_VALUE_TYPE("versanium-youtube-diagnostics")},
+tools/youtube_pip/diagnostics.patch:236:+    "name": "versanium-youtube-diagnostics",
+tools/youtube_pip/execution_scope.patch:8:+  // Fixed compiled candidate only. No caller-provided script or CHECK exception.
+tools/youtube_pip/execution_scope.patch:9:+  static bool IsVersaniumYoutubeScopeAllowed(RenderFrameHost* frame);
+tools/youtube_pip/execution_scope.patch:10:+  void ExecuteVersaniumYoutubeCandidate(bool mobile,
+tools/youtube_pip/execution_scope.patch:23:+#include "content/browser/renderer_host/versanium_youtube_candidate.h"
+tools/youtube_pip/execution_scope.patch:33:+void RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate(
+tools/youtube_pip/execution_scope.patch:36:+  if (!IsVersaniumYoutubeScopeAllowed(this))
+tools/youtube_pip/execution_scope.patch:42:+  options += u",\"pip\":";
+tools/youtube_pip/execution_scope.patch:43:+  options += command->HasSwitch("versanium-youtube-pip-candidate") ? u"true" : u"false";
+tools/youtube_pip/execution_scope.patch:45:+  options += command->HasSwitch("versanium-youtube-background-candidate") ? u"true" : u"false";
+tools/youtube_pip/execution_scope.patch:46:+  options += u",\"diagnostics\":";
+tools/youtube_pip/execution_scope.patch:47:+  options += u"false";  // Diagnostics is passive Java event logging only.
+tools/youtube_pip/execution_scope.patch:49:+  std::u16string script = kVersaniumYoutubeCandidate;
+tools/youtube_pip/execution_scope.patch:66:+bool RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(RenderFrameHost* frame) {
+tools/youtube_pip/execution_scope.patch:72:+  BrowserContext* candidate_context = frame->GetProcess()->GetBrowserContext();
+tools/youtube_pip/execution_scope.patch:73:+  if (candidate_context->IsOffTheRecord() || candidate_context->ShutdownStarted()) {
+tools/youtube_pip/execution_scope.patch:76:+  const GURL& candidate_url = frame->GetLastCommittedURL();
+tools/youtube_pip/execution_scope.patch:77:+  if (!candidate_url.SchemeIs("https") ||
+tools/youtube_pip/execution_scope.patch:78:+      !(candidate_url.host() == "youtube.com" ||
+tools/youtube_pip/execution_scope.patch:79:+        candidate_url.host() == "www.youtube.com" ||
+tools/youtube_pip/execution_scope.patch:80:+        candidate_url.host() == "m.youtube.com")) {
+tools/youtube_pip/execution_scope.patch:83:+  const auto* candidate_command = base::CommandLine::ForCurrentProcess();
+tools/youtube_pip/execution_scope.patch:84:+  return candidate_command->HasSwitch("versanium-youtube-pip-candidate") ||
+tools/youtube_pip/execution_scope.patch:85:+         candidate_command->HasSwitch("versanium-youtube-background-candidate");
+tools/youtube_pip/execution_scope.patch:97:+  void ApplyVersaniumYoutubeCandidate(
+tools/youtube_pip/execution_scope.patch:117:+void WebContentsAndroid::ApplyVersaniumYoutubeCandidate(
+tools/youtube_pip/execution_scope.patch:121:+      !RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(frame)) {
+tools/youtube_pip/execution_scope.patch:130:+  static_cast<RenderFrameHostImpl*>(frame)->ExecuteVersaniumYoutubeCandidate(
+tools/youtube_pip/execution_scope.patch:143:+    /** Runs only the compiled opt-in YouTube candidate. No caller-supplied JavaScript. */
+tools/youtube_pip/execution_scope.patch:144:+    default void applyVersaniumYoutubeCandidate(boolean mobile, @Nullable JavaScriptCallback callback) {}
+tools/youtube_pip/execution_scope.patch:156:+    public void applyVersaniumYoutubeCandidate(boolean mobile, @Nullable JavaScriptCallback callback) {
+tools/youtube_pip/execution_scope.patch:159:+        WebContentsImplJni.get().applyVersaniumYoutubeCandidate(mNativeWebContentsAndroid, mobile, callback);
+tools/youtube_pip/execution_scope.patch:170:+        void applyVersaniumYoutubeCandidate(
+tools/youtube_pip/execution_scope.patch:182:+      "renderer_host/versanium_youtube_candidate.h",
+tools/youtube_pip/tests/check_execution_scope.py:14:body=re.search(r'bool RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed\(RenderFrameHost\* frame\) \{[\s\S]*?\n\}',s).group()
+tools/youtube_pip/tests/check_execution_scope.py:30:class GURL {public:std::string scheme="https",hostname="www.youtube.com";
+tools/youtube_pip/tests/check_execution_scope.py:39:class RenderFrameHostImpl {public:static bool IsVersaniumYoutubeScopeAllowed(RenderFrameHost*);};
+tools/youtube_pip/tests/check_execution_scope.py:43: auto check=[&](bool expected){assert(RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(&frame)==expected);++checks;};
+tools/youtube_pip/tests/check_execution_scope.py:44: assert(!RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed(nullptr));++checks;
+tools/youtube_pip/tests/check_execution_scope.py:46: for(auto flag:{"versanium-youtube-pip-candidate","versanium-youtube-background-candidate","versanium-youtube-diagnostics"}){
+tools/youtube_pip/tests/check_execution_scope.py:47:  base::CommandLine::current.flags={flag};check(std::string(flag)!="versanium-youtube-diagnostics");
+tools/youtube_pip/tests/check_execution_scope.py:49: base::CommandLine::current.flags={"versanium-youtube-background-candidate"};
+tools/youtube_pip/tests/check_execution_scope.py:51: frame.url.hostname="youtube.com.attacker.test";check(false);frame.url.hostname="twitch.tv";check(false);
+tools/youtube_pip/tests/check_execution_scope.py:52: for(auto host:{"youtube.com","www.youtube.com","m.youtube.com"}){frame.url.hostname=host;check(true);}
+tools/youtube_pip/tests/check_execution_scope.py:59: std::cout<<"Native YouTube scope: "<<checks<<" model cases PASS; not Chromium compilation\n";
+tools/youtube_pip/tests/check_fullscreen_origins.py:15:for needle in ['isInPictureInPictureMode()', 'isDisplayEdgeToEdgeFullscreenFeatureEnabledOn2DDevice()', 'sEnableExclusiveAccessManager.isEnabled()']:
+tools/youtube_pip/tests/check_fullscreen_origins.py:19:method=method.replace('org.chromium.chrome.browser.media.FullscreenVideoPictureInPictureController.','Reporter.')
+tools/youtube_pip/tests/check_fullscreen_origins.py:25:static class Activity {boolean pip;int reads;boolean isInPictureInPictureMode(){reads++;return pip;}}
+tools/youtube_pip/tests/check_fullscreen_origins.py:33:  if((bits&4)!=0)t.mTab=null;t.mActivity.pip=(bits&8)!=0;t.mIsInMultiWindowMode=(bits&16)!=0;boolean incoming=(bits&32)!=0;
+tools/youtube_pip/tests/check_fullscreen_origins.py:34:  Reporter.events.clear();boolean expected=t.edge&&!ChromeFeatureList.sEnableExclusiveAccessManager.enabled&&t.mTab!=null&&!t.mActivity.pip&&!t.mIsInMultiWindowMode&&incoming;
+tools/youtube_pip/tests/check_fullscreen_origins.py:40: System.out.println(count+" actual multiwindow Java-double branches PASS; no extra PiP getter calls");
+tools/youtube_pip/tests/check_fullscreen_origins.py:43:controller=(a.applied_tree/'chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java').read_text()
+tools/youtube_pip/tests/check_fullscreen_origins.py:48:public class FullscreenVideoPictureInPictureController {
+tools/youtube_pip/tests/check_fullscreen_origins.py:51:static Map<Activity,FullscreenVideoPictureInPictureController> sControllers=new HashMap<>();Provider mActivityTabProvider=new Provider();int reports;
+tools/youtube_pip/tests/check_fullscreen_origins.py:52:void reportTitaniumYoutubePip(String s){reports++;}
+tools/youtube_pip/tests/check_fullscreen_origins.py:56:  Activity a=new Activity();FullscreenVideoPictureInPictureController c=new FullscreenVideoPictureInPictureController();Tab tab=new Tab();c.mActivityTabProvider.tab=tab;
+tools/youtube_pip/tests/check_fullscreen_origins.py:65: root=Path(d);f=root/'OriginTest.java';f.write_text(java);g=root/'FullscreenVideoPictureInPictureController.java';g.write_text(entry_test)
+tools/youtube_pip/tests/check_fullscreen_origins.py:67: for name in ['OriginTest','FullscreenVideoPictureInPictureController']:subprocess.run(['java','-cp',d,name],check=True)
+tools/youtube_pip/tests/check_passive_diagnostics.py:8:s=(a.applied_tree/'chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java').read_text()
+tools/youtube_pip/tests/check_passive_diagnostics.py:9:method=s.split('    private void reportTitaniumYoutubePip(String stage) {',1)[1].split('\n    private boolean canStartPipBasedOnRecentTasks',1)[0]
+tools/youtube_pip/tests/check_passive_diagnostics.py:10:method='private void reportTitaniumYoutubePip(String stage) {'+method
+tools/youtube_pip/tests/check_passive_diagnostics.py:14:# the pre-fix diagnostic method fails to compile against this passive boundary.
+tools/youtube_pip/tests/check_passive_diagnostics.py:15:fixture='''public class DiagnosticTest {
+tools/youtube_pip/tests/check_passive_diagnostics.py:18:static class GURL {String scheme="https",host="youtube.com";String getScheme(){return scheme;}String getHost(){return host;}}
+tools/youtube_pip/tests/check_passive_diagnostics.py:19:static class Activity {boolean dead,finishing;boolean isDestroyed(){return dead;}boolean isFinishing(){return finishing;}boolean isInPictureInPictureMode(){return false;}boolean isChangingConfigurations(){return false;}}
+tools/youtube_pip/tests/check_passive_diagnostics.py:25:String mLastTitaniumPipDiagnostic="";
+tools/youtube_pip/tests/check_passive_diagnostics.py:29: DiagnosticTest d=new DiagnosticTest();Log.count=0;CommandLine.enabled=true;
+tools/youtube_pip/tests/check_passive_diagnostics.py:30: switch(mode){case 1:CommandLine.enabled=false;break;case 2:d.mActivity.dead=true;break;case 3:d.mActivity.finishing=true;break;case 4:d.mActivityTabProvider.tab.privateMode=true;break;case 5:d.contents.dead=true;break;case 6:d.contents.url.host="youtube.com.attacker.test";break;case 7:d.contents.url.scheme="http";break;case 8:d.mActivityTabProvider.tab.dead=true;break;}
+tools/youtube_pip/tests/check_passive_diagnostics.py:31: d.reportTitaniumYoutubePip("auto_blocked");d.reportTitaniumYoutubePip("auto_blocked");
+tools/youtube_pip/tests/check_passive_diagnostics.py:38: f=Path(d)/'DiagnosticTest.java';f.write_text(fixture)
+tools/youtube_pip/tests/check_passive_diagnostics.py:41: subprocess.run(['java','-cp',d,'DiagnosticTest'],check=True)
+tools/youtube_pip/tests/check_passive_diagnostics.py:43:assert tab_source.count('private void applyVersaniumYoutubeCandidate() {')==1
+tools/youtube_pip/tests/check_passive_diagnostics.py:44:assert tab_source.count('applyVersaniumYoutubeCandidate();')==4
+tools/youtube_pip/tests/check_passive_diagnostics.py:45:assert 'applyVersaniumYoutubeCandidate(String stage)' not in tab_source
+tools/youtube_pip/tests/check_passive_diagnostics.py:46:tab=tab_source.split('private void applyVersaniumYoutubeCandidate()',1)[1].split('void didFinishPageLoad',1)[0]
+tools/youtube_pip/tests/check_passive_diagnostics.py:47:assert 'versanium-youtube-diagnostics' not in tab
+tools/youtube_pip/tests/check_passive_diagnostics.py:48:assert 'if (!pip && !background) return;' in tab
+tools/youtube_pip/tests/check_passive_diagnostics.py:49:assert tab.count('contents.applyVersaniumYoutubeCandidate(mobile, null);')==1
+tools/youtube_pip/tests/check_passive_diagnostics.py:51:scope=native.split('bool RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed',1)[1].split('\n}',1)[0]
+tools/youtube_pip/tests/check_passive_diagnostics.py:52:assert 'versanium-youtube-diagnostics' not in scope
+tools/youtube_pip/tests/check_passive_diagnostics.py:53:fixed=native.split('void RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate',1)[1].split('\n}',1)[0]
+tools/youtube_pip/tests/check_passive_diagnostics.py:54:assert 'options += u"false";  // Diagnostics is passive Java event logging only.' in fixed
+tools/youtube_pip/tests/check_passive_diagnostics.py:55:assert 'isPictureInPictureAllowedForFullscreenVideo' not in method
+tools/youtube_pip/tests/check_passive_diagnostics.py:57:print('Applied Tab/JNI scope: diagnostics does not authorize injection or callback; source checks PASS')
+tools/youtube_pip/tests/check_pip_branches.py:11:s=(a.applied_tree/'chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java').read_text()
+tools/youtube_pip/tests/check_pip_branches.py:14:decision=method('private boolean canDoPictureInPicture(boolean checkCurrentMode) {')
+tools/youtube_pip/tests/check_pip_branches.py:17:assert decision.count('webContents.isPictureInPictureAllowedForFullscreenVideo()')==1
+tools/youtube_pip/tests/check_pip_branches.py:22:static class PackageManager {static String FEATURE_PICTURE_IN_PICTURE="pip";boolean supported=true;boolean hasSystemFeature(String s){return supported;}}
+tools/youtube_pip/tests/check_pip_branches.py:23:static class Activity {boolean pip,changing,finishing,moved=true;int moves;PackageManager pm=new PackageManager();PackageManager getPackageManager(){return pm;}boolean isInPictureInPictureMode(){return pip;}boolean isChangingConfigurations(){return changing;}boolean isFinishing(){return finishing;}boolean moveTaskToBack(boolean b){moves++;return moved;}}
+tools/youtube_pip/tests/check_pip_branches.py:24:static class WebContents {boolean full=true,allowed=true;int fullReads,permissionReads;boolean hasActiveEffectivelyFullscreenVideo(){fullReads++;return full;}boolean isPictureInPictureAllowedForFullscreenVideo(){permissionReads++;if(!full)throw new AssertionError("unsafe permission probe");return allowed;}}
+tools/youtube_pip/tests/check_pip_branches.py:36:void reportTitaniumYoutubePip(String s){events.add(s);}void updateAutoPictureInPictureStatusIfNeeded(){autoUpdates++;}boolean isPipSessionActive(){return active;}
+tools/youtube_pip/tests/check_pip_branches.py:37:void onExitedPictureInPicture(int reason){exits++;}MediaSession getMediaSession(){return session;}
+tools/youtube_pip/tests/check_pip_branches.py:41:for(int mode=0;mode<9;mode++){PipBranchTest t=new PipBranchTest();switch(mode){case 0:t.contents=null;break;case 1:t.contents.full=false;break;case 2:t.contents.allowed=false;break;case 3:t.mActivity.pm.supported=false;break;case 4:t.mActivity.pip=true;break;case 5:t.mActivity.changing=true;break;case 6:t.mActivity.finishing=true;break;case 7:t.recent=false;break;}
+tools/youtube_pip/tests/check_pip_branches.py:42: if(t.canDoPictureInPicture(true)!=(mode==8))throw new AssertionError("decision "+mode);
+tools/youtube_pip/tests/check_pip_branches.py:46:PipBranchTest t=new PipBranchTest();t.mActivity.pip=true;if(!t.canDoPictureInPicture(false))throw new AssertionError();checks++;
+tools/youtube_pip/tests/check_pip_branches.py:64:assert stop.index('mediaSession.suspend(SuspendType.SYSTEM);') < stop.index('reportTitaniumYoutubePip("stop_suspend_called")')
+tools/youtube_pip/tests/check_source_integration.py:11:paths=[line[6:] for line in (repo/'tools/youtube_pip/diagnostics.patch').read_text().splitlines() if line.startswith('--- a/')]
+tools/youtube_pip/tests/check_source_integration.py:12:paths += [line[6:] for line in (repo/'tools/youtube_pip/execution_scope.patch').read_text().splitlines() if line.startswith('--- a/')]
+tools/youtube_pip/tests/check_source_integration.py:18:from apply_fullscreen_native_origin import FILES as native_diagnostic_inputs
+tools/youtube_pip/tests/check_source_integration.py:19:paths+=list(native_diagnostic_inputs)
+tools/youtube_pip/tests/check_source_integration.py:20:from apply_content_fullscreen_origin import FILES as content_diagnostic_inputs
+tools/youtube_pip/tests/check_source_integration.py:21:paths+=list(content_diagnostic_inputs)
+tools/youtube_pip/tests/check_source_integration.py:48:from apply_youtube_candidates import apply
+tools/youtube_pip/tests/check_source_integration.py:53:for name in ('versanium-youtube-diagnostics','versanium-youtube-pip-candidate','versanium-youtube-background-candidate'):
+tools/youtube_pip/tests/check_source_integration.py:58:assert tab.count('private void applyVersaniumYoutubeCandidate() {')==1
+tools/youtube_pip/tests/check_source_integration.py:59:assert tab.count('applyVersaniumYoutubeCandidate();')==4
+tools/youtube_pip/tests/check_source_integration.py:60:assert len(re.findall(r'^        applyVersaniumYoutubeCandidate\(\);$',tab,re.M))==3
+tools/youtube_pip/tests/check_source_integration.py:61:assert tab.count('if (active != null) active.applyVersaniumYoutubeCandidate();')==1
+tools/youtube_pip/tests/check_source_integration.py:63: assert 'applyVersaniumYoutubeCandidate("'+label+'")' not in tab
+tools/youtube_pip/tests/check_source_integration.py:67: assert anchor+'\n        applyVersaniumYoutubeCandidate();' in tab
+tools/youtube_pip/tests/check_source_integration.py:68:assert 'if (active != null) active.applyVersaniumYoutubeCandidate();' in tab
+tools/youtube_pip/tests/check_source_integration.py:69:assert 'applyVersaniumYoutubeCandidate(String stage)' not in tab
+tools/youtube_pip/tests/check_source_integration.py:70:assert tab.count('contents.applyVersaniumYoutubeCandidate(mobile, null);')==1
+tools/youtube_pip/tests/check_source_integration.py:73:assert 'void RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate(' in native
+tools/youtube_pip/tests/check_source_integration.py:74:assert 'kVersaniumYoutubeCandidate' in native
+tools/youtube_pip/tests/check_source_integration.py:83:header=(a.output_dir/'content/browser/renderer_host/versanium_youtube_candidate.h').read_text()
+tools/youtube_pip/tests/check_source_integration.py:84:assert (repo/'tools/youtube_pip/candidate.js').read_text() in header
+tools/youtube_pip/tests/check_source_integration.py:85:assert 'versanium-youtube-candidate-v1' not in (repo/'tools/youtube_pip/execution_scope.patch').read_text()
+tools/youtube_pip/tests/check_source_integration.py:89:assert 'candidate_context->IsOffTheRecord()' in native
+tools/youtube_pip/tests/check_source_integration.py:90:assert 'candidate_context->ShutdownStarted()' in native
+tools/youtube_pip/tests/check_source_integration.py:93:assert 'ApplyVersaniumYoutubeCandidate(\n    JNIEnv* env, bool mobile, const JavaRef<jobject>& callback)' in entry
+tools/youtube_pip/tests/check_source_integration.py:94:fixed=native.split('void RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate(',1)[1].split('\n}\n',1)[0]
+tools/youtube_pip/tests/check_source_integration.py:95:assert 'if (!IsVersaniumYoutubeScopeAllowed(this))' in fixed
+tools/youtube_pip/tests/check_source_integration.py:96:assert 'std::u16string script = kVersaniumYoutubeCandidate;' in fixed
+tools/youtube_pip/tests/check_source_integration.py:101:assert 'renderer_host/versanium_youtube_candidate.h' in (a.output_dir/'content/browser/BUILD.gn').read_text()
+tools/youtube_pip/tests/check_source_integration.py:102:assert 'contents.applyVersaniumYoutubeCandidate(mobile, null)' in (repo/'tools/apply_youtube_candidates.py').read_text()
+tools/youtube_pip/tests/check_source_integration.py:103:assert 'contents.evaluateJavaScript(' not in (repo/'tools/apply_youtube_candidates.py').read_text()
+tools/youtube_pip/tests/check_source_integration.py:104:assert 'AllowInjectingJavaScript();' not in (repo/'tools/youtube_pip/execution_scope.patch').read_text()
+tools/youtube_pip/tests/check_source_integration.py:105:print('Pinned 156 + selected Vanadium + zoom/SAF + F11 + inherited media policy + PiP hooks/flags PASS')
+tools/youtube_pip/tests/test_candidate.cjs:1:// VM DOM model tests: not Chromium/YouTube or a real media renderer.
+tools/youtube_pip/tests/test_candidate.cjs:3:const template=fs.readFileSync('tools/youtube_pip/candidate.js','utf8');
+tools/youtube_pip/tests/test_candidate.cjs:5:function model(host='www.youtube.com',top=true,known=true,observed=true){
+tools/youtube_pip/tests/test_candidate.cjs:9:  constructor(){this.attrs=new Map([['disablepictureinpicture','original']]);this.paused=false;this.plays=0;this.isConnected=true;}
+tools/youtube_pip/tests/test_candidate.cjs:10:  get disablePictureInPicture(){return this.hasAttribute('disablepictureinpicture');}
+tools/youtube_pip/tests/test_candidate.cjs:11:  set disablePictureInPicture(value){if(value)this.setAttribute('disablepictureinpicture','');else this.removeAttribute('disablepictureinpicture');}
+tools/youtube_pip/tests/test_candidate.cjs:29:let m=model();let result=m.run({mobile:true,pip:true,background:true});
+tools/youtube_pip/tests/test_candidate.cjs:33:assert.equal(m.run({mobile:true,pip:true,background:true}).pauseObserved,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:38:m.run({mobile:false,pip:true,background:true});assert.equal(m.doc.hidden,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:40:m=model();m.run({mobile:true,pip:true,background:false});assert.equal(m.doc.hidden,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:41:m=model();m.run({mobile:true,pip:false,background:true});assert.equal(m.video.disablePictureInPicture,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:42:for(const host of ['twitch.tv','youtube.com.attacker.test','youtu.be']){
+tools/youtube_pip/tests/test_candidate.cjs:43: m=model(host);assert.equal(m.run({mobile:true,pip:true,background:true}),null);assert.equal(m.video.disablePictureInPicture,true);checks+=2;
+tools/youtube_pip/tests/test_candidate.cjs:45:m=model('www.youtube.com',false);assert.equal(m.run({mobile:true,pip:true,background:true}),null);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:46:m=model('www.youtube.com',true,false);m.run({mobile:true,pip:false,background:true});assert.equal(m.doc.hidden,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:47:m=model();m.run({mobile:true,pip:false,background:false,diagnostics:true});m.video.pause();
+tools/youtube_pip/tests/test_candidate.cjs:48:assert.equal(m.run({mobile:true,pip:false,background:false,diagnostics:true}).pauseMethodObserved,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:50:m=model();m.video.paused=true;m.run({mobile:true,pip:true,background:true});
+tools/youtube_pip/tests/test_candidate.cjs:51:assert.equal(m.video.disablePictureInPicture,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:52:m.video.paused=false;m.listeners.play();assert.equal(m.video.disablePictureInPicture,false);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:54:m=model();m.run({mobile:true,pip:true});assert.equal(m.video.disablePictureInPicture,false);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:55:m.run({mobile:false,pip:true});assert.equal(m.video.disablePictureInPicture,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:56:assert.equal(m.video.getAttribute('disablepictureinpicture'),'original');checks++;
+tools/youtube_pip/tests/test_candidate.cjs:57:m.run({mobile:true,pip:true});assert.equal(m.video.disablePictureInPicture,false);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:59:m.video.setAttribute('disablepictureinpicture','site-new');m.video.removeAttribute('disablepictureinpicture');
+tools/youtube_pip/tests/test_candidate.cjs:60:m.run({mobile:false,pip:true});assert.equal(m.video.disablePictureInPicture,false);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:61:m=model();m.run({mobile:true,pip:true});m.video.setAttribute('disablepictureinpicture','site-new');
+tools/youtube_pip/tests/test_candidate.cjs:62:m.run({mobile:false,pip:true});assert.equal(m.video.getAttribute('disablepictureinpicture'),'site-new');checks++;
+tools/youtube_pip/tests/test_candidate.cjs:63:m=model();m.run({mobile:true,pip:true});m.run({mobile:true,pip:false});
+tools/youtube_pip/tests/test_candidate.cjs:64:assert.equal(m.video.getAttribute('disablepictureinpicture'),'original');checks++;
+tools/youtube_pip/tests/test_candidate.cjs:65:m=model();m.run({mobile:true,pip:true});m.video.isConnected=false;m.run({mobile:false,pip:true});
+tools/youtube_pip/tests/test_candidate.cjs:66:assert.equal(m.video.disablePictureInPicture,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:67:m=model();Object.defineProperty(m.video,'disablePictureInPicture',{value:true,writable:true});
+tools/youtube_pip/tests/test_candidate.cjs:68:m.run({mobile:true,pip:true});assert.equal(m.video.disablePictureInPicture,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:69:m=model('www.youtube.com',true,true,false);m.run({mobile:true,pip:true});
+tools/youtube_pip/tests/test_candidate.cjs:70:assert.equal(m.video.disablePictureInPicture,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:71:m=model();m.run({mobile:true,pip:true});m.video.isConnected=false;m.mutation();
+tools/youtube_pip/tests/test_candidate.cjs:72:assert.equal(m.video.getAttribute('disablepictureinpicture'),'original');checks++;
+tools/youtube_pip/tests/test_candidate.cjs:73:m.video.isConnected=true;m.run({mobile:false,pip:true});assert.equal(m.video.disablePictureInPicture,true);checks++;
+tools/youtube_pip/tests/test_candidate.cjs:74:console.log(`YouTube candidate: ${checks} DOM-model checks PASS; real playback/PiP unverified`);

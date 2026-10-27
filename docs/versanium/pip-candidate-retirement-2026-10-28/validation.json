@@ -1,0 +1,31 @@
+{
+  "checks_passed": [
+    "All 126 protected input files byte-identical (including all pre-existing docs/evidence, Zoom, pins, workflows, branding)",
+    "All 34 planned old candidate files absent",
+    "patch.sh exact one-line deletion only; Zoom/F11/context-menu shard2/inherited media and non-PiP edits unchanged",
+    "Shared provenance recorder: only 3 old-candidate lines removed",
+    "No executable reference to a deleted candidate generator, patch, test or controller",
+    "No old product flag, TabImpl candidate hook, controller logger or diagnostic scope reference in executable product inputs",
+    "Python AST syntax: 28 remaining tool/test files",
+    "patch.sh Bash 5.2 syntax via bundled sh.exe; script NOT executed",
+    "F11 embedded Python syntax retained",
+    "Existing Chromium156/Vanadium revision gate: 5 metadata-model cases",
+    "test_contextmenu_patch.py: ran 4; skips 3 (fixed source/fixture unavailable)",
+    "test_selected_pipeline.py: ran 4; skips 8 (fixed source/fixture unavailable)",
+    "Asset mismatch diagnosed: 2 pre-existing CRLF worktree text files; committed LF blobs match asset ledger; no asset edits",
+    "git diff --check"
+  ],
+  "asset_check_raw": "FAIL on pre-existing CRLF asset; committed blobs and start hashes verified; no fix in PiP cleanup",
+  "asset_crlf_files": [
+    "res/versanium/android/mipmap-nodpi/layered_app_icon_foreground.xml",
+    "res/versanium/android/drawable/themed_app_icon.xml"
+  ],
+  "limitations": [
+    "Migration/resume suite unavailable: bundled Python has no PyYAML; no dependencies installed",
+    "No JDK/javac/java available: JVM Zoom policy/bridge/persistence/backup tests not run",
+    "No pinned Chromium source/selected fixture: real patch application and integration skipped",
+    "No GN/build/Actions/APK/device validation performed",
+    "Historical read-only trace/JNI verifiers retained; docs and manifests retain old names as evidence",
+    "EnvironmentZoom.java and its tests retain old comment/API; all bytes intentionally unchanged"
+  ]
+}

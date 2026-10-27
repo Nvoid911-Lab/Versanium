@@ -1,5 +1,21 @@
 # Versanium Architecture
 
+> Current policy — 2026-10-28 JST: the former Versanium YouTube PiP,
+> Diagnostics/unsafe diagnostics and Background candidates are **retired / superseded**.
+> Their generators, runtime plumbing, dedicated apply controllers and tests are removed.
+> Earlier candidate descriptions below and existing docs/versanium reports/manifests/logs
+> are historical evidence, not current functionality or executable instructions.
+> Zoom (phone/DeX, transfer, persistence, policy, backup), F11/display, branding,
+> Chromium156 pins and non-PiP features remain unchanged. Saved generated source
+> and existing APKs are untouched and still reflect their historical configuration.
+> Future PiP work is limited to Brave #36838 (YouTube PiP lifecycle/dismiss),
+> #33522 (background playback), #39765 (Chromium153+ screen-lock/onStop).
+> No Brave code is ported here. Build/GN/Actions/APK/merge/release/tag/Production
+> are prohibited in this cleanup phase; PR5 stays Draft/Open/unmerged, body unchanged.
+> See [retirement plan and integrity ledger](docs/versanium/pip-candidate-retirement-2026-10-28/plan.md).
+> Next: `READY_FOR_BRAVE_36838_33522_39765_READONLY_PORT_ANALYSIS`.
+
+
 Content diagnostic transport is scoped WebContentsImpl→new default no-op native
 observer callback→existing Android proxy→generated (I)V JNI→Java observer→current
 actual WebContents PiP observer→unchanged scoped logger. No Chrome dependency or
