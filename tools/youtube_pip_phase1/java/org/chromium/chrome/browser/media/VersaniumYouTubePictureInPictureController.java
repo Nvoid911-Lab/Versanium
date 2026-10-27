@@ -87,66 +87,71 @@ public final class VersaniumYouTubePictureInPictureController {
     static final int TERMINAL_UNRELATED = 0;
     static final int TERMINAL_CLAIMED = 1;
     static final int TERMINAL_DUPLICATE = 2;
-    private final TabObserver mObserver = new TabObserver() {
-        @Override
-        public void onDidFinishNavigationInPrimaryMainFrame(Tab tab, NavigationHandle navigation) {
-            if (!navigation.hasCommitted()) return;
-            Owner owner = mOwner != null ? mOwner : mCandidate;
-            if (owner == null || tab != owner.tab) return;
-            if (!navigation.isSameDocument()
-                    || !owner.videoId.equals(VersaniumYouTubePictureInPicturePolicy.videoId(
-                            navigation.getUrl().getSpec()))) {
-                ++mEpoch;
-                invalidate();
+    private @Nullable Owner mRejectedCandidate;
+    private @Nullable TabObserver mObserver;
+
+    private TabObserver createObserver(Owner observed, long generation) {
+        return new TabObserver() {
+            @Override
+            public void onDidFinishNavigationInPrimaryMainFrame(Tab tab, NavigationHandle navigation) {
+                if (!navigation.hasCommitted()) return;
+                Owner owner = mOwner != null ? mOwner : mCandidate;
+                if (owner == null || tab != owner.tab) return;
+                if (!navigation.isSameDocument()
+                        || !owner.videoId.equals(VersaniumYouTubePictureInPicturePolicy.videoId(
+                                navigation.getUrl().getSpec()))) {
+                    ++mEpoch;
+                    invalidate();
+                }
             }
-        }
 
-        @Override
-        public void onUrlUpdated(Tab tab) {
-            Owner owner = mOwner != null ? mOwner : mCandidate;
-            if (owner != null && tab == owner.tab
-                    && !owner.videoId.equals(VersaniumYouTubePictureInPicturePolicy.videoId(
-                            tab.getUrl().getSpec()))) {
-                ++mEpoch;
-                invalidate();
+            @Override
+            public void onUrlUpdated(Tab tab) {
+                Owner owner = mOwner != null ? mOwner : mCandidate;
+                if (owner != null && tab == owner.tab
+                        && !owner.videoId.equals(VersaniumYouTubePictureInPicturePolicy.videoId(
+                                tab.getUrl().getSpec()))) {
+                    ++mEpoch;
+                    invalidate();
+                }
             }
-        }
 
-        @Override
-        public void onContentChanged(Tab tab) {
-            Owner owner = mOwner != null ? mOwner : mCandidate;
-            if (owner != null && tab == owner.tab && tab.getWebContents() != owner.webContents) {
-                ++mEpoch;
-                invalidate();
+            @Override
+            public void onContentChanged(Tab tab) {
+                Owner owner = mOwner != null ? mOwner : mCandidate;
+                if (owner != null && tab == owner.tab && tab.getWebContents() != owner.webContents) {
+                    ++mEpoch;
+                    invalidate();
+                }
             }
-        }
 
-        @Override
-        public void onActivityAttachmentChanged(Tab tab, @Nullable WindowAndroid window) {
-            Owner owner = mOwner != null ? mOwner : mCandidate;
-            if (owner != null && tab == owner.tab && window != owner.window) {
-                invalidateTerminal(FullscreenVideoPictureInPictureController.MetricsEndReason.REPARENT, tab);
+            @Override
+            public void onActivityAttachmentChanged(Tab tab, @Nullable WindowAndroid window) {
+                Owner owner = mOwner != null ? mOwner : mCandidate;
+                if (owner != null && tab == owner.tab && window != owner.window) {
+                    invalidateTerminal(observed, generation, FullscreenVideoPictureInPictureController.MetricsEndReason.REPARENT, tab);
+                }
             }
-        }
 
-        @Override
-        public void onHidden(Tab tab, int reason) {
-            if (reason != TabHidingType.ACTIVITY_HIDDEN) invalidate();
-        }
+            @Override
+            public void onHidden(Tab tab, int reason) {
+                if (reason != TabHidingType.ACTIVITY_HIDDEN) invalidate();
+            }
 
-        @Override
-        public void onClosingStateChanged(Tab tab, boolean closing) {
-            if (closing) invalidateTerminal(FullscreenVideoPictureInPictureController.MetricsEndReason.CLOSE, tab);
-        }
+            @Override
+            public void onClosingStateChanged(Tab tab, boolean closing) {
+                if (closing) invalidateTerminal(observed, generation, FullscreenVideoPictureInPictureController.MetricsEndReason.CLOSE, tab);
+            }
 
-        @Override
-        public void onCrash(Tab tab) {
-            invalidateTerminal(FullscreenVideoPictureInPictureController.MetricsEndReason.CRASH, tab);
-        }
+            @Override
+            public void onCrash(Tab tab) {
+                invalidateTerminal(observed, generation, FullscreenVideoPictureInPictureController.MetricsEndReason.CRASH, tab);
+            }
 
-        @Override
-        public void onDestroyed(Tab tab) { invalidate(); }
-    };
+            @Override
+            public void onDestroyed(Tab tab) { invalidate(); }
+        };
+    }
 
     VersaniumYouTubePictureInPictureController(
             Activity activity, ActivityTabProvider tabs, FullscreenManager fullscreen,
@@ -175,8 +180,8 @@ public final class VersaniumYouTubePictureInPictureController {
         seedUiOwner(owner);
         mBlockCurrentMedia = true;
         mCandidate = null;
-        observe(owner.tab);
         mGeneration = ++sGeneration;
+        observe(owner.tab);
         mState = State.ENTERING;
         mEnteredAt = SystemClock.elapsedRealtime();
         sLocators.put(mActivity, new WeakReference<>(this));
@@ -221,10 +226,15 @@ public final class VersaniumYouTubePictureInPictureController {
     }
 
     private void observe(@Nullable Tab tab) {
-        if (mObservedTab == tab) return;
-        if (mObservedTab != null) mObservedTab.removeObserver(mObserver);
+        if (mObservedTab != null && mObserver != null) mObservedTab.removeObserver(mObserver);
         mObservedTab = tab;
-        if (tab != null) tab.addObserver(mObserver);
+        mObserver = null;
+        Owner observed = mOwner != null ? mOwner : mCandidate;
+        if (tab != null && observed != null) {
+            TabObserver observer = createObserver(observed, mGeneration);
+            mObserver = observer;
+            tab.addObserver(observer);
+        }
     }
 
     private void invalidate() {
@@ -330,6 +340,7 @@ public final class VersaniumYouTubePictureInPictureController {
         clear();
         if (VersaniumYouTubePictureInPicturePolicy.ENABLED) mFullscreen.removeObserver(mUiObserver);
         resetTerminal();
+        mRejectedCandidate = null;
         mDestroyed = true;
     }
 
@@ -339,7 +350,11 @@ public final class VersaniumYouTubePictureInPictureController {
             if (mOwner != null && mTabs.get() != mOwner.tab) invalidate();
             return;
         }
-        mCandidate = VersaniumYouTubePictureInPicturePolicy.capture(mActivity, tab, upstream, mEpoch);
+        Owner candidate = VersaniumYouTubePictureInPicturePolicy.capture(mActivity, tab, upstream, mEpoch);
+        if (candidate != null && rejectedCandidate(candidate)) candidate = null;
+        if (mCandidate == null && candidate == null) return;
+        mCandidate = candidate;
+        mGeneration = ++sGeneration;
         observe(mCandidate == null ? null : mCandidate.tab);
         if (mCandidate != null) sLocators.put(mActivity, new WeakReference<>(this));
     }
@@ -350,11 +365,8 @@ public final class VersaniumYouTubePictureInPictureController {
         Owner owner = mOwner;
         if (owner == null && mState == State.INACTIVE) {
             Owner candidate = mCandidate;
-            if (candidate == null || !candidate.live(mActivity, mEpoch)
-                    || candidate.tab != mTabs.get()) {
-                candidate = VersaniumYouTubePictureInPicturePolicy.capture(
-                        mActivity, mTabs.get(), upstream, mEpoch);
-            }
+            if (candidate != null && (!candidate.live(mActivity, mEpoch)
+                    || candidate.tab != mTabs.get())) candidate = null;
             if (candidate != null && mActivity.isInPictureInPictureMode()) {
                 resetTerminal();
                 mOwner = candidate;
@@ -485,6 +497,7 @@ public final class VersaniumYouTubePictureInPictureController {
                 mEnteredAt = SystemClock.elapsedRealtime();
                 mBlockCurrentMedia = true;
                 owner = candidate;
+                observe(candidate.tab);
                 // Framework already reports PiP. This provisional adoption must not claim
                 // that the upstream persistent-video callback has run.
                 long generation = mGeneration;
@@ -544,12 +557,39 @@ public final class VersaniumYouTubePictureInPictureController {
         mTerminalConsumed = false;
     }
 
-    private void invalidateTerminal(int reason, Tab tab) {
+    // A retired candidate cannot be recaptured by auto-status updates for the same document.
+    private boolean rejectedCandidate(Owner candidate) {
+        Owner rejected = mRejectedCandidate;
+        return rejected != null && rejected.activity == candidate.activity
+                && rejected.tab == candidate.tab && rejected.tabId == candidate.tabId
+                && rejected.webContents == candidate.webContents && rejected.window == candidate.window
+                && rejected.documentEpoch == candidate.documentEpoch;
+    }
+
+    private void discardTerminalCandidate(Owner candidate, long generation) {
+        if (mOwner != null || mCandidate != candidate || mGeneration != generation
+                || candidate.activity != mActivity || candidate.documentEpoch != mEpoch) return;
+        // Revoke snapshots and queued work before detaching observers; no owner cleanup.
+        mRejectedCandidate = candidate;
+        mCandidate = null;
+        mGeneration = ++sGeneration;
+        observe(null);
+        WeakReference<VersaniumYouTubePictureInPictureController> ref = sLocators.get(mActivity);
+        if (ref != null && ref.get() == this) sLocators.remove(mActivity);
+    }
+
+    private void invalidateTerminal(Owner observed, long generation, int reason, Tab tab) {
+        if (!VersaniumYouTubePictureInPicturePolicy.passthroughReason(reason)
+                || mDestroyed || observed.tab != tab || observed.activity != mActivity
+                || observed.documentEpoch != mEpoch || generation != mGeneration) return;
         Owner owner = mOwner;
-        if (owner == null || owner.tab != tab) return;
+        if (owner == null) {
+            discardTerminalCandidate(observed, generation);
+            return;
+        }
+        if (owner != observed) return;
         // Reserve responsibility before leave callbacks / DOM / UI can synchronously reenter.
         armTerminal(reason, tab, owner.webContents);
-        long generation = mGeneration;
         invalidate();
         // Cleanup may unregister the upstream observer during this very dispatch.
         // Route through the same one-shot VIDEO hook even if it will no longer be notified.
@@ -569,6 +609,13 @@ public final class VersaniumYouTubePictureInPictureController {
         if (!VersaniumYouTubePictureInPicturePolicy.ENABLED || mDestroyed
                 || !VersaniumYouTubePictureInPicturePolicy.passthroughReason(reason)) {
             return TERMINAL_UNRELATED;
+        }
+        Owner candidate = mCandidate;
+        if (mOwner == null && candidate != null && candidate.tab == tab
+                && candidate.webContents == wc
+                && !(mTerminalOwner != null && mTerminalOwner.tab == tab
+                        && mTerminalOwner.webContents == wc)) {
+            discardTerminalCandidate(candidate, mGeneration);
         }
         armTerminal(reason, tab, wc);
         Owner terminal = mTerminalOwner;

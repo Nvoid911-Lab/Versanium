@@ -73,7 +73,53 @@ public final class Phase1FixtureTest {
         System.out.println("PASS observer order: " + reason + " dedicatedFirst=" + dedicatedFirst
                 + " destroyed=" + destroyed + " reentrant=" + reentrant);
     }
+    private static void candidateTerminal(int reason, boolean upstreamFirst) {
+        Host h = new Host(); h.controller.updateCandidate(h.tab, true);
+        org.chromium.chrome.browser.tab.TabObserver observer = h.tab.observers.get(0);
+        final int[] delayed = {0};
+        Runnable queued = h.controller.guardDelayed(() -> ++delayed[0]);
+        Runnable signal = () -> {
+            if (reason == CLOSE) observer.onClosingStateChanged(h.tab, true);
+            else if (reason == CRASH) observer.onCrash(h.tab);
+            else observer.onActivityAttachmentChanged(h.tab, null);
+        };
+        h.video.update = () -> h.controller.updateCandidate(h.tab, true);
+        if (upstreamFirst) h.video.dismiss(h.activity, reason, h.tab, h.wc);
+        signal.run(); signal.run(); queued.run();
+        if (!upstreamFirst) h.video.dismiss(h.activity, reason, h.tab, h.wc);
+        check(h.tab.observers.isEmpty(), "candidate terminal detaches " + reason);
+        check(delayed[0] == 0, "candidate timer revoked " + reason);
+        check(h.controller.claimTerminalDismiss(reason, h.tab, h.wc)
+                == VersaniumYouTubePictureInPictureController.TERMINAL_UNRELATED, "candidate no token");
+        h.controller.updateCandidate(h.tab, true); // Auto update must not resurrect this snapshot.
+        h.activity.pip = true;
+        check(!h.hidden(), "terminal prevents provisional adoption " + reason);
+        h.controller.onFrameworkEntered(false);
+        check(!h.controller.ownsMediaRouting() && !h.hidden(), "late framework cannot adopt " + reason);
+        PostTask.advance(3000);
+        check(h.leaves == 0 && h.wc.domExits == 0 && h.fullscreen.exits == 0
+                && h.wc.session.suspends == 0 && h.confirmedEntries == 0
+                && h.activity.moves == 0 && h.video.dismisses == 0, "candidate no owner side effects");
+        // Same Tab/WC, new candidate generation: old observer must be inert.
+        Host newer = new Host(); newer.controller.updateCandidate(newer.tab, true);
+        org.chromium.chrome.browser.tab.TabObserver old = newer.tab.observers.get(0);
+        newer.controller.updateCandidate(newer.tab, true);
+        old.onClosingStateChanged(newer.tab, true); old.onCrash(newer.tab);
+        old.onActivityAttachmentChanged(newer.tab, null);
+        newer.controller.claimTerminalDismiss(reason, new Tab(), new WebContents());
+        newer.activity.pip = true;
+        check(newer.hidden(), "stale generation and mismatched source retain candidate");
+        // A different document can qualify again after candidate retirement.
+        h.activity.pip = false; h.tab.wc = new WebContents(); h.tab.wc.window = h.tab.window;
+        h.controller.updateCandidate(h.tab, true); signal.run();
+        h.activity.pip = true;
+        check(h.hidden(), "old observer cannot clear replacement WC candidate");
+        System.out.println("PASS candidate terminal: " + reason + " upstreamFirst=" + upstreamFirst);
+    }
     public static void main(String[] args) {
+        for (int reason : new int[]{CLOSE, CRASH, REPARENT}) {
+            candidateTerminal(reason, false); candidateTerminal(reason, true);
+        }
         for (int reason : new int[]{CLOSE, CRASH, REPARENT}) {
             for (boolean first : new boolean[]{true, false}) {
                 for (boolean reentrant : new boolean[]{false, true}) {
@@ -82,6 +128,37 @@ public final class Phase1FixtureTest {
                 }
             }
         }
+        for (int identity = 0; identity < 3; ++identity) {
+            Host fresh = new Host(); fresh.controller.updateCandidate(fresh.tab, true);
+            org.chromium.chrome.browser.tab.TabObserver oldObserver = fresh.tab.observers.get(0);
+            if (identity == 0) fresh.tab.commit(false, fresh.tab.url);
+            else if (identity == 1) {
+                fresh.tab.window = new WindowAndroid(fresh.activity);
+                fresh.wc.window = fresh.tab.window;
+            } else {
+                fresh.tabs.tab = new Tab();
+                fresh.tabs.tab.window = new WindowAndroid(fresh.activity);
+                fresh.tabs.tab.wc.window = fresh.tabs.tab.window;
+            }
+            Tab source = fresh.tabs.tab;
+            fresh.controller.updateCandidate(source, true);
+            oldObserver.onClosingStateChanged(fresh.tab, true);
+            oldObserver.onCrash(fresh.tab); oldObserver.onActivityAttachmentChanged(fresh.tab, null);
+            fresh.controller.claimTerminalDismiss(CLOSE, source, new WebContents());
+            fresh.activity.pip = true;
+            check(VersaniumYouTubePictureInPictureController.preserveOnHidden(
+                    fresh.activity, source, source, 1), "replacement epoch/window/tab survives stale terminal " + identity);
+        }
+        Host retired = new Host(); retired.active();
+        org.chromium.chrome.browser.tab.TabObserver retiredObserver = retired.tab.observers.get(0);
+        retiredObserver.onClosingStateChanged(retired.tab, true);
+        retired.controller.updateCandidate(retired.tab, true);
+        retiredObserver.onCrash(retired.tab);
+        check(retired.controller.claimTerminalDismiss(CLOSE, retired.tab, retired.wc)
+                == VersaniumYouTubePictureInPictureController.TERMINAL_DUPLICATE,
+                "retired owner token remains duplicate without clearing candidate");
+        retired.activity.pip = true;
+        check(retired.hidden(), "retired token and stale observer cannot discard new candidate");
         Host order = new Host(); order.active();
         order.video.update = () -> order.controller.updateCandidate(null, false);
         order.tabs.tab = new Tab();

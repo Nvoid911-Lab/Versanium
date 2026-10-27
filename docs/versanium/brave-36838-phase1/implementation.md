@@ -176,3 +176,11 @@ means GN regeneration must be considered required for the future tree; do not
 reuse an old saved graph as proof. GN, real Java/NullAway/ErrorProne and device
 tests each require their own later authorization. Smartphone tests precede DeX.
 No source/fixture result here authorizes that next execution stage.
+
+
+### Phase 1 candidate-only terminal invalidation — 2026-10-28 JST
+
+candidate-only invalidation regression fixed; still NOT compiled/built/device-verified.
+JVM309 (+54), candidate terminal6, active-owner observer matrix24, structural5 and parse-only5 PASS.
+Zoom24 SHA256 unchanged; retired34 absent. READY_FOR_36838_PHASE1_PREBUILD_REREVIEW_2.
+Design/evidence: candidate-terminal-fix.md.

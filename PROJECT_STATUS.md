@@ -459,3 +459,11 @@ and shard actions scanned independently; compiler flag absence is not analysis
 absence. Actual host Java/NullAway inspection remains incomplete and unexecuted.
 
 2026-10-26 latest CIPD collection v2-5N3hJj user report: depot4be4e4628e093c4ad50210db5dcfa05a88280bda matches expected, tracked clean; central root chromium and3 exact package/subdir/instances found. Manifest sizes/hash correspond to reported actual jars. Primary LUCI iid/caspb/manifest sources confirm rawURLBase64(digest+tag02)=SHA256. New external receipt and isolated-output→GN-only steps in cipd-content-receipt-and-gn-preparation.md. Local consistency is not independent authenticity; actual receipt not run. Candidate58/Default/controller7b preserved; no output/GN/analysis.
+
+
+### Phase 1 candidate-only terminal invalidation — 2026-10-28 JST
+
+candidate-only invalidation regression fixed; still NOT compiled/built/device-verified.
+JVM309 (+54), candidate terminal6, active-owner observer matrix24, structural5 and parse-only5 PASS.
+Zoom24 SHA256 unchanged; retired34 absent. READY_FOR_36838_PHASE1_PREBUILD_REREVIEW_2.
+Design/evidence: docs/versanium/brave-36838-phase1/candidate-terminal-fix.md.
