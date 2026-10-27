@@ -400,4 +400,65 @@ public final class VersaniumYouTubePictureInPictureController {
             action.run();
         };
     }
+
+    @Nullable Tab entryTab(@Nullable Tab upstreamTab) {
+        Owner owner = mOwner;
+        if (owner != null) return owner.live(mActivity, mEpoch) ? owner.tab : null;
+        return mBlockCurrentMedia ? null : upstreamTab;
+    }
+
+    private boolean preserve(@Nullable Tab tab, @Nullable Tab fullscreenTab) {
+        if (!VersaniumYouTubePictureInPicturePolicy.ENABLED || mDestroyed
+                || tab == null || tab != fullscreenTab || tab != mTabs.get()) return false;
+        Owner owner = mOwner;
+        if (owner == null && mState == State.INACTIVE && mActivity.isInPictureInPictureMode()) {
+            Owner candidate = mCandidate;
+            if (candidate != null && candidate.tab == tab && candidate.live(mActivity, mEpoch)) {
+                mOwner = candidate;
+                mCandidate = null;
+                mGeneration = ++sGeneration;
+                mState = State.ENTERING;
+                mEnteredAt = SystemClock.elapsedRealtime();
+                mBlockCurrentMedia = true;
+                owner = candidate;
+                // Framework already reports PiP. This provisional adoption must not claim
+                // that the upstream persistent-video callback has run.
+                long generation = mGeneration;
+                Owner adopted = candidate;
+                PostTask.postDelayedTask(TaskTraits.UI_DEFAULT, () -> {
+                    if (!matches(generation, adopted) || mState != State.ENTERING) return;
+                    if (mActivity.isInPictureInPictureMode() && adopted.live(mActivity, mEpoch)) {
+                        mState = State.ACTIVE;
+                    } else rollback(generation);
+                }, VersaniumYouTubePictureInPicturePolicy.ENTRY_TIMEOUT_MS);
+            }
+        }
+        return owner != null && owner.tab == tab && owner.live(mActivity, mEpoch)
+                && VersaniumYouTubePictureInPicturePolicy.protectedState(
+                        mState, mEnteredAt, mActivity.isInPictureInPictureMode());
+    }
+
+    private static @Nullable VersaniumYouTubePictureInPictureController locate(Activity activity) {
+        ThreadUtils.assertOnUiThread();
+        WeakReference<VersaniumYouTubePictureInPictureController> ref = sLocators.get(activity);
+        return ref == null ? null : ref.get();
+    }
+
+    public static boolean preserveOnHidden(Activity activity, @Nullable Tab tab,
+            @Nullable Tab fullscreenTab, int reason) {
+        VersaniumYouTubePictureInPictureController controller = locate(activity);
+        if (controller == null) return false;
+        if (reason != TabHidingType.ACTIVITY_HIDDEN) {
+            controller.invalidate();
+            return false;
+        }
+        return controller.preserve(tab, fullscreenTab);
+    }
+
+    public static boolean preserveOnStopped(Activity handler, Activity callback,
+            @Nullable Tab fullscreenTab) {
+        if (handler != callback) return false;
+        VersaniumYouTubePictureInPictureController controller = locate(handler);
+        return controller != null && controller.preserve(fullscreenTab, fullscreenTab);
+    }
 }

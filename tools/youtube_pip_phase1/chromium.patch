@@ -36,6 +36,34 @@
              Log.i(TAG, "onNewIntentWithNative: exiting picture in picture if needed");
              mFullscreenVideoPictureInPictureController.onFrameworkExitedPictureInPicture();
          }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java
+@@ -51,6 +51,7 @@
+ import org.chromium.chrome.browser.tab.TabAttributes;
+ import org.chromium.chrome.browser.tab.TabBrowserControlsConstraintsHelper;
+ import org.chromium.chrome.browser.tab.TabHidingType;
++import org.chromium.chrome.browser.media.VersaniumYouTubePictureInPictureController;
+ import org.chromium.chrome.browser.tabmodel.TabModelSelector;
+ import org.chromium.chrome.browser.tabmodel.TabModelSelectorTabObserver;
+ import org.chromium.chrome.browser.util.AndroidTaskUtils;
+@@ -320,6 +321,8 @@
+ 
+                     @Override
+                     public void onHidden(Tab tab, @TabHidingType int reason) {
++                        if (VersaniumYouTubePictureInPictureController.preserveOnHidden(
++                                mActivity, tab, mTabInFullscreen, reason)) return;
+                         // Clean up any fullscreen state that might impact other tabs.
+                         mFullscreenManagerDelegate.onExitFullscreen(null);
+                     }
+@@ -882,6 +885,8 @@
+     @Override
+     public void onActivityStateChange(Activity activity, int newState) {
+         if (newState == ActivityState.STOPPED && mExitFullscreenOnStop) {
++            if (VersaniumYouTubePictureInPictureController.preserveOnStopped(
++                    mActivity, activity, mTabInFullscreen)) return;
+             // Exit fullscreen in onStop to ensure the system UI flags are set
+             // correctly when
+             // showing again (on JB MR2+ builds, the omnibox would be covered by the
 --- a/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
 @@ -154,6 +154,7 @@
@@ -90,6 +118,15 @@
                      UNSTASH_DELAY_MILLIS);
          }
      }
+@@ -402,7 +413,7 @@
+         mLastOnEnteredTimeMillis = SystemClock.elapsedRealtime();
+ 
+         // Inform the WebContents when we enter and when we leave PiP.
+-        final Tab activityTab = mActivityTabProvider.get();
++        final Tab activityTab = mVersaniumPip.entryTab(mActivityTabProvider.get());
+         if (activityTab == null) {
+             Log.i(TAG, "Activity tab is null, not entering Picture-in-picture");
+             RecordHistogram.recordEnumeratedHistogram(
 @@ -443,6 +454,7 @@
       * later, when the activity is restarted.
       */
