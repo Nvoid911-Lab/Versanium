@@ -9,3 +9,39 @@
    "java/src/org/chromium/chrome/browser/media/MediaCaptureDevicesDispatcherAndroid.java",
    "java/src/org/chromium/chrome/browser/media/MediaCaptureNotificationServiceImpl.java",
    "java/src/org/chromium/chrome/browser/media/MediaLauncherActivity.java",
+--- a/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java
+@@ -154,6 +154,7 @@
+     private final ActivityTabProvider mActivityTabProvider;
+     private final FullscreenManager mFullscreenManager;
+     private final PowerManager mPowerManager;
++    private final VersaniumYouTubePictureInPictureController mVersaniumPip;
+ 
+     /** Did we last tell the framework that auto-enter is allowed (true) or not? */
+     private boolean mIsAutoEnterAllowed;
+@@ -183,6 +184,8 @@
+         mActivity = activity;
+         mActivityTabProvider = activityTabProvider;
+         mFullscreenManager = fullscreenManager;
++        mVersaniumPip = new VersaniumYouTubePictureInPictureController(
++                activity, activityTabProvider, fullscreenManager);
+         mPowerManager = (PowerManager) mActivity.getSystemService(Activity.POWER_SERVICE);
+ 
+         sControllers.put(mActivity, this);
+@@ -332,9 +335,15 @@
+             }
+         }
+ 
++        final long generation = mVersaniumPip.beginEntry(
++                mActivityTabProvider.get(), canDoPictureInPicture());
+         try {
+-            if (!mActivity.enterPictureInPictureMode(builder.build())) return;
++            if (!mActivity.enterPictureInPictureMode(builder.build())) {
++                mVersaniumPip.rollback(generation);
++                return;
++            }
+         } catch (IllegalStateException | IllegalArgumentException e) {
++            mVersaniumPip.rollback(generation);
+             Log.e(TAG, "Error entering PiP with bounds %s", bounds, e);
+         }
+     }
