@@ -1,0 +1,11 @@
+--- a/chrome/android/chrome_java_sources.gni
++++ b/chrome/android/chrome_java_sources.gni
+@@ -824,6 +824,8 @@
+   "java/src/org/chromium/chrome/browser/media/AutoPipPermissionDialogView.java",
+   "java/src/org/chromium/chrome/browser/media/DocumentPictureInPictureActivity.java",
+   "java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java",
++  "java/src/org/chromium/chrome/browser/media/VersaniumYouTubePictureInPictureController.java",
++  "java/src/org/chromium/chrome/browser/media/VersaniumYouTubePictureInPicturePolicy.java",
+   "java/src/org/chromium/chrome/browser/media/MediaCaptureDevicesDispatcherAndroid.java",
+   "java/src/org/chromium/chrome/browser/media/MediaCaptureNotificationServiceImpl.java",
+   "java/src/org/chromium/chrome/browser/media/MediaLauncherActivity.java",
