@@ -358,3 +358,20 @@ consistency only. Host metadata-location uncertainty is resolved by v2-5N3hJj
 user report, not fabricated host access. Keep original apply controller7b and
 Default unchanged; future separate3-override output/GN stops for graph/capacity
 review before analysis. No packages or runtime verification executed now.
+
+## 2026-10-27 — Reconcile dead diagnostic labels in the current generator
+
+Remove only the unused private stage parameter and four literal arguments;
+do not restore callback/logging or introduce stage-based behavior. Retain the
+current content/PiP native route and passive authorization boundaries. Current
+generator output must match the reviewed host post-fix TabImpl bytes. Suppression
+and warnings-as-errors relaxation are not acceptable alternatives.
+
+Historical source-apply controllers remain pinned and strict: the preparation
+history test uses its own immutable7b60873 snapshot for the positive case and
+explicitly rejects the new no-arg generator under the old product gate. Do not
+rewrite old manifests/hashes or auto-approve old controllers for the new product.
+User-reported host NullAway outcomes are recorded separately from locally run
+models/source-generation tests; neither proves a new native/APK/device build.
+The existing local shard2 fix and host preparation helpers are preserved but
+not silently swept into this narrowly scoped reconciliation commit.

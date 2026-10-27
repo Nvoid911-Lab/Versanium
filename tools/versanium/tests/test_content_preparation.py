@@ -56,21 +56,37 @@ class ContentPreparationTests(unittest.TestCase):
     (out/'build.ninja.d').write_bytes(b'build.ninja.stamp: ../../escaped\\ file\n')
     self.assertIn('REVIEW_REQUIRED',m.graph_plan(out,source,metadata,selected)['gn_regeneration_decision'])
  def test_controller_history_proof_and_unreviewed_product_delta(self):
+  # This gate certifies the historical preparation, not the current product.
+  # Never make a newer generator acceptable to an older apply controller.
   old='830fef60cec065a40b468d460089fc50dc9fb49d';audit='fdb8605f28ff870f91d87f41817c7b8d72794550'
-  source={'controller':old};real=m.git
+  preparation='7b608732d56f3885d5c950715d10709405695e70'
+  source={'controller':old};real=m.git;real_ancestry=m.ancestry
   compat={'recorded_controller':old,'audit_controller':audit,'changed_paths':real(ROOT,'diff','--no-renames','--name-only',old,audit).decode().splitlines(),'diff_sha256':m.sha(real(ROOT,'diff','--binary',old,audit))}
-  def controlled(root,*args):
-   if args[:2]==('status','--porcelain'):return b''
-   return real(root,*args)
-  with patch.object(m,'git',side_effect=controlled):
-   result=m.controller_chain(ROOT,source,{'controller_compatibility':compat});self.assertEqual(result['source_controller'],old)
-   def bad(root,*args):
-    if args==('diff','--no-renames','--name-only',m.PRODUCT,'HEAD'):return b'tools/apply_content_fullscreen_origin.py\n'
-    return controlled(root,*args)
-   with patch.object(m,'git',side_effect=bad):
-    with self.assertRaisesRegex(RuntimeError,'Unreviewed preparation delta'):m.controller_chain(ROOT,source,{'controller_compatibility':compat})
-   wrong=dict(compat,diff_sha256='wrong')
-   with self.assertRaisesRegex(RuntimeError,'Stored historical'):m.controller_chain(ROOT,source,{'controller_compatibility':wrong})
+  with tempfile.TemporaryDirectory() as d:
+   fixture=Path(d)
+   inputs=[m.NATIVE_MANIFEST,'tools/apply_fullscreen_native_origin.py','tools/versanium/prepare_native_diagnostic.py',m.SELECTION,m.TRANSFORM,'tools/apply_youtube_candidates.py','tools/apply_fullscreen_delegate_origin.py','tools/youtube_pip/tests/check_source_integration.py']
+   for name in inputs:
+    p=fixture/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(real(ROOT,'show',preparation+':'+name))
+   def controlled(root,*args):
+    if args[:2]==('status','--porcelain'):return b''
+    # Real committed ancestry/diffs, with HEAD explicitly bound to this fixture.
+    return real(ROOT,*(preparation if a=='HEAD' else a for a in args))
+   def fixture_ancestry(root,start,end):
+    return real_ancestry(ROOT,start,preparation if end=='HEAD' else end)
+   with patch.object(m,'git',side_effect=controlled),patch.object(m,'ancestry',side_effect=fixture_ancestry):
+    result=m.controller_chain(fixture,source,{'controller_compatibility':compat});self.assertEqual(result['source_controller'],old)
+    def bad(root,*args):
+     if args==('diff','--no-renames','--name-only',m.PRODUCT,'HEAD'):return b'tools/apply_content_fullscreen_origin.py\n'
+     return controlled(root,*args)
+    with patch.object(m,'git',side_effect=bad):
+     with self.assertRaisesRegex(RuntimeError,'Unreviewed preparation delta'):m.controller_chain(fixture,source,{'controller_compatibility':compat})
+    wrong=dict(compat,diff_sha256='wrong')
+    with self.assertRaisesRegex(RuntimeError,'Stored historical'):m.controller_chain(fixture,source,{'controller_compatibility':wrong})
+    generator=fixture/'tools/apply_youtube_candidates.py'
+    before=generator.read_text();self.assertIn('applyVersaniumYoutubeCandidate(String stage)',before)
+    generator.write_text(before.replace('applyVersaniumYoutubeCandidate(String stage)','applyVersaniumYoutubeCandidate()'))
+    with self.assertRaisesRegex(RuntimeError,'Content product changed: tools/apply_youtube_candidates.py'):
+     m.controller_chain(fixture,source,{'controller_compatibility':compat})
  def test_fixed_head_reconstruction(self):
   data,before,after,h=m.load_selection(ROOT);fixed=Path('/tmp/versanium156/source')
   if not all((fixed/n).exists() for n in data['before']):self.skipTest('fixed source snapshots unavailable')

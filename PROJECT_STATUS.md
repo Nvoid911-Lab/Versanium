@@ -1,5 +1,43 @@
 # Versanium Project Status
 
+## 2026-10-27 JST — Post-NullAway repository reconciliation
+
+Latest scoped repository change: remove the dead private TabImpl stage parameter
+and four literal hook arguments in the current generator. Fresh fixed156 + selected
+Vanadium reproduction equals user-confirmed post-fix TabImpl SHA256
+`de0b9b1bed2bd411c7ee4d0706ff2f943b082fdae3c76540bd70153095bb5831`.
+Direct hooks3 + environment1, old declaration/arguments0, no-arg declaration1,
+mobile/null1. Native/JNI, passive diagnostic gates, zoom/F11/identity/signing unchanged.
+User reports saved-host stage fix applied and PASS; corrected shard5, shard6/7
+and family-audit evidence locations are recorded in
+[reconciliation review](docs/versanium/post-nullaway-stage-reconciliation.md).
+Host evidence bytes are not available here; do not turn this report into an
+independent full-family audit, C++/APK build or device success claim.
+
+Local repository validation: selected source reproduction, diagnostic/decision
+Java doubles, DOM/native scope models, and repository tests; exact results in review.
+Historical preparation positive fixture is now explicitly pinned to7b60873;
+its original strict gate still rejects changed generator bytes. No old helper,
+manifest, provenance, saved source/output or processor setting was changed.
+Existing uncommitted shard2 patch.sh fix and host-only preparation work remain
+outside this stage-only commit. Fresh full-build readiness is NOT approved:
+review those pending changes and saved-output/full integration provenance first.
+No Actions/APK/real-host analysis/GN/dependency sync/merge/release/tag here.
+
+## Historical 2026-10-26 JST — Uncommitted chrome shard5 dead-label correction
+
+User reports content0/1 and chrome0–4 PASS; chrome5 fails only on unused
+TabImpl stage parameter; chrome6/7 unexecuted. Current generator removes the
+unused parameter and four literal arguments, retaining hook positions/count,
+mobile,null and passive diagnostic/native scopes. Current source tests now
+assert all four hooks and reject callback revival. Selected fixed156/Vanadium
+source generation PASS; passive Java doubles9, decision/dismiss doubles15 and
+candidate DOM model37 PASS. These are NOT real Chromium NullAway/ErrorProne.
+Host validation output is unavailable in this cloud; shard5 rerun NOT PERFORMED.
+Existing uncommitted patch.sh shard2 fix and historical helpers/manifests retained.
+No commit/push/PR update, GN, dependency sync, APK/Actions or shard6+ execution.
+
+
 Latest collection9db02a6 stopped BEFORE CIPD/jars: small()1MiB cap rejected normal
 inventory-bearing applied.json (sucsAo evidence). No new provenance finding.
 Replacement complete collector is documented in cipd-collector-large-record-review.md:

@@ -48,7 +48,20 @@ for name in ('versanium-youtube-diagnostics','versanium-youtube-pip-candidate','
  assert names.count(name)==1
  record=re.search(r'\{[^{}]*"name": "'+name+r'"[^{}]*\}',flags).group()
  assert json.loads(record)['expiry_milestone']==157
-assert 'void applyVersaniumYoutubeCandidate(String stage)' in (a.output_dir/'chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java').read_text()
+tab=(a.output_dir/'chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java').read_text()
+assert tab.count('private void applyVersaniumYoutubeCandidate() {')==1
+assert tab.count('applyVersaniumYoutubeCandidate();')==4
+assert len(re.findall(r'^        applyVersaniumYoutubeCandidate\(\);$',tab,re.M))==3
+assert tab.count('if (active != null) active.applyVersaniumYoutubeCandidate();')==1
+for label in ('show','hide','load','environment'):
+ assert 'applyVersaniumYoutubeCandidate("'+label+'")' not in tab
+for anchor in ('    public void show(@TabSelectionType int type) {',
+               '    public final void hide(@TabHidingType int type) {',
+               '    void didFinishPageLoad(GURL url) {'):
+ assert anchor+'\n        applyVersaniumYoutubeCandidate();' in tab
+assert 'if (active != null) active.applyVersaniumYoutubeCandidate();' in tab
+assert 'applyVersaniumYoutubeCandidate(String stage)' not in tab
+assert tab.count('contents.applyVersaniumYoutubeCandidate(mobile, null);')==1
 native=(a.output_dir/'content/browser/renderer_host/render_frame_host_impl.cc').read_text()
 assert 'CanExecuteJavaScript() ||' not in native
 assert 'void RenderFrameHostImpl::ExecuteVersaniumYoutubeCandidate(' in native

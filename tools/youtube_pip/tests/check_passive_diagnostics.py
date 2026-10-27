@@ -39,10 +39,14 @@ with tempfile.TemporaryDirectory() as d:
  compiler=['java','-jar',str(a.ecj),'-21'] if a.ecj else ['javac']
  subprocess.run(compiler+[str(f)],check=True)
  subprocess.run(['java','-cp',d,'DiagnosticTest'],check=True)
-tab=(a.applied_tree/'chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java').read_text().split('private void applyVersaniumYoutubeCandidate(String stage)',1)[1].split('void didFinishPageLoad',1)[0]
+tab_source=(a.applied_tree/'chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java').read_text()
+assert tab_source.count('private void applyVersaniumYoutubeCandidate() {')==1
+assert tab_source.count('applyVersaniumYoutubeCandidate();')==4
+assert 'applyVersaniumYoutubeCandidate(String stage)' not in tab_source
+tab=tab_source.split('private void applyVersaniumYoutubeCandidate()',1)[1].split('void didFinishPageLoad',1)[0]
 assert 'versanium-youtube-diagnostics' not in tab
 assert 'if (!pip && !background) return;' in tab
-assert 'contents.applyVersaniumYoutubeCandidate(mobile, null);' in tab
+assert tab.count('contents.applyVersaniumYoutubeCandidate(mobile, null);')==1
 native=(a.applied_tree/'content/browser/renderer_host/render_frame_host_impl.cc').read_text()
 scope=native.split('bool RenderFrameHostImpl::IsVersaniumYoutubeScopeAllowed',1)[1].split('\n}',1)[0]
 assert 'versanium-youtube-diagnostics' not in scope

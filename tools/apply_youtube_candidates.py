@@ -17,7 +17,7 @@ def apply(root,repository):
     script=(repository/'tools/youtube_pip/candidate.js').read_text()
     if script.count('__VERSANIUM_OPTIONS__') != 1 or ')VERSANIUM"' in script:
         raise RuntimeError('Invalid fixed native payload template')
-    method='''    private void applyVersaniumYoutubeCandidate(String stage) {
+    method='''    private void applyVersaniumYoutubeCandidate() {
         if (isDestroyed() || mNativeTabAndroid == 0 || mProfile.getNativeBrowserContextPointer() == 0
                 || getWebContents() == null || getWebContents().isDestroyed() || isOffTheRecord()
                 || !org.chromium.base.CommandLine.isInitialized()) return;
@@ -36,13 +36,13 @@ def apply(root,repository):
         java.lang.ref.WeakReference<TabImpl> owner = new java.lang.ref.WeakReference<>(this);
         EnvironmentZoom.setEnvironmentListener(contents, () -> {
             TabImpl active = owner.get();
-            if (active != null) active.applyVersaniumYoutubeCandidate("environment");
+            if (active != null) active.applyVersaniumYoutubeCandidate();
         });
     }
 '''
-    source=source.replace(marker,method+'\n'+marker+'        applyVersaniumYoutubeCandidate("load");\n')
-    source=source.replace(show,show+'        applyVersaniumYoutubeCandidate("show");\n')
-    source=source.replace(hide,hide+'        applyVersaniumYoutubeCandidate("hide");\n')
+    source=source.replace(marker,method+'\n'+marker+'        applyVersaniumYoutubeCandidate();\n')
+    source=source.replace(show,show+'        applyVersaniumYoutubeCandidate();\n')
+    source=source.replace(hide,hide+'        applyVersaniumYoutubeCandidate();\n')
     header = root/'content/browser/renderer_host/versanium_youtube_candidate.h'
     if header.exists():raise RuntimeError('Candidate header already exists; refuse stale reuse')
     subprocess.run(['git','apply',str(execution)],cwd=root,check=True)
