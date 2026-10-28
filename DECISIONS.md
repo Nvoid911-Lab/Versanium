@@ -467,3 +467,17 @@ The user explicitly authorizes commit/normal push (Primary then Secondary), fres
 incremental GN -> chrome_java -j6 -> chrome_public_apk -j6, and reuse of the existing
 local device-test key. No previous Run9 access, ADB/install, Actions or release.
 [Diagnostic events, limits and tests](docs/versanium/brave-36838-phase1/diagnostic-logging.md).
+
+
+## 2026-10-28: Compare mobile/desktop visibility and media without changing PiP
+
+Additional user evidence on the same Galaxy S23 / same target APK: mobile site
+fails tab-switch playback and Home PiP; desktop site continues playback and enters
+PiP successfully. This favors mobile-site-specific visibility/background handling
+over generic Android PiP API failure, but pause-before-entry remains a hypothesis.
+Add desktop_site/Tab UA mode and source-correlated seq logs, existing tab shown/
+hidden/selection callbacks, and at most two passive WC/MediaSession observers to
+retain outgoing asynchronous media/visibility events after tab observer cleanup.
+Use only existing Java APIs; report unsupported active/custom-UA state as unknown.
+Diagnostic www/bare YouTube observation does not broaden product eligibility.
+No media action, ownership policy, observer decision, JS/C++/JNI or branding change.

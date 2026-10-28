@@ -5,7 +5,10 @@
 > Tab switch stops playback; Home does not enter PiP; playback remains stopped.
 > Next: diagnostic-only VersaniumPiP logging instrumentation and explicitly authorized
 > incremental fresh build. Existing eligibility, routing and media behavior unchanged.
-> Diagnostic-source fixture384 / bundle5 / gate-off / parse-only5 PASS; Zoom24 unchanged.
+> Same S23/same APK: mobile site FAIL, desktop site PASS (tab switching and Home PiP).
+> Add bounded passive visibility/media probes and desktop_site correlation; hypothesis
+> is mobile-site-specific pause before PiP eligibility, not proven root cause.
+> Diagnostic-source fixture400 / bundle5 / gate-off / parse-only5 PASS; Zoom24 unchanged.
 > Prior NullAway/real-device correctness is not inferred from ordinary Java success.
 > Never access saved Run9; no ADB/install, Actions, merge/release/tag or Production.
 > See [diagnostic scope, events and fresh build boundary](docs/versanium/brave-36838-phase1/diagnostic-logging.md).

@@ -17,8 +17,9 @@ cr_ prefix, so the actual logcat tag is cr_VersaniumPiP. R8's existing
 maximumremovedandroidloglevel=3 retains INFO(4); no logging flags are changed.
 No full URL query or video ID logging.
 URL scheme/host/path are bounded and sanitized. hasVideoId is a boolean.
-Policy eligibility and upstream eligibility are separate events. Log statements
-never feed eligibility, state or media decisions; no new observers/timers added.
+Policy eligibility and upstream eligibility are separate events. Log statements never feed eligibility, state or media decisions. The mobile/desktop
+follow-up adds at most two passive page probes (no timers), independently of owner
+lifecycle; these observe existing Java WC/media callbacks and never issue actions.
 
 - POLICY: scheme/host/path/hasVideoId, Activity support/finishing/destroyed/config,
   upstreamEligible/eligible/reason. Reasons retain strict mobile watch scope:
@@ -54,10 +55,10 @@ framework auto-entry is observed through status/callbacks, not a fabricated retu
 Existing eligibility conditions, URL scope, short-circuit order, return values,
 state assignment order, generation increments, entry/exit/media/owner-token calls
 are preserved. Only passive reads and logging are added. No gate change, force
-resume, current-tab media fallback, new callback subscription, JS/C++/JNI, Brave
+resume, current-tab media fallback, product callback decision, JS/C++/JNI, Brave
 #33522/#39765, Zoom/F11/branding/package/signing modification.
 
-JVM384 assertions PASS (359 retained +25 log contract assertions); candidate6 and
+JVM400 assertions PASS (359 retained +41 diagnostic contract/lifecycle assertions); candidate6 and
 active-owner24 remain PASS. Existing bundle5 PASS, gate-off/default-off PASS,
 parse-only5 Java sources PASS. Log double records real emitted production messages;
 assertions cover tag/format, state/owner/token events, rejection reasons and no full
@@ -86,3 +87,41 @@ Check aapt2 package io.github.nvoid911.versanium.test before signing. Reuse the
 existing local phase1-device-test.jks alias versanium-test; no secret in reports.
 Verify signed APK and record SHA256/size/paths/free space in the delivery receipt.
 No ADB, wireless debugging, Run9, merge/release/tag or Production.
+
+## Same-device mobile versus desktop observation (user report)
+
+Same Galaxy S23, same pre-diagnostic target APK:
+- Mobile site FAIL: tab switch stops playback; Home no PiP; playback remains stopped.
+- Desktop site PASS: tab switch continues playback; Home enters PiP; PiP keeps playing.
+This increases the likelihood of YouTube mobile-site visibility/media behavior,
+rather than generic Android PiP API failure. It remains a hypothesis until logs
+establish whether visibility-driven pause precedes eligibility/entry evaluation.
+No behavior change is made in response to this hypothesis.
+
+Compare CASE_MOBILE_TAB_SWITCH, CASE_MOBILE_HOME, CASE_DESKTOP_TAB_SWITCH,
+CASE_DESKTOP_HOME. Cases are user-labeled; the app need not infer the case name.
+Every policy/controller/lifecycle snapshot identifies desktop_site and sourceTab
+where a readable page exists; otherwise desktop_site=unknown. seq is a monotonic
+logging-only counter. PAGE_MODE uses NavigationController.getUseDesktopUserAgent
+and tabUaMode uses Tab.getUserAgent (no isDesktopUserAgent API in this revision).
+The custom UA override getter is unavailable, so customUaOverride=unavailable;
+no UA string is recorded. WC visibility is the existing Chromium visibility enum.
+
+TAB_UNSELECTED / TAB_SELECTED / TAB_SWITCH_AFTER mark the existing selection
+callback before/after its cleanup, not an invented pre-selection timestamp.
+Existing onHidden/onShown callbacks emit TAB_HIDDEN/TAB_SHOWN. WC_VISIBILITY from
+the retained outgoing page survives upstream tab observer cleanup. MEDIA_STARTED/
+MEDIA_STOPPED record individual media signals; aggregatePlaying=unknown on stop.
+MEDIA_SESSION records existing isControllable/isSuspended callback values;
+there is no isActive getter, so sessionActive=unavailable, never inferred.
+Fullscreen-video and fullscreen-PiP-allowed getters are sampled read-only.
+PAGE_SNAPSHOT carries selected/retainedOutgoing/owner and its triggering event.
+
+Diagnostic observation accepts YouTube watch pages on m./www./bare host purely
+for mobile/desktop comparison. Product eligibility remains exact HTTPS m.youtube.com/watch.
+The probes are invoked by existing upstream tab registration, so they also work
+when Phase1 candidate eligibility is false. At most current+previous pages remain;
+third-page rotation, stale Tab/WC identity, WC destruction and Activity destruction
+detach observers. Initial synchronous MediaSession state callback, outgoing pause
+AFTER switch, stale callbacks, two-page bound and teardown are fixture-tested for
+both desktop_site=false/true. Neither probe performs suspend/resume/entry/cleanup.

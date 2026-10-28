@@ -190,7 +190,52 @@ public final class Phase1FixtureTest {
         check(h.tab.observers.isEmpty(), "all recovery lifecycle observers released");
     }
 
+    private static void passivePageDiagnostics(boolean desktop) {
+        Host h = new Host(); h.wc.navigation.desktop = desktop;
+        h.controller.diagnosticObserve(h.tab);
+        check(h.wc.observers.size() == 1 && h.wc.session.observers.size() == 1,
+                "passive page and session observers attached");
+        org.chromium.content_public.browser.WebContentsObserver outgoing = h.wc.observers.get(0);
+        org.chromium.content_public.browser.MediaSessionObserver media = h.wc.session.observers.get(0);
+        outgoing.mediaStartedPlaying(1, true, true);
+        media.mediaSessionStateChanged(true, false);
+        Tab incoming = new Tab(); incoming.id = 2;
+        incoming.window = h.tab.window; incoming.wc.window = h.tab.window;
+        incoming.wc.navigation.desktop = desktop;
+        h.tabs.tab = incoming;
+        h.controller.diagnosticTabEvent("TAB_UNSELECTED", h.tab, "fixture=true");
+        h.controller.diagnosticObserve(incoming);
+        int afterSwitch = org.chromium.base.Log.lines.size();
+        h.wc.visibility = 1; outgoing.onVisibilityChanged(1);
+        outgoing.mediaStoppedPlaying(1); media.mediaSessionStateChanged(true, true);
+        check(org.chromium.base.Log.lines.subList(afterSwitch, org.chromium.base.Log.lines.size())
+                .stream().anyMatch(line -> line.contains("event=MEDIA_SESSION ")
+                        && line.contains("desktop_site=" + desktop)
+                        && line.contains("retainedOutgoing=true") && line.contains("sessionSuspended=true")),
+                "outgoing media state after switch remains observable " + desktop);
+        check(org.chromium.base.Log.lines.subList(afterSwitch, org.chromium.base.Log.lines.size())
+                .stream().anyMatch(line -> line.contains("event=WC_VISIBILITY ")
+                        && line.contains("desktop_site=" + desktop)), "visibility and page mode correlated");
+        check(!h.controller.ownsMediaRouting() && h.leaves == 0 && h.wc.domExits == 0
+                && h.wc.session.suspends == 0 && h.wc.session.resumes == 0,
+                "passive diagnostic cannot adopt, resume or clean owner");
+        Tab third = new Tab(); third.id = 3; third.window = h.tab.window; third.wc.window = h.tab.window;
+        h.controller.diagnosticObserve(third);
+        check(h.wc.observers.isEmpty() && h.wc.session.observers.isEmpty(), "two-page bound evicts oldest");
+        int beforeStale = org.chromium.base.Log.lines.size();
+        outgoing.mediaStoppedPlaying(1); media.mediaSessionStateChanged(true, true);
+        check(org.chromium.base.Log.lines.size() == beforeStale, "stale detached diagnostic callbacks inert");
+        third.wc.observers.get(0).webContentsDestroyed();
+        check(third.wc.observers.isEmpty() && third.wc.session.observers.isEmpty(),
+                "WebContents destruction releases diagnostic observers");
+        h.controller.onDestroy();
+        check(incoming.wc.observers.isEmpty() && incoming.wc.session.observers.isEmpty()
+                && third.wc.observers.isEmpty() && third.wc.session.observers.isEmpty(),
+                "host destroy releases both diagnostic pages");
+    }
+
     public static void main(String[] args) {
+        passivePageDiagnostics(false); passivePageDiagnostics(true);
         for (int mode = 0; mode < 5; ++mode) recoveryLifecycle(mode);
         for (int mode = 0; mode < 4; ++mode) sameContentsRecovery(mode);
         for (int reason : new int[]{CLOSE, CRASH, REPARENT}) {

@@ -76,8 +76,22 @@ public final class VersaniumYouTubePictureInPicturePolicy {
         return id == null ? "" : id;
     }
 
+    private static long sDiagnosticSequence;
+
     static void diagnostic(String event, String fields) {
-        if (ENABLED) Log.i("VersaniumPiP", "VSPIP event=%s %s", event, fields);
+        if (ENABLED) Log.i("VersaniumPiP", "VSPIP event=%s seq=%d %s",
+                event, ++sDiagnosticSequence, fields);
+    }
+
+    static String diagnosticPageFields(@Nullable Tab tab) {
+        if (tab == null || tab.isDestroyed()) return "desktop_site=unknown pageReadable=false";
+        WebContents wc = tab.getWebContents();
+        if (wc == null || wc.isDestroyed()) return "desktop_site=unknown pageReadable=false";
+        return "desktop_site=" + wc.getNavigationController().getUseDesktopUserAgent()
+                + " tabUaMode=" + tab.getUserAgent() + " customUaOverride=unavailable"
+                + " wcVisibility=" + wc.getVisibility()
+                + " fullscreenVideo=" + wc.hasActiveEffectivelyFullscreenVideo()
+                + " fullscreenPipAllowed=" + wc.isPictureInPictureAllowedForFullscreenVideo();
     }
 
     private static String field(@Nullable String value) {
@@ -89,7 +103,7 @@ public final class VersaniumYouTubePictureInPicturePolicy {
     static void diagnosticPolicy(Activity activity, @Nullable Tab tab, boolean upstream,
             boolean eligible, String reason) {
         Uri uri = Uri.parse(tab == null || tab.isDestroyed() ? "" : tab.getUrl().getSpec());
-        diagnostic("POLICY", "scheme=" + field(uri.getScheme()) + " host=" + field(uri.getHost())
+        diagnostic("POLICY", diagnosticPageFields(tab) + " scheme=" + field(uri.getScheme()) + " host=" + field(uri.getHost())
                 + " path=" + field(uri.getPath())
                 + " hasVideoId=" + (uri.getHost() != null && uri.getQueryParameter("v") != null
                         && !uri.getQueryParameter("v").isEmpty())

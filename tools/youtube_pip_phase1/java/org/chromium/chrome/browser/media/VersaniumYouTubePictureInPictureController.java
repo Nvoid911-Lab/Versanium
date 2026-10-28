@@ -23,6 +23,7 @@ import org.chromium.chrome.browser.tab.Tab;
 import org.chromium.chrome.browser.tab.TabObserver;
 import org.chromium.chrome.browser.tab.TabHidingType;
 import org.chromium.content_public.browser.MediaSession;
+import org.chromium.content_public.browser.MediaSessionObserver;
 import org.chromium.content_public.browser.NavigationHandle;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.content_public.browser.WebContentsObserver;
@@ -94,8 +95,13 @@ public final class VersaniumYouTubePictureInPictureController {
     private @Nullable TabObserver mObserver;
 
     public static void diagnosticActivity(Activity activity, String event) {
+        diagnosticActivity(activity, event, null);
+    }
+
+    public static void diagnosticActivity(Activity activity, String event, @Nullable Tab tab) {
         VersaniumYouTubePictureInPicturePolicy.diagnostic(event,
-                "finishing=" + activity.isFinishing() + " destroyed=" + activity.isDestroyed()
+                VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(tab)
+                + " finishing=" + activity.isFinishing() + " destroyed=" + activity.isDestroyed()
                 + " configurationChanging=" + activity.isChangingConfigurations()
                 + " frameworkPip=" + activity.isInPictureInPictureMode());
     }
@@ -107,13 +113,21 @@ public final class VersaniumYouTubePictureInPictureController {
                 + " hasOwner=" + (owner != null) + " hasCandidate=" + (mCandidate != null)
                 + " ownerTab=" + (owner == null ? -1 : owner.tabId)
                 + " hasOwnerWebContents=" + (owner != null)
-                + " foregroundOwner=" + (owner != null && owner.tab == mTabs.get()) + " " + fields);
+                + " foregroundOwner=" + (owner != null && owner.tab == mTabs.get()) + " "
+                + VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(
+                        owner != null ? owner.tab : mTabs.get()) + " " + fields);
+        if (mDiagnosticPage != null) mDiagnosticPage.emit("PAGE_SNAPSHOT", "trigger=" + event);
+        if (mPreviousDiagnosticPage != null) {
+            mPreviousDiagnosticPage.emit("PAGE_SNAPSHOT", "trigger=" + event);
+        }
     }
 
     private void transition(State next, String reason) {
         VersaniumYouTubePictureInPicturePolicy.diagnostic("STATE",
                 "from=" + mState + " to=" + next + " reason=" + reason
-                + " generation=" + mGeneration);
+                + " generation=" + mGeneration + " "
+                + VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(
+                        mOwner != null ? mOwner.tab : mTabs.get()));
         mState = next;
     }
 
@@ -122,6 +136,145 @@ public final class VersaniumYouTubePictureInPictureController {
         if (!allowed) VersaniumYouTubePictureInPicturePolicy.diagnosticPolicy(
                 mActivity, mTabs.get(), false, false, reason);
         return allowed;
+    }
+
+    // At most two passive page probes, independent from PiP ownership/generation.
+    // Retaining the outgoing page catches asynchronous pause/visibility AFTER tab switch.
+    private @Nullable DiagnosticPage mDiagnosticPage;
+    private @Nullable DiagnosticPage mPreviousDiagnosticPage;
+
+    private final class DiagnosticPage {
+        final Tab tab;
+        final WebContents wc;
+        final int tabId;
+        private boolean closed;
+        private boolean lastDesktopSite;
+        private String playingSignal = "unknown";
+        private String sessionControllable = "unknown";
+        private String sessionSuspended = "unknown";
+        private @Nullable WebContentsObserver contentsObserver;
+        private @Nullable MediaSessionObserver sessionObserver;
+
+        DiagnosticPage(Tab source, WebContents contents) {
+            tab = source;
+            tabId = source.getId();
+            wc = contents;
+            lastDesktopSite = wc.getNavigationController().getUseDesktopUserAgent();
+            contentsObserver = new WebContentsObserver(wc) {
+                @Override
+                public void onVisibilityChanged(int visibility) {
+                    emit("WC_VISIBILITY", "visibility=" + visibility);
+                }
+
+                @Override
+                public void mediaStartedPlaying(int id, boolean hasAudio, boolean hasVideo) {
+                    playingSignal = "started";
+                    emit("MEDIA_STARTED", "hasAudio=" + hasAudio + " hasVideo=" + hasVideo);
+                }
+
+                @Override
+                public void mediaStoppedPlaying(int id) {
+                    playingSignal = "stopped";
+                    emit("MEDIA_STOPPED", "aggregatePlaying=unknown");
+                }
+
+                @Override
+                public void didToggleFullscreenModeForTab(boolean entered, boolean willResize) {
+                    emit("PAGE_FULLSCREEN", "entered=" + entered);
+                }
+
+                @Override
+                public void webContentsDestroyed() {
+                    VersaniumYouTubePictureInPicturePolicy.diagnostic("PAGE_DESTROYED",
+                            "sourceTab=" + tabId + " desktop_site=" + lastDesktopSite + " pageReadable=false");
+                    close();
+                }
+            };
+            MediaSession session = MediaSession.fromWebContents(wc);
+            if (session != null) {
+                sessionObserver = new MediaSessionObserver(session) {
+                    @Override
+                    public void mediaSessionStateChanged(boolean controllable, boolean suspended) {
+                        sessionControllable = Boolean.toString(controllable);
+                        sessionSuspended = Boolean.toString(suspended);
+                        emit("MEDIA_SESSION", "source=existing_java_callback");
+                    }
+
+                    @Override
+                    public void mediaSessionDestroyed() {
+                        emit("MEDIA_SESSION_DESTROYED", "sessionActive=unavailable");
+                        stopObserving();
+                    }
+                };
+            }
+            emit("PAGE_MODE", "source=existing_navigation_controller");
+        }
+
+        boolean matches(Tab source, WebContents contents) {
+            return !closed && tab == source && wc == contents;
+        }
+
+        void emit(String event, String detail) {
+            if (closed || mDestroyed) return;
+            if (tab.isDestroyed() || wc.isDestroyed() || tab.getWebContents() != wc) {
+                close();
+                return;
+            }
+            lastDesktopSite = wc.getNavigationController().getUseDesktopUserAgent();
+            VersaniumYouTubePictureInPicturePolicy.diagnostic(event,
+                    "sourceTab=" + tabId + " selected=" + (mTabs.get() == tab)
+                    + " owner=" + (mOwner != null && mOwner.tab == tab)
+                    + " retainedOutgoing=" + (mTabs.get() != tab)
+                    + " " + VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(tab)
+                    + " mediaPlayingSignal=" + playingSignal
+                    + " sessionControllable=" + sessionControllable
+                    + " sessionSuspended=" + sessionSuspended
+                    + " sessionActive=unavailable " + detail);
+        }
+
+        void close() {
+            if (closed) return;
+            closed = true;
+            if (contentsObserver != null) contentsObserver.observe(null);
+            if (sessionObserver != null) sessionObserver.stopObserving();
+            contentsObserver = null;
+            sessionObserver = null;
+            if (mDiagnosticPage == this) mDiagnosticPage = null;
+            if (mPreviousDiagnosticPage == this) mPreviousDiagnosticPage = null;
+        }
+    }
+
+    void diagnosticObserve(@Nullable Tab tab) {
+        if (!VersaniumYouTubePictureInPicturePolicy.ENABLED || mDestroyed
+                || tab == null || tab.isDestroyed()) return;
+        WebContents wc = tab.getWebContents();
+        if (wc == null || wc.isDestroyed()) return;
+        android.net.Uri uri = android.net.Uri.parse(tab.getUrl().getSpec());
+        String host = uri.getHost();
+        // Broader diagnostic observation is NOT product eligibility.
+        if (!("m.youtube.com".equals(host) || "www.youtube.com".equals(host)
+                || "youtube.com".equals(host)) || !"/watch".equals(uri.getPath())) return;
+        if (mDiagnosticPage != null && mDiagnosticPage.matches(tab, wc)) return;
+        if (mPreviousDiagnosticPage != null && mPreviousDiagnosticPage.matches(tab, wc)) {
+            DiagnosticPage selected = mPreviousDiagnosticPage;
+            mPreviousDiagnosticPage = mDiagnosticPage;
+            mDiagnosticPage = selected;
+            selected.emit("PAGE_MODE", "source=reselected");
+            return;
+        }
+        if (mPreviousDiagnosticPage != null) mPreviousDiagnosticPage.close();
+        mPreviousDiagnosticPage = mDiagnosticPage;
+        mDiagnosticPage = new DiagnosticPage(tab, wc);
+    }
+
+    void diagnosticTabEvent(String event, @Nullable Tab tab, String fields) {
+        VersaniumYouTubePictureInPicturePolicy.diagnostic(event,
+                "sourceTab=" + (tab == null ? -1 : tab.getId()) + " "
+                + VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(tab) + " " + fields);
+        if (mDiagnosticPage != null) mDiagnosticPage.emit("PAGE_SNAPSHOT", "trigger=" + event);
+        if (mPreviousDiagnosticPage != null) {
+            mPreviousDiagnosticPage.emit("PAGE_SNAPSHOT", "trigger=" + event);
+        }
     }
 
     private TabObserver createObserver(Owner observed, long generation) {
@@ -394,6 +547,10 @@ public final class VersaniumYouTubePictureInPictureController {
         resetTerminal();
         clearRejectedCandidate();
         mDestroyed = true;
+        if (mDiagnosticPage != null) mDiagnosticPage.close();
+        if (mPreviousDiagnosticPage != null) mPreviousDiagnosticPage.close();
+        mDiagnosticPage = null;
+        mPreviousDiagnosticPage = null;
     }
 
     void updateCandidate(@Nullable Tab tab, boolean upstream) {

@@ -23,7 +23,7 @@
  
      @Override
      public void onStartWithNative() {
-+        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "ACTIVITY_START");
++        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "ACTIVITY_START", getActivityTab());
          assert mNativeInitialized : "onStartWithNative was called before native was initialized.";
  
          if (!ChromeFeatureList.isEnabled(ChromeFeatureList.UMA_SESSION_CORRECTNESS_FIXES)) {
@@ -31,7 +31,7 @@
  
      @Override
      public void onResumeWithNative() {
-+        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "ACTIVITY_RESUME");
++        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "ACTIVITY_RESUME", getActivityTab());
          startUmaSession();
  
          // Inform the activity lifecycle observers. Among other things, the observers record metrics
@@ -39,7 +39,7 @@
  
      @Override
      protected void onUserLeaveHint() {
-+        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "USER_LEAVE_HINT");
++        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "USER_LEAVE_HINT", getActivityTab());
          super.onUserLeaveHint();
  
          getLaunchCauseMetrics().onUserLeaveHint();
@@ -48,7 +48,7 @@
      public void onPictureInPictureModeChanged(boolean inPicture, Configuration newConfig) {
          super.onPictureInPictureModeChanged(inPicture, newConfig);
 +        VersaniumYouTubePictureInPictureController.diagnosticActivity(this,
-+                inPicture ? "PIP_MODE_ENTERED" : "PIP_MODE_EXITED");
++                inPicture ? "PIP_MODE_ENTERED" : "PIP_MODE_EXITED", getActivityTab());
          Log.i(
                  TAG,
                  "Picture in picture mode changed, inPicture: " + inPicture,
@@ -73,7 +73,7 @@
  
      @Override
      public void onPauseWithNative() {
-+        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "PAUSE");
++        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "PAUSE", getActivityTab());
          // Cancel any pending hold-to-quit timer and reset state when moving to the background.
          ConfirmQuitHelper.getInstance().cancel(/* dismissToast= */ true);
          RecordUserAction.record("MobileGoToBackground");
@@ -81,7 +81,7 @@
  
      @Override
      public void onStopWithNative() {
-+        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "ACTIVITY_STOP");
++        VersaniumYouTubePictureInPictureController.diagnosticActivity(this, "ACTIVITY_STOP", getActivityTab());
          super.onStopWithNative();
          EnvironmentZoom.flushPendingWrites();
          if (mFullscreenVideoPictureInPictureController != null) {
@@ -238,7 +238,7 @@
 +        final long generation = mVersaniumPip.beginEntry(entryTab, entryEligible);
          try {
 -            if (!mActivity.enterPictureInPictureMode(builder.build())) return;
-+            VersaniumYouTubePictureInPictureController.diagnosticActivity(mActivity, "ENTRY_BEFORE_FRAMEWORK");
++            VersaniumYouTubePictureInPictureController.diagnosticActivity(mActivity, "ENTRY_BEFORE_FRAMEWORK", mActivityTabProvider.get());
 +            mVersaniumPip.diagnostic("ENTRY_BEFORE_FRAMEWORK", "path=explicit upstreamEligible=" + entryEligible);
 +            final boolean entered = mActivity.enterPictureInPictureMode(builder.build());
 +            mVersaniumPip.diagnostic("ENTRY_RESULT", "returned=" + entered);
@@ -411,18 +411,31 @@
                      MIN_EXIT_DELAY_MILLIS);
              return;
          }
-@@ -736,7 +801,7 @@
+@@ -735,8 +800,9 @@
+             if (mTab == null) return;
              mWebContents = mTab.getWebContents();
              if (mWebContents == null) return;
++            mVersaniumPip.diagnosticObserve(mTab);
              mWebContentsObserver =
 -                    new DismissActivityOnWebContentsObserver(mActivity, mWebContents);
 +                    new DismissActivityOnWebContentsObserver(mActivity, mTab, mWebContents);
          }
  
          /** Clean up everything, and unregister `this`. */
-@@ -756,18 +821,21 @@
+@@ -755,19 +821,32 @@
+         }
  
          @Override
++        public void onHidden(Tab tab, int reason) {
++            mVersaniumPip.diagnosticTabEvent("TAB_HIDDEN", tab, "reason=" + reason);
++        }
++
++        @Override
++        public void onShown(Tab tab, int reason) {
++            mVersaniumPip.diagnosticTabEvent("TAB_SHOWN", tab, "reason=" + reason);
++        }
++
++        @Override
          public void onActivityAttachmentChanged(Tab tab, @Nullable WindowAndroid window) {
 -            if (window != null) dismissActivityIfNeeded(mActivity, MetricsEndReason.REPARENT);
 +            if (window != null || mVersaniumPip.ownsTerminalSource(tab, mWebContents)) {
@@ -445,16 +458,36 @@
              cleanupWebContentsObserver();
          }
  
-@@ -820,6 +888,8 @@
+@@ -805,6 +884,7 @@
+         private void registerTabEventObserver() {
+             if (mCurrentTab == null) return;
+ 
++            mVersaniumPip.diagnosticObserve(mCurrentTab);
+             mTabEventObserver = new DismissActivityOnTabEventObserver(mActivity, mCurrentTab);
+         }
+ 
+@@ -820,7 +900,12 @@
  
          @Override
          public void onResult(@Nullable Tab tab) {
 +            mVersaniumPip.diagnostic("TAB_SWITCH", "oldTab=" + (mCurrentTab == null ? -1 : mCurrentTab.getId())
 +                    + " incomingTab=" + (tab == null ? -1 : tab.getId()));
              if (mCurrentTab == tab) return;
++            mVersaniumPip.diagnosticObserve(mCurrentTab);
++            mVersaniumPip.diagnosticTabEvent("TAB_UNSELECTED", mCurrentTab, "phase=selection_callback_before_cleanup");
++            mVersaniumPip.diagnosticTabEvent("TAB_SELECTED", tab, "phase=before_cleanup");
  
              // If we're switching tabs, including to the case of "no tab", then get rid of the
-@@ -852,9 +922,15 @@
+             // observer on the current tab.
+@@ -830,6 +915,7 @@
+             }
+ 
+             mCurrentTab = tab;
++            mVersaniumPip.diagnosticTabEvent("TAB_SWITCH_AFTER", tab, "phase=after_selection");
+ 
+             dismissActivityIfNeeded(mActivity, MetricsEndReason.NEW_TAB);
+ 
+@@ -852,13 +938,21 @@
      private class DismissActivityOnWebContentsObserver extends WebContentsObserver {
          private final Activity mActivity;
  
@@ -471,7 +504,22 @@
          }
  
          @Override
-@@ -888,9 +964,11 @@
+         public void mediaStartedPlaying(int id, boolean hasAudio, boolean hasVideo) {
++            mVersaniumPip.diagnosticTabEvent("UPSTREAM_MEDIA_STARTED", mSourceTab,
++                    "previousPlaying=" + mIsPlaying);
+             // We have no idea if the effectively fullscreen video started playing, but this will
+             // check if we have an active one.
+             updateAutoPictureInPictureStatusIfNeeded();
+@@ -870,6 +964,8 @@
+ 
+         @Override
+         public void mediaStoppedPlaying(int id) {
++            mVersaniumPip.diagnosticTabEvent("UPSTREAM_MEDIA_STOPPED", mSourceTab,
++                    "previousPlaying=" + mIsPlaying);
+             // As above, we don't know if it was the effectively fullscreen video that stopped. Even
+             // if it is, note that this won't cause us to exit Picture in Picture mode if we're in
+             // it.
+@@ -888,9 +984,11 @@
                  // transition to be wrong.  This causes the pip window to look like it moves to the
                  // wrong part of the screen / partially clipped before snapping to its normal place.
                  PostTask.postDelayedTask(
@@ -485,7 +533,7 @@
              }
          }
      }
-@@ -911,6 +989,7 @@
+@@ -911,6 +1009,7 @@
       */
      @VisibleForTesting
      /* package */ @Nullable MediaSession getMediaSession() {

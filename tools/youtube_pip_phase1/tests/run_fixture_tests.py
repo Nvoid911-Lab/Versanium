@@ -11,6 +11,9 @@ import tempfile
 
 BUNDLE=Path(__file__).resolve().parents[1]
 STUBS={
+'org/chromium/content_public/browser/NavigationController.java': 'package org.chromium.content_public.browser;public class NavigationController {public boolean desktop;public boolean getUseDesktopUserAgent(){return desktop;}}',
+'org/chromium/content_public/browser/MediaSessionObserver.java': 'package org.chromium.content_public.browser;public class MediaSessionObserver {MediaSession session;public MediaSessionObserver(MediaSession s){session=s;s.observers.add(this);mediaSessionStateChanged(true,false);}public void mediaSessionStateChanged(boolean c,boolean s){}public void mediaSessionDestroyed(){}public void stopObserving(){session.observers.remove(this);}}',
+
 'org/chromium/base/Log.java': 'package org.chromium.base;public class Log {public static java.util.List<String> lines=new java.util.ArrayList<>();public static void i(String tag,String format,Object... args){lines.add(tag+" "+String.format(format,args));}}',
 
 'android/app/Activity.java': '''package android.app;
@@ -67,6 +70,7 @@ public class FullscreenOptions {}''',
 'org/chromium/chrome/browser/tab/Tab.java': '''package org.chromium.chrome.browser.tab;
 import java.util.*;import org.chromium.content_public.browser.*;import org.chromium.ui.base.WindowAndroid;
 public class Tab {public int id=1;public boolean destroyed;public WebContents wc=new WebContents();
+public int getUserAgent(){return wc.navigation.desktop?1:0;}
 public WindowAndroid window;public String url="https://m.youtube.com/watch?v=one";
 public List<TabObserver> observers=new ArrayList<>();
 public int getId(){return id;}public boolean isDestroyed(){return destroyed;}
@@ -88,6 +92,12 @@ default void onDestroyed(Tab t){}}''',
 public interface TabHidingType {int CHANGED_TABS=0,ACTIVITY_HIDDEN=1,REPARENTED=2,TAB_SWITCHER_SHOWN=3;}''',
 'org/chromium/content_public/browser/WebContents.java': '''package org.chromium.content_public.browser;
 import java.util.*;public class WebContents {public boolean destroyed,synchronousExit;
+public NavigationController navigation=new NavigationController();
+public NavigationController getNavigationController(){return navigation;}
+public int visibility=0;public int getVisibility(){return visibility;}
+public boolean fullscreenVideo=true,pipAllowed=true;
+public boolean hasActiveEffectivelyFullscreenVideo(){return fullscreenVideo;}
+public boolean isPictureInPictureAllowedForFullscreenVideo(){return pipAllowed;}
 public int domExits;public MediaSession session=new MediaSession();
 public org.chromium.ui.base.WindowAndroid window;
 public List<WebContentsObserver> observers=new ArrayList<>();
@@ -100,13 +110,16 @@ o.didToggleFullscreenModeForTab(false,false);}}''',
 public class WebContentsObserver {WebContents wc;
 public WebContentsObserver(WebContents w){observe(w);}
 public void observe(WebContents w){if(wc!=null)wc.observers.remove(this);wc=w;if(w!=null)w.observers.add(this);}
-public void didToggleFullscreenModeForTab(boolean entered,boolean resized){}}''',
+public void didToggleFullscreenModeForTab(boolean entered,boolean resized){}
+public void onVisibilityChanged(int v){}public void mediaStartedPlaying(int id,boolean a,boolean v){}
+public void mediaStoppedPlaying(int id){}public void webContentsDestroyed(){}}''',
 'org/chromium/content_public/browser/NavigationHandle.java': '''package org.chromium.content_public.browser;
 public class NavigationHandle {public boolean committed=true;boolean same;String url;public NavigationHandle(boolean s,String u){same=s;url=u;}
 public boolean hasCommitted(){return committed;}public boolean isSameDocument(){return same;}
 public org.chromium.url.GURL getUrl(){return new org.chromium.url.GURL(url);}}''',
 'org/chromium/content_public/browser/MediaSession.java': '''package org.chromium.content_public.browser;
-public class MediaSession {public int suspends,resumes;public static MediaSession fromWebContents(WebContents w){return w.session;}
+public class MediaSession {public java.util.List<MediaSessionObserver> observers=new java.util.ArrayList<>();
+public int suspends,resumes;public static MediaSession fromWebContents(WebContents w){return w.session;}
 public void suspend(int type){suspends++;}public void resume(int type){resumes++;}}''',
 'org/chromium/media_session/mojom/MediaSession.java': '''package org.chromium.media_session.mojom;
 public class MediaSession {public interface SuspendType {int SYSTEM=1;}}''',
@@ -182,7 +195,7 @@ h,tabs,fm,()->{throw new AssertionError("gate-off cleanup");},
 ()->{throw new AssertionError("gate-off confirmation");},
 (reason,tab,wc)->{throw new AssertionError("gate-off terminal");});
 assert c.beginEntry(t,true)==0;assert fm.observers.isEmpty();
-c.updateCandidate(t,true);h.pip=true;assert c.onFrameworkEntered(true);
+c.updateCandidate(t,true);c.diagnosticObserve(t);assert t.wc.observers.isEmpty();assert t.wc.session.observers.isEmpty();h.pip=true;assert c.onFrameworkEntered(true);
 assert !VersaniumYouTubePictureInPictureController.preserveOnHidden(h,t,t,1);
 assert !c.ownsMediaRouting();assert c.entryTab(t)==t;
 c.onStop();c.onResume();c.onDestroy();assert t.wc.domExits==0;assert t.wc.session.suspends==0;
