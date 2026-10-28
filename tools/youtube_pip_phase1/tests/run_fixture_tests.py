@@ -11,6 +11,8 @@ import tempfile
 
 BUNDLE=Path(__file__).resolve().parents[1]
 STUBS={
+'org/chromium/base/Log.java': 'package org.chromium.base;public class Log {public static java.util.List<String> lines=new java.util.ArrayList<>();public static void i(String tag,String format,Object... args){lines.add(tag+" "+String.format(format,args));}}',
+
 'android/app/Activity.java': '''package android.app;
 public class Activity {public boolean pip,finishing,destroyed,changing;public int state=3;
 public boolean isInPictureInPictureMode(){return pip;}

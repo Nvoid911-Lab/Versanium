@@ -379,6 +379,22 @@ public final class Phase1FixtureTest {
         h = new Host(); h.active(); h.wc.destroyed = true; h.controller.onDestroy();
         check(h.wc.domExits == 0 && h.wc.session.suspends == 0, "destroyed WC APIs skipped");
         check(h.fullscreen.observers.isEmpty(), "host listener released");
+        check(org.chromium.base.Log.lines.stream().allMatch(line -> line.startsWith("VersaniumPiP VSPIP event=")),
+                "diagnostic tag and format");
+        for (String event : new String[]{"POLICY", "INIT", "OWNER_ADOPT", "STATE", "GENERATION",
+                "ENTRY_REQUESTED", "ENTRY_SUPPRESSED", "ENTRY_ABORTED", "FRAMEWORK_ENTERED",
+                "CLEANUP", "EXIT", "TERMINAL_ARM", "TERMINAL_CLAIM", "CANDIDATE_TERMINAL"}) {
+            check(org.chromium.base.Log.lines.stream().anyMatch(line -> line.contains("event=" + event + " ")),
+                    "diagnostic observation " + event);
+        }
+        for (String reason : new String[]{"non_https", "wrong_host", "wrong_path", "missing_video_id",
+                "unsupported_activity", "upstream_ineligible", "activity_finishing", "configuration_change",
+                "eligible"}) {
+            check(org.chromium.base.Log.lines.stream().anyMatch(line -> line.contains("reason=" + reason)),
+                    "diagnostic policy reason " + reason);
+        }
+        check(org.chromium.base.Log.lines.stream().noneMatch(line -> line.contains("watch?v=")
+                || line.contains("videoId=one")), "diagnostics omit full URL and video IDs");
         System.out.println("PASS: " + checks + " actual-source fixture assertions");
     }
 }

@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.SystemClock;
 
+import org.chromium.base.Log;
 import org.chromium.build.annotations.NullMarked;
 import org.chromium.build.annotations.Nullable;
 import org.chromium.chrome.browser.ChromeTabbedActivity;
@@ -75,17 +76,70 @@ public final class VersaniumYouTubePictureInPicturePolicy {
         return id == null ? "" : id;
     }
 
+    static void diagnostic(String event, String fields) {
+        if (ENABLED) Log.i("VersaniumPiP", "VSPIP event=%s %s", event, fields);
+    }
+
+    private static String field(@Nullable String value) {
+        if (value == null) return "none";
+        String safe = value.replaceAll("[^a-zA-Z0-9._/-]", "_");
+        return safe.substring(0, Math.min(safe.length(), 80));
+    }
+
+    static void diagnosticPolicy(Activity activity, @Nullable Tab tab, boolean upstream,
+            boolean eligible, String reason) {
+        Uri uri = Uri.parse(tab == null || tab.isDestroyed() ? "" : tab.getUrl().getSpec());
+        diagnostic("POLICY", "scheme=" + field(uri.getScheme()) + " host=" + field(uri.getHost())
+                + " path=" + field(uri.getPath())
+                + " hasVideoId=" + (uri.getHost() != null && uri.getQueryParameter("v") != null
+                        && !uri.getQueryParameter("v").isEmpty())
+                + " activitySupported=" + (activity instanceof ChromeTabbedActivity)
+                + " finishing=" + activity.isFinishing() + " destroyed=" + activity.isDestroyed()
+                + " configurationChanging=" + activity.isChangingConfigurations()
+                + " hasTab=" + (tab != null) + " upstreamEligible=" + upstream
+                + " eligible=" + eligible + " reason=" + reason);
+    }
+
+    private static String rejection(Activity activity, @Nullable Tab tab, boolean upstream) {
+        if (!ENABLED) return "gate_disabled";
+        if (!(activity instanceof ChromeTabbedActivity)) return "unsupported_activity";
+        if (!upstream) return "upstream_ineligible";
+        if (activity.isFinishing()) return "activity_finishing";
+        if (activity.isDestroyed()) return "activity_destroyed";
+        if (activity.isChangingConfigurations()) return "configuration_change";
+        if (tab == null) return "no_tab";
+        if (tab.isDestroyed()) return "tab_destroyed";
+        Uri uri = Uri.parse(tab.getUrl().getSpec());
+        if (!"https".equals(uri.getScheme())) return "non_https";
+        if (!"m.youtube.com".equals(uri.getHost())) return "wrong_host";
+        if (!"/watch".equals(uri.getPath())) return "wrong_path";
+        if (uri.getUserInfo() != null || (uri.getPort() != -1 && uri.getPort() != 443)) {
+            return "invalid_authority";
+        }
+        return "missing_video_id";
+    }
+
     static @Nullable Owner capture(Activity activity, @Nullable Tab tab, boolean upstream, long epoch) {
         if (!ENABLED || !(activity instanceof ChromeTabbedActivity) || !upstream
                 || activity.isFinishing() || activity.isDestroyed()
                 || activity.isChangingConfigurations() || tab == null || tab.isDestroyed()
-                || videoId(tab.getUrl().getSpec()).isEmpty()) return null;
+                || videoId(tab.getUrl().getSpec()).isEmpty()) {
+            diagnosticPolicy(activity, tab, upstream, false, rejection(activity, tab, upstream));
+            return null;
+        }
         WebContents wc = tab.getWebContents();
         WindowAndroid window = tab.getWindowAndroid();
         if (wc == null || wc.isDestroyed() || window == null
-                || window.getActivity().get() != activity) return null;
+                || window.getActivity().get() != activity) {
+            diagnosticPolicy(activity, tab, upstream, false,
+                    wc == null ? "no_web_contents" : wc.isDestroyed() ? "web_contents_destroyed"
+                            : window == null ? "no_window" : "wrong_activity_window");
+            return null;
+        }
         Owner owner = new Owner(activity, window, tab, wc, epoch);
-        return owner.live(activity, epoch) ? owner : null;
+        boolean live = owner.live(activity, epoch);
+        diagnosticPolicy(activity, tab, upstream, live, live ? "eligible" : "owner_not_live");
+        return live ? owner : null;
     }
 
     static boolean protectedState(State state, long enteredAt, boolean frameworkPip) {

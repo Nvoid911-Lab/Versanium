@@ -1,5 +1,15 @@
 # Versanium Project Rules
 
+> Current checkpoint — 2026-10-28 JST: fresh Phase1 integration/GN/chrome_java/APK PASS
+> confirmed from existing fresh logs; Galaxy S23 Phase1 device test FAIL (user report).
+> Tab switch stops playback; Home does not enter PiP; playback remains stopped.
+> Next: diagnostic-only VersaniumPiP logging instrumentation and explicitly authorized
+> incremental fresh build. Existing eligibility, routing and media behavior unchanged.
+> Diagnostic-source fixture384 / bundle5 / gate-off / parse-only5 PASS; Zoom24 unchanged.
+> Prior NullAway/real-device correctness is not inferred from ordinary Java success.
+> Never access saved Run9; no ADB/install, Actions, merge/release/tag or Production.
+> See [diagnostic scope, events and fresh build boundary](docs/versanium/brave-36838-phase1/diagnostic-logging.md).
+
 > Current checkpoint — 2026-10-28 JST: Brave #36838 Phase 1 source implementation
 > is complete. **Phase 1 implemented but NOT compiled/built/device-verified.**
 > Next: `READY_FOR_36838_PHASE1_PREBUILD_REVIEW`. A separate Source-of-Truth gate

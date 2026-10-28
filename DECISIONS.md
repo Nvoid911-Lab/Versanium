@@ -453,3 +453,17 @@ User device trials did not resolve the PiP lifecycle failure. Stop the old three
 > See [implementation, verification and limits](docs/versanium/brave-36838-phase1/implementation.md).
 
 Adopt the approved design with seven commits and a single default-off gate in commits1–6. The final source integration enables the gate. Persistent-video leave callbacks are detached before DOM/UI teardown to prevent reentrant task dismissal; all protection is already off in EXITING. This ordering refinement and API-double/parse-only validation limits are recorded in the implementation report. Entry does not resume media, media never falls back to a new current tab, config change ends the session, and screen lock follows ordinary stop. No build or device result is implied.
+
+
+## 2026-10-28: Diagnose Phase1 device failure without changing behavior
+
+Fresh Phase1 integration, GN, chrome_java and chrome_public_apk succeeded in the
+specified phase1-36838 workspace (existing logs verified). User reports Galaxy S23
+launch/playback PASS, tab switch stops playback, Home no PiP, playback stays stopped.
+Add Java-only VersaniumPiP structured logs at existing policy/controller/upstream
+entry/lifecycle/tab-switch hooks. No eligibility widening, forced resume, fallback,
+JS/C++/JNI, #33522/#39765, Zoom/F11/branding or identity/signing changes.
+The user explicitly authorizes commit/normal push (Primary then Secondary), fresh
+incremental GN -> chrome_java -j6 -> chrome_public_apk -j6, and reuse of the existing
+local device-test key. No previous Run9 access, ADB/install, Actions or release.
+[Diagnostic events, limits and tests](docs/versanium/brave-36838-phase1/diagnostic-logging.md).
