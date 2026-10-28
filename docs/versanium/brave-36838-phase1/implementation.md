@@ -1,3 +1,13 @@
+# Current follow-up — Zoom ledger portability only
+
+2026-10-28 JST: [Zoom protection now uses exact Git blob SHA256](zoom-ledger-portability.md),
+with the same24 protected paths; legacy checkout hashes are historical evidence.
+All24 Zoom product blobs and the complete Phase1 implementation/test tree unchanged.
+Ledger-specific tests18 PASS; retired34 absent. Next:
+`READY_FOR_36838_BUILD_PREP_ENVIRONMENT_SETUP`.
+**Fresh build environment/JDK blocker remains unresolved; BUILD_PREP is incomplete.**
+No GN/compile/Actions/APK or device verification; prior PiP readiness below is historical.
+
 # Current follow-up — same-WebContents candidate recovery
 
 2026-10-28 JST: **same-WebContents fresh candidate recovery fixed; still NOT compiled/built/device-verified**.

@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "hash_algorithm": "sha256",
+  "content_source": "git-blob",
+  "ref": "ec620a1d69244f2e9eb405d3d21ecd9a3d0a8752",
+  "files": {
+    "tools/apply_environment_zoom.py": "94ab563bf3d7427aa09a3f0867718c40fd5be2ec1bc980a6a21782884ca23702",
+    "tools/check_environment_zoom_revision.py": "4bd78829e604a73d9aaa80bdf05de6e85ada762ef8d60e99d3169fac77f26f3a",
+    "tools/environment_zoom/chromium.patch": "4e000a4e12a7a5c07e1078c49f94a7759b897891db0d11b7ae3570fce3caa839",
+    "tools/environment_zoom/java/org/chromium/components/browser_ui/accessibility/EnvironmentZoomSettings.java": "4ed4b716da8dc6e46042eb113590993c131f7458795c2392a67079031de0b343",
+    "tools/environment_zoom/java/org/chromium/components/browser_ui/accessibility/EnvironmentZoomTransfer.java": "2ded03bb7cb2faed74e592df1840e80b522542f5ad61cf3cc1ed245cf8fe6224",
+    "tools/environment_zoom/java/org/chromium/content_public/browser/EnvironmentZoom.java": "ba8ea5c809ec73525caaae2e9e3c00db198471d2102382b349ad95402f6afaf0",
+    "tools/environment_zoom/java/org/chromium/content_public/browser/EnvironmentZoomBackup.java": "4f2695a9a4dfdbf19eeea12103b71231dc325ff797c62ce57fef633a373132d2",
+    "tools/environment_zoom/java/org/chromium/content_public/browser/EnvironmentZoomPersistence.java": "2434ef8f3bdaf39fd6f5693fc77fa06c1f0d141581e187223602f9f160b61d98",
+    "tools/environment_zoom/java/org/chromium/content_public/browser/EnvironmentZoomPolicy.java": "5e7ea3f850171728a383717457cba0a64f1f4cd0f74c2cf6df11576ee7deb471",
+    "tools/environment_zoom/res/values-ja/titanium_zoom_strings.xml": "764c0e474713d1e62d876c20dc4a4ac40138076bc7a980ad2a28278602d23738",
+    "tools/environment_zoom/res/values/titanium_zoom_strings.xml": "3544d5f499a0b105078e225f3b3dc1dcba4b75ec75cc316969e5af074e124270",
+    "tools/environment_zoom/tests/EnvironmentZoomBackupTest.java": "c7a36345633d3f7f63c853358d92279265bdfbb05b118a58afb43a8e9f224425",
+    "tools/environment_zoom/tests/EnvironmentZoomBridgeTest.java": "f045a434850629e720c5b6b5850cc4e4fa62df18aecab2037b13de38b93d628d",
+    "tools/environment_zoom/tests/EnvironmentZoomPersistenceTest.java": "ed11f01f3c394a0ff8425d50c192b9bdcf583315926b01abe18cb3c00a5dd379",
+    "tools/environment_zoom/tests/EnvironmentZoomPolicyTest.java": "67704503d9d522dbdc04543c7d7a572488371d42ec779c50f1d230dcbc355143",
+    "tools/environment_zoom/tests/ParseJavaSources.java": "1c8084440c1661481479c6d6313690adc11b5b6ff802023b2f6a756623c8a159",
+    "tools/environment_zoom/tests/check_android_api.py": "ee4c7771c3e439eab02de3aaef565bb79d3275420374777b82952fff089bc380",
+    "tools/environment_zoom/tests/check_build_pin.py": "b7291d070c47f9b830083becd05a0ff836e29f25b03c1a5f6b1255832c7ef65d",
+    "tools/environment_zoom/tests/check_jni_abi.py": "d7429859e3c1800881ef1cc46ccef932fbc3b15f3ced290877b90d5ac42f0843",
+    "tools/environment_zoom/tests/check_patch.py": "09a670d4f4bd6c5cd1ac314a996d2f8286e2d848010bf980b982f9217de584cf",
+    "tools/environment_zoom/tests/check_settings_resources.py": "bb29037b8a4eea87e5ceb7c2765dcf1cbd2538b08e358c76c92ca8f03602288c",
+    "tools/environment_zoom/tests/check_video_fullscreen.py": "6f24c892c10122f889c516add0bc200091fbaefc54d509552a27f2ad6735659b",
+    "tools/environment_zoom/tests/fixtures/legacy-zoom-v1.properties": "36cb6e7afb81f339c64dce9334d81fb2f3f4ebb67ebd05c21a8db4a5e2b48ea2",
+    "tools/environment_zoom/tests/run_local_tests.py": "2f016e8585613c61af4ec0c2ae9a5fecf05004a143e05911d18b4aaadee4829c"
+  }
+}

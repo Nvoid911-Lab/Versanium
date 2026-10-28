@@ -1,5 +1,15 @@
 # Versanium Project Status
 
+> Current checkpoint — 2026-10-28 JST: repository-side Zoom ledger portability fixed.
+> Canonical gate is exact SHA256 of Git blob content at an explicit target ref,
+> against reviewed commit ec620a1; legacy CRLF worktree hashes remain historical.
+> All24 protected Zoom blobs and the complete Phase1 tree unchanged; retired34 absent.
+> Ledger-specific tests18 PASS, including LF/CRLF clones and fail-closed negatives.
+> Next: `READY_FOR_36838_BUILD_PREP_ENVIRONMENT_SETUP`.
+> **Fresh build environment/JDK blocker remains unresolved; BUILD_PREP is incomplete.**
+> No GN/compile/APK/Actions/saved Run9/merge/tag/release/Production operation.
+> See [canonical rule, 24-file comparison and validator](docs/versanium/brave-36838-phase1/zoom-ledger-portability.md).
+
 > Current checkpoint — 2026-10-28 JST: #36838 Phase 1 candidate recovery fixed.
 > **same-WebContents fresh candidate recovery fixed; still NOT compiled/built/device-verified**.
 > Document-scoped rejection observation accepts committed reload/navigation or fresh
