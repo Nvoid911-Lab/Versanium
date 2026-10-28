@@ -1,3 +1,11 @@
+# Current follow-up — signed diagnostic APK
+
+State: `SIGNED_DIAGNOSTIC_APK_READY_FOR_MANUAL_DEVICE_TEST`.
+Diagnostic controller0cd373e: fresh GN/chrome_java/chrome_public_apk and existing local
+key verify PASS. No product behavior fix or new device result. Same-device mobile
+FAIL/desktop PASS motivates visibility/media logs. [Full receipt](diagnostic-apk-build.md).
+Earlier unbuilt/environment-blocker checkpoints below are historical.
+
 # Current follow-up — Zoom ledger portability only
 
 2026-10-28 JST: [Zoom protection now uses exact Git blob SHA256](zoom-ledger-portability.md),

@@ -481,3 +481,16 @@ retain outgoing asynchronous media/visibility events after tab observer cleanup.
 Use only existing Java APIs; report unsupported active/custom-UA state as unknown.
 Diagnostic www/bare YouTube observation does not broaden product eligibility.
 No media action, ownership policy, observer decision, JS/C++/JNI or branding change.
+
+
+## 2026-10-28: Fresh diagnostic APK signed; require manual mobile/desktop log comparison
+
+Diagnostic source0cd373e built in the explicitly authorized existing fresh workspace:
+GN RC0, chrome_java RC0, chrome_public_apk RC0. Test package/label, 16KiB alignment,
+retained dex diagnostics and apksigner verify PASS. Reused the existing local
+Galaxy S23 test key; same previous certificate, no key/password repository storage.
+The new APK is ready for manual transfer, not device-verified. Existing user report
+mobile FAIL/desktop PASS remains separate from this new artifact's acceptance.
+Compare the four mobile/desktop tab-switch/Home cases before any behavior fix.
+No source/args/Zoom drift, Run9, ADB/install, Actions or release operation.
+[Exact receipt](docs/versanium/brave-36838-phase1/diagnostic-apk-build.md).

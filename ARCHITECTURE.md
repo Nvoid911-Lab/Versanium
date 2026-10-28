@@ -1,17 +1,14 @@
 # Versanium Architecture
 
-> Current checkpoint — 2026-10-28 JST: fresh Phase1 integration/GN/chrome_java/APK PASS
-> confirmed from existing fresh logs; Galaxy S23 Phase1 device test FAIL (user report).
-> Tab switch stops playback; Home does not enter PiP; playback remains stopped.
-> Next: diagnostic-only VersaniumPiP logging instrumentation and explicitly authorized
-> incremental fresh build. Existing eligibility, routing and media behavior unchanged.
-> Same S23/same APK: mobile site FAIL, desktop site PASS (tab switching and Home PiP).
-> Add bounded passive visibility/media probes and desktop_site correlation; hypothesis
-> is mobile-site-specific pause before PiP eligibility, not proven root cause.
-> Diagnostic-source fixture400 / bundle5 / gate-off / parse-only5 PASS; Zoom24 unchanged.
-> Prior NullAway/real-device correctness is not inferred from ordinary Java success.
-> Never access saved Run9; no ADB/install, Actions, merge/release/tag or Production.
-> See [diagnostic scope, events and fresh build boundary](docs/versanium/brave-36838-phase1/diagnostic-logging.md).
+> Current checkpoint — 2026-10-28 JST: diagnostic APK built and signed for manual S23 test.
+> State: `SIGNED_DIAGNOSTIC_APK_READY_FOR_MANUAL_DEVICE_TEST`.
+> Compiled diagnostic controller0cd373e (initial logging50eff9e + mobile/desktop follow-up).
+> Fresh GN/chrome_java/chrome_public_apk RC0; Test package and same local-key verify PASS.
+> JVM400 / bundle5 / default-off / parse-only5 PASS; Zoom blob24 PASS; retired34 absent.
+> Source inventory1316 unchanged after build; args and registration1/1 preserved.
+> User's same-device/same-prior-APK report: mobile FAIL, desktop PASS. New APK untested.
+> No product behavior fix, ADB/install, saved Run9, Actions, merge/release/tag or Production.
+> See [artifact hashes, paths and complete build receipt](docs/versanium/brave-36838-phase1/diagnostic-apk-build.md).
 
 > Current checkpoint — 2026-10-28 JST: Brave #36838 Phase 1 source implementation
 > is complete. **Phase 1 implemented but NOT compiled/built/device-verified.**
