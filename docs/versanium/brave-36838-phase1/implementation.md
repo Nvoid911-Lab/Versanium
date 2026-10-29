@@ -1,3 +1,11 @@
+# Current follow-up — symbolicated diagnostic startup fix
+
+State: `SIGNED_STARTUP_FIX_APK_READY_FOR_MANUAL_LAUNCH_TEST`.
+Old diagnostic APK startup SIGTRAP mapped to fullscreen-player CHECK; minimal
+Policy diagnostic guard3ce5aac built/signed/verified. New device launch unverified.
+[Symbolication, tests and artifact](startup-fix-apk-build.md). Earlier readiness
+checkpoints below remain historical; product PiP behavior has not been changed.
+
 # Current follow-up — signed diagnostic APK
 
 State: `SIGNED_DIAGNOSTIC_APK_READY_FOR_MANUAL_DEVICE_TEST`.

@@ -507,3 +507,13 @@ reporting unknown otherwise; guard the diagnostic URL's native-backed read too.
 Keep mobile/desktop/media/visibility probes on live pages, product behavior unchanged.
 Preserve old mapping before authorized incremental rebuild and local-test-key signing.
 [Exact evidence and all diagnostic read contracts](docs/versanium/brave-36838-phase1/diagnostic-startup-crash.md).
+
+
+## 2026-10-29: Ship signed diagnostic startup-fix APK for manual launch recheck
+
+Fix3ce5aac passed fresh GN/chrome_java/chrome_public_apk, Test identity/alignment and
+same local-device-test-key verify. Native binaries and all other source inventory
+unchanged. Old and new R8 mappings retained separately for accurate future retrace.
+Red/green native-precondition double plus JVM415/bundle5/default-off/parse5 PASS.
+The new APK is not device-launch-proven and does not fix original mobile PiP behavior.
+[Artifact and exact receipts](docs/versanium/brave-36838-phase1/startup-fix-apk-build.md).

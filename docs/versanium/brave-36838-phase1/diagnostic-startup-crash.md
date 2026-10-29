@@ -3,7 +3,8 @@
 Start Controller74460f1d1873073d9c0aef16a8f27ae1bb4ecc75; crashing diagnostic input
 0cd373ea3a086622d9c0ec72af64fa389f1c839e. User reports Galaxy S23/Android16,
 about2s uptime, native SIGTRAP, not a Java exception. Prior non-diagnostic APK boots.
-State before rebuild: STARTUP_DIAGNOSTIC_FIX_READY_FOR_INCREMENTAL_BUILD.
+Current state: SIGNED_STARTUP_FIX_APK_READY_FOR_MANUAL_LAUNCH_TEST.
+[Completed build/sign receipt](startup-fix-apk-build.md).
 
 ## Exact artifact symbolication BEFORE source edits
 
