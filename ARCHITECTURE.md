@@ -1,5 +1,17 @@
 # Versanium Architecture
 
+> Current checkpoint — 2026-10-29 JST: source trace completed; no product change.
+> PHASE1_BUILD=PASS (previous); MOBILE_DEVICE_TEST=FAIL; DESKTOP_CONTROL_TEST=PASS.
+> User same-device/same-APK comparison: mobile fullscreen=true/allowed=false/upstream=false;
+> desktop fullscreen=true/allowed=true/upstream=true/frameworkPiP=true.
+> Blink video disablepictureinpicture presence -> fullscreen status enum -> browser
+> per-player cached optional bool -> JNI -> upstream canDo -> entry is confirmed.
+> Exact page writer/timing and first tab-switch pause remain UNCONFIRMED.
+> NEXT: review producer/first-pause diagnostic plan; no instrumentation/build authorized here.
+> Brave36838 assumes complementary page support omitted by approved Phase1 scope.
+> No new GN/build/APK/Actions/Run9/device/merge/release/tag operation.
+> See [producer, consumers, Q1–Q7 and evidence limits](docs/versanium/brave-36838-phase1/fullscreen-pip-source-trace.md).
+
 > Current checkpoint — 2026-10-29 JST: symbolicated diagnostic startup fix built/signed.
 > State: `SIGNED_STARTUP_FIX_APK_READY_FOR_MANUAL_LAUNCH_TEST` (device launch unverified).
 > Compiled fix3ce5aac guards fullscreen-only JNI read; native CHECK was resolved before edits/push.

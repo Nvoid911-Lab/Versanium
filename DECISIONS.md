@@ -517,3 +517,16 @@ unchanged. Old and new R8 mappings retained separately for accurate future retra
 Red/green native-precondition double plus JVM415/bundle5/default-off/parse5 PASS.
 The new APK is not device-launch-proven and does not fix original mobile PiP behavior.
 [Artifact and exact receipts](docs/versanium/brave-36838-phase1/startup-fix-apk-build.md).
+
+
+## 2026-10-29: Trace fullscreen PiP permission before choosing mobile fix
+
+Same-S23/same-APK user comparison identifies mobile allowed=false versus desktop
+allowed=true. Pinned Blink detector samples video disablepictureinpicture into a
+fullscreen status enum; the browser stores the per-player permission and Java
+honors it. Current Phase1 cannot rescue upstream-ineligible media. Exact site
+writer/timing and first pause remain unconfirmed, not a generic Android failure.
+Brave36838 also has preexisting page-support/background mechanisms deliberately
+excluded from our scope. No behavior change or instrumentation/build is selected.
+Next review a correlated producer/receiver/first-pause diagnostic proposal.
+[Complete chain and limits](docs/versanium/brave-36838-phase1/fullscreen-pip-source-trace.md).
