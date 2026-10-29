@@ -1,5 +1,15 @@
 # Versanium Project Status
 
+> Zoom × fullscreen matched diagnostics — 2026-10-29 JST: implementation only.
+> Default-off VSZOOMFS overlay observes the actual no-pending return, selection,
+> transport, renderer adoption, intersection/paint geometry and stored-zoom exit snapshot.
+> Existing return/condition/value order and canonical Zoom24/VSPIP are preserved.
+> New13 structural/correlation tests + selector675 + generated Java49 PASS;
+> PiP427/candidate6/active24 and existing Zoom regression checks PASS.
+> Matched 50/100/200 device causality is NOT collected; no product fix is ready.
+> Source of Truth v1.25 is retained. No fresh source mutation/GN/build/APK/ADB.
+> [Implementation, gates, identity and coordinate limits](tools/zoom_fullscreen_diagnostics/README.md).
+
 > Current checkpoint — 2026-10-29 JST: correlated native diagnostics implemented, NOT built.
 > Producer attribute/status + browser cache + first pause ingress/policy/session paths.
 > Frame token/player -> native RFH/WC main ID -> Java sourceTab/desktop-site correlation.

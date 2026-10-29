@@ -11,6 +11,8 @@ import tempfile
 
 BUNDLE=Path(__file__).resolve().parents[1]
 STUBS={
+'org/chromium/base/CommandLine.java': 'package org.chromium.base;public class CommandLine {public static boolean isInitialized(){return true;}public static CommandLine getInstance(){return new CommandLine();}public boolean hasSwitch(String s){return false;}}',
+'org/chromium/content_public/browser/EnvironmentZoom.java': 'package org.chromium.content_public.browser;public class EnvironmentZoom {static{fail();}static void fail(){throw new AssertionError("default off zoom class initialized");}public static void vsZoomFullscreen(WebContents w,int t,boolean e){throw new AssertionError("default off zoom diagnostic");}}',
 'org/chromium/content_public/browser/GlobalRenderFrameHostId.java': 'package org.chromium.content_public.browser;public class GlobalRenderFrameHostId {int child,route;public GlobalRenderFrameHostId(int c,int r){child=c;route=r;}public int childId(){return child;}public int frameRoutingId(){return route;}}',
 'org/chromium/content_public/browser/RenderFrameHost.java': 'package org.chromium.content_public.browser;public class RenderFrameHost {public GlobalRenderFrameHostId id=new GlobalRenderFrameHostId(7,11);public GlobalRenderFrameHostId getGlobalRenderFrameHostId(){return id;}}',
 'org/chromium/content_public/browser/NavigationController.java': 'package org.chromium.content_public.browser;public class NavigationController {public boolean desktop;public boolean getUseDesktopUserAgent(){return desktop;}}',

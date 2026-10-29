@@ -1,5 +1,14 @@
 # Versanium Architecture
 
+> Zoom fullscreen diagnostic boundary — 2026-10-29 JST: independent generated-source
+> overlay after existing Zoom/Phase1/Versanium transforms; canonical protected24
+> inputs/ledger unchanged. Dedicated command-line gate is OFF by default and
+> forwarded to children. No new JNI or source registration. Renderer received
+> grant and previous stored grant are distinct; paint-root/CSS/device units are
+> never treated as interchangeable. Fullscreen correction is observed, not moved
+> ahead of the no-pending return. Source of Truth v1.25 and causal uncertainty remain.
+> [Evidence contract and future installation boundary](tools/zoom_fullscreen_diagnostics/README.md).
+
 > Current checkpoint — 2026-10-29 JST: correlated native diagnostics implemented, NOT built.
 > Producer attribute/status + browser cache + first pause ingress/policy/session paths.
 > Frame token/player -> native RFH/WC main ID -> Java sourceTab/desktop-site correlation.

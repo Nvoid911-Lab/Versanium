@@ -267,4 +267,7 @@ python3 "$SCRIPT_DIR/tools/youtube_pip_phase1/apply.py" --root "$PWD" || exit 1
 
 python3 "$SCRIPT_DIR/tools/versanium/apply.py" --root "$PWD" || exit 1
 
+# Generated-source diagnostics only; the dedicated runtime switch defaults OFF.
+python3 "$SCRIPT_DIR/tools/zoom_fullscreen_diagnostics/apply.py" --root "$PWD" --apply || exit 1
+
 export PATCHED=1

@@ -1,0 +1,922 @@
+diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
+--- a/chrome/browser/chrome_content_browser_client.cc
++++ b/chrome/browser/chrome_content_browser_client.cc
+@@ -2927,4 +2927,11 @@
+     base::CommandLine* command_line,
+     int child_process_id) {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (base::CommandLine::ForCurrentProcess()->HasSwitch("versanium-zoom-fullscreen-diagnostics")) {
++    command_line->AppendSwitch("versanium-zoom-fullscreen-diagnostics");
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   crash_keys::AppendStringAnnotationsCommandLineSwitch(command_line);
+ #if BUILDFLAG(IS_MAC)
+diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/browser/renderer_host/render_widget_host_impl.cc
+--- a/content/browser/renderer_host/render_widget_host_impl.cc
++++ b/content/browser/renderer_host/render_widget_host_impl.cc
+@@ -4,4 +4,10 @@
+
+ #include "content/browser/renderer_host/render_widget_host_impl.h"
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#include "base/logging.h"
++#include <array>
++#include <iomanip>
++#include <sstream>
++// VSZOOMFS_DIAGNOSTIC_END
+
+ #include <math.h>
+@@ -193,4 +199,39 @@
+
+ namespace content {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++bool VSZoomEnabled() {
++  return base::CommandLine::InitializedForCurrentProcess() &&
++      base::CommandLine::ForCurrentProcess()->HasSwitch("versanium-zoom-fullscreen-diagnostics");
++}
++std::ostringstream VSZoomFields() {
++  std::ostringstream fields;
++  fields << std::setprecision(17);
++  return fields;
++}
++void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
++  if (!VSZoomEnabled()) return;
++  struct Entry { std::string key; std::string last; unsigned changes = 0; };
++  static thread_local std::array<Entry, 32> entries;
++  static thread_local unsigned next = 0;
++  static thread_local uint64_t sequence = 0;
++  const std::string key = std::string(event) + ":" + scope;
++  Entry* entry = nullptr;
++  for (auto& item : entries) if (item.key == key) { entry = &item; break; }
++  if (!entry) { entry = &entries[next++ % entries.size()]; *entry = Entry{key, "", 0}; }
++  if (entry->last == fields || entry->changes > 64) return;
++  entry->last = fields;
++  if (entry->changes++ == 64) {
++    LOG(INFO) << "VSZOOMFS event=DIAGNOSTIC_LIMIT scope=" << scope << " dropped_event=" << event;
++    return;
++  }
++  LOG(INFO) << "VSZOOMFS event=" << event << " seq=" << ++sequence
++            << " seq_scope=module_thread tick_us="
++            << base::TimeTicks::Now().since_origin().InMicroseconds() << " " << fields;
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+ namespace {
+
+@@ -1156,4 +1197,17 @@
+   }
+   visual_properties.zoom_level = delegate_->GetPendingZoomLevel(this);
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=browser widget_process=" << GetProcess()->GetID().value()
++      << " widget_route=" << GetRoutingID() << " zoom_exp=" << visual_properties.zoom_level
++      << " grant=" << visual_properties.fullscreen_grant_count
++      << " fullscreen=" << visual_properties.is_fullscreen_granted
++      << " dimensions_stage=not_yet_populated";
++    VSZoomLog("VISUAL_PROPERTIES_COMPUTED", std::to_string(GetRoutingID()), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   visual_properties.css_zoom_factor = view_->GetCSSZoomFactor();
+
+@@ -1382,4 +1436,13 @@
+   // Throttle to one update at a time.
+   if (visual_properties_ack_pending_) {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=browser reason=pending_ack widget_process=" << GetProcess()->GetID().value() << " widget_route=" << GetRoutingID() << " grant=" << fullscreen_grant_count_;
++    VSZoomLog("VISUAL_PROPERTIES_DEFERRED", std::to_string(GetRoutingID()), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+     return false;
+   }
+@@ -1407,4 +1470,21 @@
+   if (propagate) {
+     blink_widget_->UpdateVisualProperties(*visual_properties);
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=browser widget_process=" << GetProcess()->GetID().value()
++      << " widget_route=" << GetRoutingID() << " zoom_exp=" << visual_properties->zoom_level
++      << " grant=" << visual_properties->fullscreen_grant_count
++      << " fullscreen=" << visual_properties->is_fullscreen_granted
++      << " css_zoom=" << visual_properties->css_zoom_factor
++      << " device_scale=" << visual_properties->screen_infos.current().device_scale_factor
++      << " display_id=" << visual_properties->screen_infos.current().display_id
++      << " viewport_device_px_w=" << visual_properties->visible_viewport_size_device_px.width()
++      << " viewport_device_px_h=" << visual_properties->visible_viewport_size_device_px.height();
++    VSZoomLog("VISUAL_PROPERTIES_SEND", std::to_string(GetRoutingID()), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   }
+
+diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser/web_contents/web_contents_impl.cc
+--- a/content/browser/web_contents/web_contents_impl.cc
++++ b/content/browser/web_contents/web_contents_impl.cc
+@@ -4,4 +4,9 @@
+
+ #include "content/browser/web_contents/web_contents_impl.h"
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#include <array>
++#include <iomanip>
++#include <sstream>
++// VSZOOMFS_DIAGNOSTIC_END
+
+ #include <stddef.h>
+@@ -289,4 +294,56 @@
+
+ namespace content {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++bool VSZoomEnabled() {
++  return base::CommandLine::InitializedForCurrentProcess() &&
++      base::CommandLine::ForCurrentProcess()->HasSwitch("versanium-zoom-fullscreen-diagnostics");
++}
++std::ostringstream VSZoomFields() {
++  std::ostringstream fields;
++  fields << std::setprecision(17);
++  return fields;
++}
++void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
++  if (!VSZoomEnabled()) return;
++  struct Entry { std::string key; std::string last; unsigned changes = 0; };
++  static thread_local std::array<Entry, 32> entries;
++  static thread_local unsigned next = 0;
++  static thread_local uint64_t sequence = 0;
++  const std::string key = std::string(event) + ":" + scope;
++  Entry* entry = nullptr;
++  for (auto& item : entries) if (item.key == key) { entry = &item; break; }
++  if (!entry) { entry = &entries[next++ % entries.size()]; *entry = Entry{key, "", 0}; }
++  if (entry->last == fields || entry->changes > 64) return;
++  entry->last = fields;
++  if (entry->changes++ == 64) {
++    LOG(INFO) << "VSZOOMFS event=DIAGNOSTIC_LIMIT scope=" << scope << " dropped_event=" << event;
++    return;
++  }
++  LOG(INFO) << "VSZOOMFS event=" << event << " seq=" << ++sequence
++            << " seq_scope=module_thread tick_us="
++            << base::TimeTicks::Now().since_origin().InMicroseconds() << " " << fields;
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++std::string VSZoomBrowserFields(RenderFrameHostImpl* frame) {
++  if (!frame) return "frame=unknown wc_main_child=-1 wc_main_route=-1";
++  auto fields = VSZoomFields();
++  auto* main = frame->GetMainFrame();
++  fields << "frame=" << frame->GetFrameToken().ToString()
++         << " rfh_child=" << frame->GetGlobalId().child_id.value()
++         << " rfh_route=" << frame->GetGlobalId().frame_routing_id
++         << " wc_main_child=" << (main ? main->GetGlobalId().child_id.value() : -1)
++         << " wc_main_route=" << (main ? main->GetGlobalId().frame_routing_id : -1);
++  return fields.str();
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+
+ namespace {
+@@ -5033,4 +5090,13 @@
+       GetContentClient()->browser()->IsFullscreenAllowedForUnfocusedWebContents(
+           this));
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=browser " << VSZoomBrowserFields(requesting_frame);
++    VSZoomLog("FULLSCREEN_REQUEST", requesting_frame->GetFrameToken().ToString(), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   // Ensure the window is made active to take input focus. The window may be
+   // inactive when sites request fullscreen via capability delegation, consume
+@@ -5067,4 +5133,13 @@
+
+ void WebContentsImpl::ExitFullscreenMode(bool will_cause_resize) {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=browser stage=request " << VSZoomBrowserFields(GetPrimaryMainFrame());
++    VSZoomLog("FULLSCREEN_EXIT", VSZoomBrowserFields(GetPrimaryMainFrame()), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::ExitFullscreenMode",
+                         "will_cause_resize", will_cause_resize);
+@@ -9991,4 +10066,15 @@
+       });
+
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=wc_selector " << VSZoomBrowserFields(rfh)
++      << " widget_process=" << rwh->GetProcess()->GetID().value()
++      << " widget_route=" << rwh->GetRoutingID();
++    VSZoomLog("ZOOM_WIDGET_FRAME", rfh ? rfh->GetFrameToken().ToString() : "unknown", fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   if (rfh) {
+     // Find nearest ancestor that has independent zoom.
+@@ -10007,4 +10093,10 @@
+     // just return the zoom level of this WebContents, as that will most often
+     // be right.
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++    if (VSZoomEnabled()) VSZoomLog("FULLSCREEN_CORRECTION_SKIP", "unknown_rfh",
++        "source=wc_selector reason=unknown_rfh frame=unknown selected_value_source=following_visual_properties");
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+     return HostZoomMap::GetZoomLevel(this);
+   }
+@@ -10030,4 +10122,20 @@
+     NavigationEntry* pending_entry = rfh->GetController().GetPendingEntry();
+     if (!pending_entry) {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=wc_selector " << VSZoomBrowserFields(rfh)
++      << " widget_process=" << rwh->GetProcess()->GetID().value()
++      << " widget_route=" << rwh->GetRoutingID()
++      << " fullscreen=" << IsFullscreen()
++      << " media_player_present=" << (media_web_contents_observer_
++          ? (media_web_contents_observer_->GetFullscreenVideoMediaPlayerId().has_value() ? "true" : "false") : "unknown")
++      << " outer_root=" << (!rfh->GetParentOrOuterDocument())
++      << " temporary=" << HostZoomMapForRenderFrameHost(rfh)->UsesTemporaryZoomLevel(rfh->GetGlobalId()) << " pending=0 reason=no_pending selected_value_source=following_visual_properties";
++    VSZoomLog("FULLSCREEN_CORRECTION_SKIP", rfh->GetFrameToken().ToString(), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+       return HostZoomMap::GetZoomLevel(this, rfh->GetGlobalId());
+     }
+@@ -10037,4 +10145,20 @@
+     // GetZoomLevel(WebContents*, RenderFrameHost*) in case `rfh` uses temporary
+     // zoom.
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=wc_selector " << VSZoomBrowserFields(rfh)
++      << " widget_process=" << rwh->GetProcess()->GetID().value()
++      << " widget_route=" << rwh->GetRoutingID()
++      << " fullscreen=" << IsFullscreen()
++      << " media_player_present=" << (media_web_contents_observer_
++          ? (media_web_contents_observer_->GetFullscreenVideoMediaPlayerId().has_value() ? "true" : "false") : "unknown")
++      << " outer_root=" << (!rfh->GetParentOrOuterDocument())
++      << " temporary=" << HostZoomMapForRenderFrameHost(rfh)->UsesTemporaryZoomLevel(rfh->GetGlobalId()) << " reason=independent_subframe";
++    VSZoomLog("FULLSCREEN_CORRECTION_SKIP", rfh->GetFrameToken().ToString(), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+     return HostZoomMap::GetZoomLevel(this, rfh->GetGlobalId());
+   }
+@@ -10043,4 +10167,20 @@
+     auto* zoom_map = HostZoomMapForRenderFrameHost(rfh);
+     if (zoom_map->UsesTemporaryZoomLevel(rfh->GetGlobalId())) {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=wc_selector " << VSZoomBrowserFields(rfh)
++      << " widget_process=" << rwh->GetProcess()->GetID().value()
++      << " widget_route=" << rwh->GetRoutingID()
++      << " fullscreen=" << IsFullscreen()
++      << " media_player_present=" << (media_web_contents_observer_
++          ? (media_web_contents_observer_->GetFullscreenVideoMediaPlayerId().has_value() ? "true" : "false") : "unknown")
++      << " outer_root=" << (!rfh->GetParentOrOuterDocument())
++      << " temporary=" << HostZoomMapForRenderFrameHost(rfh)->UsesTemporaryZoomLevel(rfh->GetGlobalId()) << " reason=temporary_zoom";
++    VSZoomLog("FULLSCREEN_CORRECTION_SKIP", rfh->GetFrameToken().ToString(), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+       return HostZoomMap::GetZoomLevel(this, rfh->GetGlobalId());
+     }
+@@ -10049,9 +10189,57 @@
+     if (IsFullscreen() &&
+         media_web_contents_observer_->GetFullscreenVideoMediaPlayerId()) {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=wc_selector " << VSZoomBrowserFields(rfh)
++      << " widget_process=" << rwh->GetProcess()->GetID().value()
++      << " widget_route=" << rwh->GetRoutingID()
++      << " fullscreen=" << IsFullscreen()
++      << " media_player_present=" << (media_web_contents_observer_
++          ? (media_web_contents_observer_->GetFullscreenVideoMediaPlayerId().has_value() ? "true" : "false") : "unknown")
++      << " outer_root=" << (!rfh->GetParentOrOuterDocument())
++      << " temporary=" << HostZoomMapForRenderFrameHost(rfh)->UsesTemporaryZoomLevel(rfh->GetGlobalId()) << " selected_exp=0 reason=video_fullscreen stage=selection_only";
++    VSZoomLog("FULLSCREEN_CORRECTION_SELECTED", rfh->GetFrameToken().ToString(), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+       return 0.0;
+     }
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=wc_selector " << VSZoomBrowserFields(rfh)
++      << " widget_process=" << rwh->GetProcess()->GetID().value()
++      << " widget_route=" << rwh->GetRoutingID()
++      << " fullscreen=" << IsFullscreen()
++      << " media_player_present=" << (media_web_contents_observer_
++          ? (media_web_contents_observer_->GetFullscreenVideoMediaPlayerId().has_value() ? "true" : "false") : "unknown")
++      << " outer_root=" << (!rfh->GetParentOrOuterDocument())
++      << " temporary=" << HostZoomMapForRenderFrameHost(rfh)->UsesTemporaryZoomLevel(rfh->GetGlobalId()) << " reason=" << (IsFullscreen() ? "no_fullscreen_player" : "not_fullscreen");
++    VSZoomLog("FULLSCREEN_CORRECTION_SKIP", rfh->GetFrameToken().ToString(), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+     double environment_level = HostZoomMap::GetEnvironmentZoomLevel(this, url);
+     if (std::isfinite(environment_level)) return environment_level;
+   }
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=wc_selector " << VSZoomBrowserFields(rfh)
++      << " widget_process=" << rwh->GetProcess()->GetID().value()
++      << " widget_route=" << rwh->GetRoutingID()
++      << " fullscreen=" << IsFullscreen()
++      << " media_player_present=" << (media_web_contents_observer_
++          ? (media_web_contents_observer_->GetFullscreenVideoMediaPlayerId().has_value() ? "true" : "false") : "unknown")
++      << " outer_root=" << (!rfh->GetParentOrOuterDocument())
++      << " temporary=" << HostZoomMapForRenderFrameHost(rfh)->UsesTemporaryZoomLevel(rfh->GetGlobalId()) << " reason=" << (rfh->GetParentOrOuterDocument() ? "not_outer_root" : "environment_unavailable");
++    VSZoomLog("FULLSCREEN_CORRECTION_SKIP", rfh->GetFrameToken().ToString(), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   return HostZoomMapForRenderFrameHost(rfh)
+       ->GetZoomLevelForHostAndSchemeAndroid(url.GetScheme(),
+@@ -12509,4 +12697,13 @@
+
+ void WebContentsImpl::MediaEffectivelyFullscreenChanged(bool is_fullscreen) {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=browser recompute=existing_UpdateZoom effective_fullscreen=" << is_fullscreen << " " << VSZoomBrowserFields(GetPrimaryMainFrame());
++    VSZoomLog("FULLSCREEN_CORRECTION_REQUEST", VSZoomBrowserFields(GetPrimaryMainFrame()), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+ #if BUILDFLAG(IS_ANDROID)
+   // Observer has already updated/reset the fullscreen player. Re-evaluate the
+diff --git a/content/public/android/java/src/org/chromium/content_public/browser/EnvironmentZoom.java b/content/public/android/java/src/org/chromium/content_public/browser/EnvironmentZoom.java
+--- a/content/public/android/java/src/org/chromium/content_public/browser/EnvironmentZoom.java
++++ b/content/public/android/java/src/org/chromium/content_public/browser/EnvironmentZoom.java
+@@ -12,4 +12,6 @@
+ import android.view.Display;
+
++import org.chromium.content_public.browser.RenderFrameHost;
++import org.chromium.content_public.browser.GlobalRenderFrameHostId;
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.StrictModeContext;
+@@ -288,6 +290,8 @@
+         Binding binding = binding(contents);
+         if (binding == null || binding.lastEnvironment == null) return Double.NaN;
+-        return binding.policy.resolve(binding.lastEnvironment, host)
+-                + Math.log(binding.lastFont) / Math.log(1.2);
++        double raw = binding.policy.resolve(binding.lastEnvironment, host);
++        double result = raw + Math.log(binding.lastFont) / Math.log(1.2);
++        if (vsZoomDiagnosticsEnabled()) vsZoomState(contents, host, binding, raw, result);
++        return result;
+     }
+     public static boolean save(WebContents contents, String host, double factor) {
+@@ -351,3 +355,81 @@
+         }
+     }
++    // VSZOOMFS_DIAGNOSTIC_BEGIN
++    public static boolean vsZoomDiagnosticsEnabled() {
++        return org.chromium.base.CommandLine.isInitialized()
++                && org.chromium.base.CommandLine.getInstance().hasSwitch("versanium-zoom-fullscreen-diagnostics");
++    }
++    private static final class VSZoomSample {
++        double raw, adjusted, before;
++        String slot = "", beforeSlot = "", last = "";
++        int tab = -1, samples;
++        boolean beforeValid, restorePending, limitReported;
++    }
++    private static final class VSZoomStore {
++        static final WeakHashMap<WebContents, VSZoomSample> samples = new WeakHashMap<>();
++    }
++    private static VSZoomSample vsZoomSample(WebContents wc) {
++        return VSZoomStore.samples.computeIfAbsent(wc, ignored -> new VSZoomSample());
++    }
++    private static void vsZoomEmit(WebContents wc, VSZoomSample sample, String event, String values) {
++        if (!vsZoomDiagnosticsEnabled() || wc == null || wc.isDestroyed()) return;
++        String key = event + " " + values;
++        if (key.equals(sample.last)) return;
++        if (sample.samples >= 128) {
++            if (!sample.limitReported) {
++                sample.limitReported = true;
++                Log.i("VersaniumZoomFS", "VSZOOMFS event=DIAGNOSTIC_LIMIT wc_java=%d", System.identityHashCode(wc));
++            }
++            return;
++        }
++        sample.last = key; sample.samples++;
++        RenderFrameHost frame = wc.getMainFrame();
++        GlobalRenderFrameHostId id = frame == null ? null : frame.getGlobalRenderFrameHostId();
++        Log.i("VersaniumZoomFS", "VSZOOMFS event=%s seq_wc=%d tab=%d wc_java=%d wc_main_child=%d wc_main_route=%d %s",
++                event, sample.samples, sample.tab, System.identityHashCode(wc), id == null ? -1 : id.childId(),
++                id == null ? -1 : id.frameRoutingId(), values);
++    }
++    private static void vsZoomState(WebContents wc, String host, Binding binding, double raw, double adjusted) {
++        VSZoomSample sample = vsZoomSample(wc);
++        sample.raw = raw; sample.adjusted = adjusted;
++        sample.slot = binding.lastEnvironment.name() + ":" + host; // Internal comparison only; never logged.
++        vsZoomEmit(wc, sample, "ZOOM_STATE", "resolved_user_exp=" + raw + " stored_exp=" + raw
++                + " adjusted_exp=" + adjusted + " font_factor=" + binding.lastFont
++                + " zoom_environment=" + binding.lastEnvironment.name());
++        if (sample.restorePending) {
++            vsZoomEmit(wc, sample, "ZOOM_RESTORE", "restore_action=none stored_zoom_unchanged="
++                    + (sample.beforeValid && sample.beforeSlot.equals(sample.slot)
++                        ? Boolean.toString(Double.doubleToRawLongBits(sample.before) == Double.doubleToRawLongBits(raw)) : "unknown")
++                    + " stored_exp=" + raw + " before_exp=" + sample.before);
++            sample.restorePending = false;
++        }
++    }
++    @SuppressWarnings("deprecation") // Read-only Display.getRealSize for existing Android APIs.
++    public static void vsZoomFullscreen(WebContents wc, int tabId, boolean entered) {
++        if (!vsZoomDiagnosticsEnabled() || wc == null || wc.isDestroyed()) return;
++        VSZoomSample sample = vsZoomSample(wc); sample.tab = tabId;
++        if (entered) {
++            sample.beforeValid = !sample.slot.isEmpty(); sample.before = sample.raw;
++            sample.beforeSlot = sample.slot;
++        } else { sample.restorePending = true; }
++        Activity owner = activity(wc);
++        String geometry = "window_px=unknown display_px=unknown";
++        if (owner != null && !owner.isDestroyed() && !owner.isFinishing()
++                && owner.getWindow() != null && owner.getWindow().getDecorView() != null) {
++            android.view.View decor = owner.getWindow().getDecorView();
++            geometry = "window_px_w=" + decor.getWidth() + " window_px_h=" + decor.getHeight()
++                    + " display_id=" + displayId(owner);
++            android.hardware.display.DisplayManager manager = (android.hardware.display.DisplayManager)
++                    owner.getSystemService(Context.DISPLAY_SERVICE);
++            android.view.Display display = manager == null ? null : manager.getDisplay(displayId(owner));
++            if (display != null) {
++                android.graphics.Point size = new android.graphics.Point(); display.getRealSize(size);
++                geometry += " display_px_w=" + size.x + " display_px_h=" + size.y;
++            }
++        }
++        vsZoomEmit(wc, sample, entered ? "FULLSCREEN_ENTER" : "FULLSCREEN_EXIT",
++                "source=java_observer stored_exp=" + sample.raw + " stored_value_stage=last_calculation before_valid=" + sample.beforeValid + " " + geometry);
++    }
++    // VSZOOMFS_DIAGNOSTIC_END
++
+ }
+diff --git a/third_party/blink/renderer/core/frame/fullscreen_controller.cc b/third_party/blink/renderer/core/frame/fullscreen_controller.cc
+--- a/third_party/blink/renderer/core/frame/fullscreen_controller.cc
++++ b/third_party/blink/renderer/core/frame/fullscreen_controller.cc
+@@ -30,4 +30,13 @@
+
+ #include "third_party/blink/renderer/core/frame/fullscreen_controller.h"
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#include "base/command_line.h"
++#include "base/logging.h"
++#include "base/time/time.h"
++#include "build/build_config.h"
++#include <array>
++#include <iomanip>
++#include <sstream>
++// VSZOOMFS_DIAGNOSTIC_END
+
+ #include "base/memory/ptr_util.h"
+@@ -54,4 +63,54 @@
+
+ namespace blink {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++bool VSZoomEnabled() {
++  return base::CommandLine::InitializedForCurrentProcess() &&
++      base::CommandLine::ForCurrentProcess()->HasSwitch("versanium-zoom-fullscreen-diagnostics");
++}
++std::ostringstream VSZoomFields() {
++  std::ostringstream fields;
++  fields << std::setprecision(17);
++  return fields;
++}
++void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
++  if (!VSZoomEnabled()) return;
++  struct Entry { std::string key; std::string last; unsigned changes = 0; };
++  static thread_local std::array<Entry, 32> entries;
++  static thread_local unsigned next = 0;
++  static thread_local uint64_t sequence = 0;
++  const std::string key = std::string(event) + ":" + scope;
++  Entry* entry = nullptr;
++  for (auto& item : entries) if (item.key == key) { entry = &item; break; }
++  if (!entry) { entry = &entries[next++ % entries.size()]; *entry = Entry{key, "", 0}; }
++  if (entry->last == fields || entry->changes > 64) return;
++  entry->last = fields;
++  if (entry->changes++ == 64) {
++    LOG(INFO) << "VSZOOMFS event=DIAGNOSTIC_LIMIT scope=" << scope << " dropped_event=" << event;
++    return;
++  }
++  LOG(INFO) << "VSZOOMFS event=" << event << " seq=" << ++sequence
++            << " seq_scope=module_thread tick_us="
++            << base::TimeTicks::Now().since_origin().InMicroseconds() << " " << fields;
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++std::string VSZoomFrameFields(const LocalFrame* frame) {
++  if (!frame) return "frame=unknown document=unknown";
++  const auto* doc = frame->GetDocument();
++  auto fields = VSZoomFields();
++  fields << "frame=" << frame->GetLocalFrameToken().ToString()
++         << " document=" << (doc && doc->Loader() ? doc->Token().ToString() : "unknown")
++         << " is_main_frame=" << frame->IsMainFrame();
++  return fields.str();
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+
+ namespace {
+@@ -151,4 +210,16 @@
+
+   state_ = State::kFullscreen;
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=renderer " << VSZoomFrameFields(web_view_base_->MainFrameImpl() ? web_view_base_->MainFrameImpl()->GetFrame() : nullptr)
++      << " page_scale=" << web_view_base_->PageScaleFactor()
++      << " visible_viewport_blink_w=" << web_view_base_->VisualViewportSize().width()
++      << " visible_viewport_blink_h=" << web_view_base_->VisualViewportSize().height();
++    VSZoomLog("FULLSCREEN_ENTER", "fullscreen_controller", fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+
+   NotifyFramesOfFullscreenEntry(true /* success */);
+@@ -185,4 +256,13 @@
+   UpdatePageScaleConstraints(true);
+
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=renderer stage=constraints_reset_before_dom_exit " << VSZoomFrameFields(web_view_base_->MainFrameImpl() ? web_view_base_->MainFrameImpl()->GetFrame() : nullptr);
++    VSZoomLog("FULLSCREEN_EXIT", "fullscreen_controller", fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   state_ = State::kInitial;
+
+@@ -214,4 +294,13 @@
+   TRACE_EVENT("blink", __PRETTY_FUNCTION__);
+   const auto& screen_info = frame.GetChromeClient().GetScreenInfo(frame);
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=renderer " << VSZoomFrameFields(&frame);
++    VSZoomLog("FULLSCREEN_REQUEST", VSZoomFrameFields(&frame), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+
+   const bool requesting_other_screen =
+diff --git a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc b/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
+--- a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
++++ b/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
+@@ -30,4 +30,13 @@
+
+ #include "third_party/blink/renderer/core/frame/web_frame_widget_impl.h"
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#include "base/command_line.h"
++#include "base/logging.h"
++#include <array>
++#include <iomanip>
++#include <sstream>
++#include "third_party/blink/renderer/core/frame/local_frame.h"
++#include "third_party/blink/renderer/core/dom/document.h"
++// VSZOOMFS_DIAGNOSTIC_END
+
+ #include <algorithm>
+@@ -201,4 +210,54 @@
+
+ namespace blink {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++bool VSZoomEnabled() {
++  return base::CommandLine::InitializedForCurrentProcess() &&
++      base::CommandLine::ForCurrentProcess()->HasSwitch("versanium-zoom-fullscreen-diagnostics");
++}
++std::ostringstream VSZoomFields() {
++  std::ostringstream fields;
++  fields << std::setprecision(17);
++  return fields;
++}
++void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
++  if (!VSZoomEnabled()) return;
++  struct Entry { std::string key; std::string last; unsigned changes = 0; };
++  static thread_local std::array<Entry, 32> entries;
++  static thread_local unsigned next = 0;
++  static thread_local uint64_t sequence = 0;
++  const std::string key = std::string(event) + ":" + scope;
++  Entry* entry = nullptr;
++  for (auto& item : entries) if (item.key == key) { entry = &item; break; }
++  if (!entry) { entry = &entries[next++ % entries.size()]; *entry = Entry{key, "", 0}; }
++  if (entry->last == fields || entry->changes > 64) return;
++  entry->last = fields;
++  if (entry->changes++ == 64) {
++    LOG(INFO) << "VSZOOMFS event=DIAGNOSTIC_LIMIT scope=" << scope << " dropped_event=" << event;
++    return;
++  }
++  LOG(INFO) << "VSZOOMFS event=" << event << " seq=" << ++sequence
++            << " seq_scope=module_thread tick_us="
++            << base::TimeTicks::Now().since_origin().InMicroseconds() << " " << fields;
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++std::string VSZoomFrameFields(const LocalFrame* frame) {
++  if (!frame) return "frame=unknown document=unknown";
++  const auto* doc = frame->GetDocument();
++  auto fields = VSZoomFields();
++  fields << "frame=" << frame->GetLocalFrameToken().ToString()
++         << " document=" << (doc && doc->Loader() ? doc->Token().ToString() : "unknown")
++         << " is_main_frame=" << frame->IsMainFrame();
++  return fields.str();
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+
+ namespace {
+@@ -1964,4 +2023,19 @@
+   }
+
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=renderer " << VSZoomFrameFields(LocalRootImpl() ? LocalRootImpl()->GetFrame() : nullptr)
++      << " zoom_exp=" << visual_properties.zoom_level << " css_zoom=" << visual_properties.css_zoom_factor
++      << " grant_received=" << visual_properties.fullscreen_grant_count
++      << " grant_stored_before=" << fullscreen_grant_count_
++      << " fullscreen_received=" << visual_properties.is_fullscreen_granted
++      << " viewport_device_px_w=" << visual_properties.visible_viewport_size_device_px.width()
++      << " viewport_device_px_h=" << visual_properties.visible_viewport_size_device_px.height();
++    VSZoomLog("VISUAL_PROPERTIES_RECEIVED", VSZoomFrameFields(LocalRootImpl() ? LocalRootImpl()->GetFrame() : nullptr), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   SetZoomInternal(visual_properties.zoom_level,
+                   visual_properties.css_zoom_factor);
+@@ -2575,4 +2649,16 @@
+         // of Frame descendants.
+         local_frame->SetLayoutZoomFactor(layout_zoom_factor);
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=renderer " << VSZoomFrameFields(local_frame)
++      << " adopted_exp=" << zoom_level_ << " css_zoom=" << css_zoom_factor_
++      << " viewport_layout_device_factor=" << device_scale_factor
++      << " layout_factor=" << layout_zoom_factor << " applied_scope=local_frame_layout";
++    VSZoomLog("RENDERER_ZOOM_ADOPTED", VSZoomFrameFields(local_frame), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+         local_frame->SetCssZoomFactor(css_zoom_factor_);
+       }
+diff --git a/third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc b/third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc
+--- a/third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc
++++ b/third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc
+@@ -4,4 +4,15 @@
+
+ #include "third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.h"
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#include "base/command_line.h"
++#include "base/logging.h"
++#include "base/time/time.h"
++#include "build/build_config.h"
++#include <array>
++#include <iomanip>
++#include <sstream>
++#include "third_party/blink/renderer/core/frame/local_frame.h"
++#include "third_party/blink/renderer/core/dom/document.h"
++// VSZOOMFS_DIAGNOSTIC_END
+
+ #include "third_party/blink/public/platform/task_type.h"
+@@ -16,4 +27,54 @@
+
+ namespace blink {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++bool VSZoomEnabled() {
++  return base::CommandLine::InitializedForCurrentProcess() &&
++      base::CommandLine::ForCurrentProcess()->HasSwitch("versanium-zoom-fullscreen-diagnostics");
++}
++std::ostringstream VSZoomFields() {
++  std::ostringstream fields;
++  fields << std::setprecision(17);
++  return fields;
++}
++void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
++  if (!VSZoomEnabled()) return;
++  struct Entry { std::string key; std::string last; unsigned changes = 0; };
++  static thread_local std::array<Entry, 32> entries;
++  static thread_local unsigned next = 0;
++  static thread_local uint64_t sequence = 0;
++  const std::string key = std::string(event) + ":" + scope;
++  Entry* entry = nullptr;
++  for (auto& item : entries) if (item.key == key) { entry = &item; break; }
++  if (!entry) { entry = &entries[next++ % entries.size()]; *entry = Entry{key, "", 0}; }
++  if (entry->last == fields || entry->changes > 64) return;
++  entry->last = fields;
++  if (entry->changes++ == 64) {
++    LOG(INFO) << "VSZOOMFS event=DIAGNOSTIC_LIMIT scope=" << scope << " dropped_event=" << event;
++    return;
++  }
++  LOG(INFO) << "VSZOOMFS event=" << event << " seq=" << ++sequence
++            << " seq_scope=module_thread tick_us="
++            << base::TimeTicks::Now().since_origin().InMicroseconds() << " " << fields;
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++std::string VSZoomFrameFields(const LocalFrame* frame) {
++  if (!frame) return "frame=unknown document=unknown";
++  const auto* doc = frame->GetDocument();
++  auto fields = VSZoomFields();
++  fields << "frame=" << frame->GetLocalFrameToken().ToString()
++         << " document=" << (doc && doc->Loader() ? doc->Token().ToString() : "unknown")
++         << " is_main_frame=" << frame->IsMainFrame();
++  return fields.str();
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+
+ using blink::WebFullscreenVideoStatus;
+@@ -197,4 +258,25 @@
+     return;
+
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled()) {
++    auto fields = VSZoomFields();
++    fields << "source=intersection " << VSZoomFrameFields(VideoElement().GetDocument().GetFrame())
++      << " player=" << (VideoElement().GetWebMediaPlayer() ? VideoElement().GetWebMediaPlayer()->GetPlayerId() : -1)
++      << " geometry_valid=" << entries.back()->GetGeometry().DidComputeGeometry()
++      << " root_css_px_x=" << entries.back()->GetGeometry().RootRect().x()
++      << " root_css_px_y=" << entries.back()->GetGeometry().RootRect().y()
++      << " root_css_px_w=" << entries.back()->GetGeometry().RootRect().width()
++      << " root_css_px_h=" << entries.back()->GetGeometry().RootRect().height()
++      << " target_css_px_x=" << entries.back()->GetGeometry().TargetRect().x()
++      << " target_css_px_y=" << entries.back()->GetGeometry().TargetRect().y()
++      << " target_css_px_w=" << entries.back()->GetGeometry().TargetRect().width()
++      << " target_css_px_h=" << entries.back()->GetGeometry().TargetRect().height()
++      << " intersection_css_px_w=" << entries.back()->GetGeometry().IntersectionRect().width()
++      << " intersection_css_px_h=" << entries.back()->GetGeometry().IntersectionRect().height();
++    VSZoomLog("FULLSCREEN_LAYOUT", VSZoomFrameFields(VideoElement().GetDocument().GetFrame()), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+   auto* layout = VideoElement().GetLayoutObject();
+   if (!layout || entries.back()->intersectionRatio() <
+diff --git a/third_party/blink/renderer/core/paint/video_painter.cc b/third_party/blink/renderer/core/paint/video_painter.cc
+--- a/third_party/blink/renderer/core/paint/video_painter.cc
++++ b/third_party/blink/renderer/core/paint/video_painter.cc
+@@ -4,4 +4,16 @@
+
+ #include "third_party/blink/renderer/core/paint/video_painter.h"
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#include "base/command_line.h"
++#include "base/logging.h"
++#include "base/time/time.h"
++#include "build/build_config.h"
++#include <array>
++#include <iomanip>
++#include <sstream>
++#include "third_party/blink/renderer/core/frame/local_frame.h"
++#include "third_party/blink/renderer/core/fullscreen/fullscreen.h"
++#include "third_party/blink/renderer/platform/graphics/paint/geometry_mapper.h"
++// VSZOOMFS_DIAGNOSTIC_END
+
+ #include "cc/layers/layer.h"
+@@ -17,4 +29,54 @@
+
+ namespace blink {
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++bool VSZoomEnabled() {
++  return base::CommandLine::InitializedForCurrentProcess() &&
++      base::CommandLine::ForCurrentProcess()->HasSwitch("versanium-zoom-fullscreen-diagnostics");
++}
++std::ostringstream VSZoomFields() {
++  std::ostringstream fields;
++  fields << std::setprecision(17);
++  return fields;
++}
++void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
++  if (!VSZoomEnabled()) return;
++  struct Entry { std::string key; std::string last; unsigned changes = 0; };
++  static thread_local std::array<Entry, 32> entries;
++  static thread_local unsigned next = 0;
++  static thread_local uint64_t sequence = 0;
++  const std::string key = std::string(event) + ":" + scope;
++  Entry* entry = nullptr;
++  for (auto& item : entries) if (item.key == key) { entry = &item; break; }
++  if (!entry) { entry = &entries[next++ % entries.size()]; *entry = Entry{key, "", 0}; }
++  if (entry->last == fields || entry->changes > 64) return;
++  entry->last = fields;
++  if (entry->changes++ == 64) {
++    LOG(INFO) << "VSZOOMFS event=DIAGNOSTIC_LIMIT scope=" << scope << " dropped_event=" << event;
++    return;
++  }
++  LOG(INFO) << "VSZOOMFS event=" << event << " seq=" << ++sequence
++            << " seq_scope=module_thread tick_us="
++            << base::TimeTicks::Now().since_origin().InMicroseconds() << " " << fields;
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++namespace {
++std::string VSZoomFrameFields(const LocalFrame* frame) {
++  if (!frame) return "frame=unknown document=unknown";
++  const auto* doc = frame->GetDocument();
++  auto fields = VSZoomFields();
++  fields << "frame=" << frame->GetLocalFrameToken().ToString()
++         << " document=" << (doc && doc->Loader() ? doc->Token().ToString() : "unknown")
++         << " is_main_frame=" << frame->IsMainFrame();
++  return fields.str();
++}
++}  // namespace
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+
+ void VideoPainter::PaintReplaced(const PaintInfo& paint_info,
+@@ -63,4 +125,34 @@
+   PhysicalRect content_box_rect = layout_video_.PhysicalContentBoxRect();
+   content_box_rect.Move(paint_offset);
++// VSZOOMFS_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (VSZoomEnabled() && !should_display_poster && media_player &&
++      paint_info.phase == PaintPhase::kForeground && !paint_info.IsPrivacyPreserving()) {
++    const auto& state = paint_info.context.GetPaintController().CurrentPaintChunkProperties();
++    gfx::Transform projection;
++    const bool mapped = GeometryMapper::SourceToDestinationProjection(
++        state.Transform(), PropertyTreeState::Root().Transform(), projection);
++    const gfx::RectF root_content = mapped ? projection.MapRect(gfx::RectF(snapped_replaced_rect)) : gfx::RectF();
++    const auto clip = GeometryMapper::LocalToAncestorClipRect(state, PropertyTreeState::Root());
++    auto fields = VSZoomFields();
++    fields << "source=paint " << VSZoomFrameFields(layout_video_.GetDocument().GetFrame())
++           << " player=" << media_player->GetPlayerId()
++           << " paint_local_px_x=" << snapped_replaced_rect.x()
++           << " paint_local_px_y=" << snapped_replaced_rect.y()
++           << " paint_local_px_w=" << snapped_replaced_rect.width()
++           << " paint_local_px_h=" << snapped_replaced_rect.height()
++           << " content_box_local_px_w=" << content_box_rect.Width().ToFloat()
++           << " content_box_local_px_h=" << content_box_rect.Height().ToFloat()
++           << " projection_valid=" << mapped
++           << " root_paint_px_x=" << root_content.x() << " root_paint_px_y=" << root_content.y()
++           << " root_paint_px_w=" << root_content.width() << " root_paint_px_h=" << root_content.height()
++           << " clip_infinite=" << clip.IsInfinite()
++           << " clip_root_paint_px_x=" << clip.Rect().x() << " clip_root_paint_px_y=" << clip.Rect().y()
++           << " clip_root_paint_px_w=" << clip.Rect().width() << " clip_root_paint_px_h=" << clip.Rect().height()
++           << " root_paint_is_device_px=unknown";
++    VSZoomLog("FULLSCREEN_LAYOUT", VSZoomFrameFields(layout_video_.GetDocument().GetFrame()), fields.str());
++  }
++#endif
++// VSZOOMFS_DIAGNOSTIC_END
+
+   if (layout_video_.GetDocument().GetPaintPreviewState() !=

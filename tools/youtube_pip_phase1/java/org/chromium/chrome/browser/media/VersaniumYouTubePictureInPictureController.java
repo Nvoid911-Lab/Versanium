@@ -180,6 +180,13 @@ public final class VersaniumYouTubePictureInPictureController {
 
                 @Override
                 public void didToggleFullscreenModeForTab(boolean entered, boolean willResize) {
+                    if (org.chromium.base.CommandLine.isInitialized()
+                            && org.chromium.base.CommandLine.getInstance().hasSwitch(
+                                    "versanium-zoom-fullscreen-diagnostics")
+                            && !closed && !mDestroyed && !tab.isDestroyed()
+                            && !wc.isDestroyed() && tab.getWebContents() == wc) {
+                        org.chromium.content_public.browser.EnvironmentZoom.vsZoomFullscreen(wc, tabId, entered);
+                    }
                     emit("PAGE_FULLSCREEN", "entered=" + entered);
                 }
 

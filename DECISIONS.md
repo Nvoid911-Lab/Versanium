@@ -542,3 +542,19 @@ exact original nine-source restoration and guarded getters. Source-only/native
 and JVM fixture validation does not establish integrated compilation/device PASS.
 Do not apply/build until next review; existing fresh Phase1 cannot be reapplied.
 [Instrumentation and remaining uncertainty](docs/versanium/brave-36838-phase1/correlated-diagnostics.md).
+
+## 2026-10-29: Observe the complete fullscreen zoom path before a fix
+
+Add a separate default-off VSZOOMFS generated-source overlay and passive Java
+fullscreen observation. Keep no-pending and every existing return/condition in
+place. Distinguish selection, actual send, received grant, layout adoption and
+content/clip geometry. Missing identities, stages or unit conversion remain
+incomplete evidence; 100% exponent zero is not proof of correction. Protected
+Zoom24 inputs and VSPIP text remain intact; no correction, persistence, PiP,
+media or visibility behavior changes. Do not alter the maximum zoom.
+
+Observed device behavior (below100 shrink,100 normal,above100 enlarge/clip) is
+retained separately from the unconfirmed no-pending causal hypothesis. v1.25
+is not rewritten as matched device proof. Next stage is separately reviewed
+fresh-tree diagnostic build preparation, not implementation of a product fix.
+[Implementation and validation](tools/zoom_fullscreen_diagnostics/README.md).
