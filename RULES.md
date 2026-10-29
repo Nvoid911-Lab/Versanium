@@ -1,5 +1,15 @@
 # Versanium Project Rules
 
+> Current checkpoint — 2026-10-29 JST: S23 diagnostic startup SIGTRAP identified before edits.
+> Exact old libchrome PC0x3b4ff88 resolves to fullscreen-player CHECK at media_web_contents_observer.cc:325.
+> Old R8 M1 = isPictureInPictureAllowedForFullscreenVideo; diagnostic snapshot called it unconditionally.
+> Diagnostic-only fix short-circuits that getter and reports unknown; no product decision changes.
+> JVM415 (+15) PASS; native-backed read audit and red/green lifecycle regression recorded.
+> Next: authorized fresh incremental GN -> chrome_java -> APK -> existing local-key verify.
+> Old signed diagnostic APK is device-FAIL. New launch result remains unverified.
+> No Run9, ADB/install, merge/release/tag or Production operation.
+> See [symbolication, read audit and regression](docs/versanium/brave-36838-phase1/diagnostic-startup-crash.md).
+
 > Current checkpoint — 2026-10-28 JST: diagnostic APK built and signed for manual S23 test.
 > State: `SIGNED_DIAGNOSTIC_APK_READY_FOR_MANUAL_DEVICE_TEST`.
 > Compiled diagnostic controller0cd373e (initial logging50eff9e + mobile/desktop follow-up).

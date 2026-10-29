@@ -1,0 +1,37 @@
+{
+  "crashed_signed_apk_sha256": "5b89e85e14092894c3ba6f6e5ceec85dfd5731cc95f5f969ed4703f06033928f",
+  "crashed_apk": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/release/156.0.8078.47-arm64-v8a-phase1-diagnostic.apk",
+  "unsigned_apk_sha256": "1eb7c602c3e6726e7af0116a5159284069438276f87986d3d1ab844a904905e9",
+  "mapping_sha256": "2b1ee55126b88869b8cf7be76358bbcdc8424c84f29e42aef9690f97444613e0",
+  "preserved_mapping": "/home/takuma/versanium-fresh/phase1-36838/evidence/phase1-startup-crash-0cd373e/ChromePublic.crashed-0cd373e.apk.mapping",
+  "native_unstripped_sha256": "46f0104ff149a7f083ab65e8c84d24731e6a003c3be1b5cb7889ad6147d307a2",
+  "native_stripped_sha256": "4a0530b20ae1a4e3db23d13d49855c953102c0ceaffd580c7d1cd38b28dd952b",
+  "native_build_ids": {
+    "unstripped": "6e7fe6dec62a397532653daa08124c566f9f2546",
+    "stripped": "6e7fe6dec62a397532653daa08124c566f9f2546"
+  },
+  "native_pc": "0x3b4ff88",
+  "symbolication": "base::ImmediateCrash()\n./../../base/immediate_crash.h:184:3\nlogging::CheckFailure()\n./../../base/check.h:258:3\ncontent::MediaWebContentsObserver::IsPictureInPictureAllowedForFullscreenVideo() const\n./../../content/browser/media/media_web_contents_observer.cc:325:3\n\n",
+  "fatal_check": "CHECK(fullscreen_player_.has_value())",
+  "java_resolved": {
+    "WebContentsImpl.M1": "isPictureInPictureAllowedForFullscreenVideo",
+    "ChromeTabbedActivity.T1": "onStartWithNative",
+    "ChromeTabbedActivity.r": "finishNativeInitialization",
+    "xg2.T1": "ChromeActivity.onStartWithNative",
+    "s2i.g": "VersaniumYouTubePictureInPictureController.diagnosticActivity",
+    "v2i.c": "VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields"
+  },
+  "call_path": [
+    "ChromeTabbedActivity.finishNativeInitialization",
+    "ChromeTabbedActivity.onStartWithNative",
+    "ChromeActivity.onStartWithNative:1211",
+    "Controller.diagnosticActivity:103",
+    "Policy.diagnosticPageFields:94",
+    "WebContentsImpl.isPictureInPictureAllowedForFullscreenVideo:1014",
+    "WebContentsAndroid::IsPictureInPictureAllowedForFullscreenVideo",
+    "MediaWebContentsObserver::IsPictureInPictureAllowedForFullscreenVideo:325"
+  ],
+  "offset_note": "Java +20/+76/+154 are code offsets, not source/R8 line numbers",
+  "crashpad_trampoline": "not established as cause; exact PC is fullscreen CHECK",
+  "evidence_boundary": "user supplied crash facts summary; not a full tombstone"
+}

@@ -494,3 +494,16 @@ mobile FAIL/desktop PASS remains separate from this new artifact's acceptance.
 Compare the four mobile/desktop tab-switch/Home cases before any behavior fix.
 No source/args/Zoom drift, Run9, ADB/install, Actions or release operation.
 [Exact receipt](docs/versanium/brave-36838-phase1/diagnostic-apk-build.md).
+
+
+## 2026-10-29: Fix symbolicated diagnostic fullscreen getter precondition
+
+The previous signed diagnostic APK is user-reported startup-FAIL on S23/Android16.
+Exact old native library/mapping resolved PC0x3b4ff88 to MediaWebContentsObserver's
+fullscreen_player CHECK and M1 to isPictureInPictureAllowedForFullscreenVideo.
+The added diagnosticPageFields getter was unconditional; WC liveness alone is not
+its contract. Cache active-fullscreen and short-circuit this diagnostic read,
+reporting unknown otherwise; guard the diagnostic URL's native-backed read too.
+Keep mobile/desktop/media/visibility probes on live pages, product behavior unchanged.
+Preserve old mapping before authorized incremental rebuild and local-test-key signing.
+[Exact evidence and all diagnostic read contracts](docs/versanium/brave-36838-phase1/diagnostic-startup-crash.md).

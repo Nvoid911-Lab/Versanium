@@ -234,7 +234,60 @@ public final class Phase1FixtureTest {
                 "host destroy releases both diagnostic pages");
     }
 
+    private static void diagnosticStartupLifecycle() {
+        ChromeTabbedActivity activity = new ChromeTabbedActivity();
+        Tab startup = new Tab();
+        // Exact failing Activity -> diagnosticActivity -> diagnosticPageFields path:
+        // native WC is live but has no fullscreen player during startup.
+        VersaniumYouTubePictureInPictureController.diagnosticActivity(activity, "ACTIVITY_START", startup);
+        String noPlayer = VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(startup);
+        check(noPlayer.contains("fullscreenVideo=false") && noPlayer.contains("fullscreenPipAllowed=unknown"),
+                "startup no-fullscreen snapshot reports unknown permission");
+        check(startup.wc.fullscreenPipReads == 0, "startup never reads fullscreen-only JNI getter");
+        check(VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(null).contains("unknown"),
+                "null startup tab reports unknown");
+        WebContents waiting = startup.wc; waiting.nativeReady = false;
+        int before = waiting.diagnosticNativeReads; startup.urlReads = 0;
+        VersaniumYouTubePictureInPictureController.diagnosticActivity(activity, "ACTIVITY_START", startup);
+        VersaniumYouTubePictureInPicturePolicy.diagnosticPolicy(activity, startup, false, false, "startup");
+        check(waiting.diagnosticNativeReads == before && waiting.fullscreenPipReads == 0,
+                "not-native-backed startup WC performs no diagnostic native reads");
+        check(startup.urlReads == 0, "startup URL diagnostic skips native-backed Tab.getUrl");
+        check(VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(startup).contains("pageReadable=false"),
+                "not-yet-live startup WC reports unknown");
+        startup.wc = null;
+        VersaniumYouTubePictureInPictureController.diagnosticActivity(activity, "ACTIVITY_START", startup);
+        VersaniumYouTubePictureInPicturePolicy.diagnosticPolicy(activity, startup, false, false, "startup");
+        check(VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(startup).contains("unknown"),
+                "null startup WC reports unknown");
+        Host h = new Host(); h.tab.wc = waiting;
+        h.controller.diagnosticObserve(h.tab);
+        check(waiting.observers.isEmpty() && waiting.session.observers.isEmpty(),
+                "probe attachment deferred while WC is not live");
+        WebContents live = new WebContents(); live.window = h.tab.window;
+        live.navigation.desktop = true; h.tab.wc = live;
+        h.controller.diagnosticObserve(h.tab);
+        check(live.observers.size() == 1 && live.session.observers.size() == 1,
+                "later live content callback can attach diagnostic observation");
+        check(live.fullscreenPipReads == 0, "live page without player still skips fullscreen-only getter");
+        String desktop = VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab);
+        check(desktop.contains("desktop_site=true") && desktop.contains("wcVisibility="),
+                "mobile versus desktop visibility coverage retained");
+        live.fullscreenVideo = true; live.pipAllowed = false;
+        check(VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab).contains("fullscreenPipAllowed=false")
+                && live.fullscreenPipReads == 1, "safe fullscreen permission false sampled once");
+        live.pipAllowed = true;
+        check(VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab).contains("fullscreenPipAllowed=true")
+                && live.fullscreenPipReads == 2, "safe fullscreen permission true sampled once");
+        check(!h.controller.ownsMediaRouting() && h.leaves == 0 && h.activity.moves == 0
+                && live.domExits == 0 && live.session.suspends == 0 && live.session.resumes == 0,
+                "startup diagnostics cannot change owner/state/media behavior");
+        h.controller.onDestroy();
+        check(live.observers.isEmpty() && live.session.observers.isEmpty(), "deferred diagnostic probe tears down");
+    }
+
     public static void main(String[] args) {
+        diagnosticStartupLifecycle();
         passivePageDiagnostics(false); passivePageDiagnostics(true);
         for (int mode = 0; mode < 5; ++mode) recoveryLifecycle(mode);
         for (int mode = 0; mode < 4; ++mode) sameContentsRecovery(mode);

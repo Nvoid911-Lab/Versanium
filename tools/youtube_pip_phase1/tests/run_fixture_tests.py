@@ -75,7 +75,9 @@ public WindowAndroid window;public String url="https://m.youtube.com/watch?v=one
 public List<TabObserver> observers=new ArrayList<>();
 public int getId(){return id;}public boolean isDestroyed(){return destroyed;}
 public WebContents getWebContents(){return wc;}public WindowAndroid getWindowAndroid(){return window;}
-public org.chromium.url.GURL getUrl(){return new org.chromium.url.GURL(url);}
+public int urlReads;public org.chromium.url.GURL getUrl(){urlReads++;
+if(wc!=null&&(!wc.nativeReady||wc.destroyed))throw new AssertionError("Tab.getUrl on non-live WC");
+return new org.chromium.url.GURL(url);}
 public void addObserver(TabObserver o){observers.add(o);}public void removeObserver(TabObserver o){observers.remove(o);}
 public void commit(boolean same,String next){url=next;for(TabObserver o:new ArrayList<>(observers))
 o.onDidFinishNavigationInPrimaryMainFrame(this,new NavigationHandle(same,next));}
@@ -92,16 +94,18 @@ default void onDestroyed(Tab t){}}''',
 public interface TabHidingType {int CHANGED_TABS=0,ACTIVITY_HIDDEN=1,REPARENTED=2,TAB_SWITCHER_SHOWN=3;}''',
 'org/chromium/content_public/browser/WebContents.java': '''package org.chromium.content_public.browser;
 import java.util.*;public class WebContents {public boolean destroyed,synchronousExit;
+public boolean nativeReady=true;public int diagnosticNativeReads,fullscreenPipReads;
 public NavigationController navigation=new NavigationController();
 public NavigationController getNavigationController(){return navigation;}
-public int visibility=0;public int getVisibility(){return visibility;}
-public boolean fullscreenVideo=true,pipAllowed=true;
-public boolean hasActiveEffectivelyFullscreenVideo(){return fullscreenVideo;}
-public boolean isPictureInPictureAllowedForFullscreenVideo(){return pipAllowed;}
+public int visibility=0;public int getVisibility(){diagnosticNativeReads++;if(!nativeReady||destroyed)throw new AssertionError("visibility without live WC");return visibility;}
+public boolean fullscreenVideo=false,pipAllowed=true;
+public boolean hasActiveEffectivelyFullscreenVideo(){diagnosticNativeReads++;if(!nativeReady||destroyed)throw new AssertionError("fullscreen without live WC");return fullscreenVideo;}
+public boolean isPictureInPictureAllowedForFullscreenVideo(){fullscreenPipReads++;
+if(!nativeReady||destroyed||!fullscreenVideo)throw new AssertionError("native CHECK(fullscreen_player_.has_value())");return pipAllowed;}
 public int domExits;public MediaSession session=new MediaSession();
 public org.chromium.ui.base.WindowAndroid window;
 public List<WebContentsObserver> observers=new ArrayList<>();
-public boolean isDestroyed(){return destroyed;}
+public boolean isDestroyed(){return destroyed||!nativeReady;}
 public org.chromium.ui.base.WindowAndroid getTopLevelNativeWindow(){return window;}
 public void exitFullscreen(){domExits++;if(synchronousExit)signalExit();}
 public void signalExit(){for(WebContentsObserver o:new ArrayList<>(observers))
@@ -119,7 +123,7 @@ public boolean hasCommitted(){return committed;}public boolean isSameDocument(){
 public org.chromium.url.GURL getUrl(){return new org.chromium.url.GURL(url);}}''',
 'org/chromium/content_public/browser/MediaSession.java': '''package org.chromium.content_public.browser;
 public class MediaSession {public java.util.List<MediaSessionObserver> observers=new java.util.ArrayList<>();
-public int suspends,resumes;public static MediaSession fromWebContents(WebContents w){return w.session;}
+public int suspends,resumes;public static MediaSession fromWebContents(WebContents w){if(!w.nativeReady||w.destroyed)throw new AssertionError("session without live WC");return w.session;}
 public void suspend(int type){suspends++;}public void resume(int type){resumes++;}}''',
 'org/chromium/media_session/mojom/MediaSession.java': '''package org.chromium.media_session.mojom;
 public class MediaSession {public interface SuspendType {int SYSTEM=1;}}''',

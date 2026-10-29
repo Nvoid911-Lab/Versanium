@@ -87,11 +87,24 @@ public final class VersaniumYouTubePictureInPicturePolicy {
         if (tab == null || tab.isDestroyed()) return "desktop_site=unknown pageReadable=false";
         WebContents wc = tab.getWebContents();
         if (wc == null || wc.isDestroyed()) return "desktop_site=unknown pageReadable=false";
+        boolean fullscreenVideo = wc.hasActiveEffectivelyFullscreenVideo();
+        // The permission getter CHECKs that a fullscreen player exists in native code.
+        // Match upstream's short-circuit; a live startup WC need not have a player.
+        String fullscreenPipAllowed = fullscreenVideo
+                ? Boolean.toString(wc.isPictureInPictureAllowedForFullscreenVideo()) : "unknown";
         return "desktop_site=" + wc.getNavigationController().getUseDesktopUserAgent()
                 + " tabUaMode=" + tab.getUserAgent() + " customUaOverride=unavailable"
                 + " wcVisibility=" + wc.getVisibility()
-                + " fullscreenVideo=" + wc.hasActiveEffectivelyFullscreenVideo()
-                + " fullscreenPipAllowed=" + wc.isPictureInPictureAllowedForFullscreenVideo();
+                + " fullscreenVideo=" + fullscreenVideo
+                + " fullscreenPipAllowed=" + fullscreenPipAllowed;
+    }
+
+    private static Uri diagnosticUri(@Nullable Tab tab) {
+        if (tab == null || tab.isDestroyed()) return Uri.parse("");
+        WebContents wc = tab.getWebContents();
+        if (wc == null || wc.isDestroyed()) return Uri.parse("");
+        // Tab.getUrl() can call WebContents.getVisibleUrl(); don't read it before live content.
+        return Uri.parse(tab.getUrl().getSpec());
     }
 
     private static String field(@Nullable String value) {
@@ -102,7 +115,7 @@ public final class VersaniumYouTubePictureInPicturePolicy {
 
     static void diagnosticPolicy(Activity activity, @Nullable Tab tab, boolean upstream,
             boolean eligible, String reason) {
-        Uri uri = Uri.parse(tab == null || tab.isDestroyed() ? "" : tab.getUrl().getSpec());
+        Uri uri = diagnosticUri(tab);
         diagnostic("POLICY", diagnosticPageFields(tab) + " scheme=" + field(uri.getScheme()) + " host=" + field(uri.getHost())
                 + " path=" + field(uri.getPath())
                 + " hasVideoId=" + (uri.getHost() != null && uri.getQueryParameter("v") != null
