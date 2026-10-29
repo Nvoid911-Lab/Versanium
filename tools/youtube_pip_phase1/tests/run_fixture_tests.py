@@ -11,6 +11,8 @@ import tempfile
 
 BUNDLE=Path(__file__).resolve().parents[1]
 STUBS={
+'org/chromium/content_public/browser/GlobalRenderFrameHostId.java': 'package org.chromium.content_public.browser;public class GlobalRenderFrameHostId {int child,route;public GlobalRenderFrameHostId(int c,int r){child=c;route=r;}public int childId(){return child;}public int frameRoutingId(){return route;}}',
+'org/chromium/content_public/browser/RenderFrameHost.java': 'package org.chromium.content_public.browser;public class RenderFrameHost {public GlobalRenderFrameHostId id=new GlobalRenderFrameHostId(7,11);public GlobalRenderFrameHostId getGlobalRenderFrameHostId(){return id;}}',
 'org/chromium/content_public/browser/NavigationController.java': 'package org.chromium.content_public.browser;public class NavigationController {public boolean desktop;public boolean getUseDesktopUserAgent(){return desktop;}}',
 'org/chromium/content_public/browser/MediaSessionObserver.java': 'package org.chromium.content_public.browser;public class MediaSessionObserver {MediaSession session;public MediaSessionObserver(MediaSession s){session=s;s.observers.add(this);mediaSessionStateChanged(true,false);}public void mediaSessionStateChanged(boolean c,boolean s){}public void mediaSessionDestroyed(){}public void stopObserving(){session.observers.remove(this);}}',
 
@@ -95,6 +97,8 @@ public interface TabHidingType {int CHANGED_TABS=0,ACTIVITY_HIDDEN=1,REPARENTED=
 'org/chromium/content_public/browser/WebContents.java': '''package org.chromium.content_public.browser;
 import java.util.*;public class WebContents {public boolean destroyed,synchronousExit;
 public boolean nativeReady=true;public int diagnosticNativeReads,fullscreenPipReads;
+public RenderFrameHost mainFrame=new RenderFrameHost();public int mainFrameReads;
+public RenderFrameHost getMainFrame(){mainFrameReads++;if(!nativeReady||destroyed)throw new AssertionError("main frame without live WC");return mainFrame;}
 public NavigationController navigation=new NavigationController();
 public NavigationController getNavigationController(){return navigation;}
 public int visibility=0;public int getVisibility(){diagnosticNativeReads++;if(!nativeReady||destroyed)throw new AssertionError("visibility without live WC");return visibility;}

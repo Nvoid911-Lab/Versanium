@@ -1,0 +1,120 @@
+{
+  "start_head": "b66a18b035209265162637619744b8dbf0c0a001",
+  "chromium": "1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775",
+  "native_sources": {
+    "third_party/blink/renderer/core/html/media/html_media_element.cc": {
+      "pinned_sha256": "cbe10ab50ec054bd72cd04df8dfcdb84d11ae88a6ffcc073c0555c3010429bc0",
+      "instrumented_sha256": "f7742d330ebb969dccf2ca522d2911bda36574371bb235f05fdd9d3cd1c7b016",
+      "without_diagnostics_sha256": "cbe10ab50ec054bd72cd04df8dfcdb84d11ae88a6ffcc073c0555c3010429bc0",
+      "behavioral_source_identical": true
+    },
+    "third_party/blink/renderer/core/html/media/html_media_element.h": {
+      "pinned_sha256": "6c6fe284d5cb150545f9d649227d86c96b201138c226e3bcdb0173a2c07c0a34",
+      "instrumented_sha256": "1a7b79e4d179f4fee90d9cb3a7e7e9998651fecb090f9c0b3118fea9d3ea95e1",
+      "without_diagnostics_sha256": "6c6fe284d5cb150545f9d649227d86c96b201138c226e3bcdb0173a2c07c0a34",
+      "behavioral_source_identical": true
+    },
+    "third_party/blink/renderer/core/html/media/html_video_element.cc": {
+      "pinned_sha256": "c99190ade522dcb959327abf510223bbd6ad137afeb7d6f4d39185ad7f5b6699",
+      "instrumented_sha256": "cde84b4c155cc14b61b47c1f5a5cd9bfe3ed06e08a3ddc2d7083e95fa1c6e406",
+      "without_diagnostics_sha256": "c99190ade522dcb959327abf510223bbd6ad137afeb7d6f4d39185ad7f5b6699",
+      "behavioral_source_identical": true
+    },
+    "third_party/blink/renderer/core/html/media/html_video_element.h": {
+      "pinned_sha256": "2ee9e0465bc1fe252258e3e71792c3f2692b7affd19a6620d5e12177a592b0ac",
+      "instrumented_sha256": "91b3c95e7973417fb3d0003b0ee58208d8c50db518943e62edf701334f1cf878",
+      "without_diagnostics_sha256": "2ee9e0465bc1fe252258e3e71792c3f2692b7affd19a6620d5e12177a592b0ac",
+      "behavioral_source_identical": true
+    },
+    "third_party/blink/renderer/platform/media/web_media_player_impl.cc": {
+      "pinned_sha256": "6b650cb68e48c50f62e85f88d8892ca3f67615989628c33724a87a4a349538b7",
+      "instrumented_sha256": "bbe2b57c238f5466cb02b7ab08fcbc58a16f5fbd355e1bf35cf2f6aac4dcefbd",
+      "without_diagnostics_sha256": "6b650cb68e48c50f62e85f88d8892ca3f67615989628c33724a87a4a349538b7",
+      "behavioral_source_identical": true
+    },
+    "content/browser/media/media_web_contents_observer.cc": {
+      "pinned_sha256": "28ec2033b17901278ecd73f5a09ac8f1956ab49eeec1582f716ec085d01196b8",
+      "instrumented_sha256": "756a5c97ad2c9caa4752191165db035ba210f1367e43e01f5e7d25be9037e975",
+      "without_diagnostics_sha256": "28ec2033b17901278ecd73f5a09ac8f1956ab49eeec1582f716ec085d01196b8",
+      "behavioral_source_identical": true
+    },
+    "content/browser/media/session/media_session_controller.cc": {
+      "pinned_sha256": "967faa3af9bd4a6f0f48c6383ac88704e409ab1646ba2fb33f2800c03bb20d2a",
+      "instrumented_sha256": "7c1c3f25e34de554fb38c90b183faedb7ca4ff2ab3b045520826fd0e73ce753b",
+      "without_diagnostics_sha256": "967faa3af9bd4a6f0f48c6383ac88704e409ab1646ba2fb33f2800c03bb20d2a",
+      "behavioral_source_identical": true
+    },
+    "content/browser/media/session/media_session_impl.cc": {
+      "pinned_sha256": "75cf754cd56de9dceea712415e74ae8a262e7e1b9a4a0782ff5b12d93dc28e33",
+      "instrumented_sha256": "8fc385581172c2b2276705069df5bf560d3d620a67b0e52c975f9bb5552f5f9a",
+      "without_diagnostics_sha256": "75cf754cd56de9dceea712415e74ae8a262e7e1b9a4a0782ff5b12d93dc28e33",
+      "behavioral_source_identical": true
+    },
+    "content/browser/web_contents/web_contents_android.cc": {
+      "pinned_sha256": "b3e3aab009780b195c986aaa1042568a0724c8836dca7a974f1664051fa320ef",
+      "instrumented_sha256": "4dfd0e931126c5a3172cfb18612ff6ccdbc6d2ba0b81a770cbffe73cce3f15d4",
+      "without_diagnostics_sha256": "b3e3aab009780b195c986aaa1042568a0724c8836dca7a974f1664051fa320ef",
+      "behavioral_source_identical": true
+    }
+  },
+  "jvm_assertions": 427,
+  "prior_jvm_assertions": 415,
+  "added_jvm_assertions": 12,
+  "candidate_order_cases": 6,
+  "active_owner_order_cases": 24,
+  "bundle_tests": 5,
+  "native_structural_tests": 5,
+  "parse_only_java_sources": 5,
+  "gate_off": "PASS",
+  "default_off": "PASS (same disabled-gate fixture)",
+  "zoom_blob_gate": "PASS:24; final clean worktree check after commit",
+  "retired_absent_paths": [
+    "tools/apply_content_fullscreen_origin.py",
+    "tools/apply_fullscreen_delegate_origin.py",
+    "tools/apply_fullscreen_native_origin.py",
+    "tools/apply_fullscreen_origin.py",
+    "tools/apply_youtube_candidates.py",
+    "tools/versanium/audit_native_graph.py",
+    "tools/versanium/check_ab_selection.py",
+    "tools/versanium/flag_metadata_pipeline.py",
+    "tools/versanium/prepare_config_a.py",
+    "tools/versanium/prepare_config_a_origin.py",
+    "tools/versanium/prepare_config_a_origin_forward.py",
+    "tools/versanium/prepare_content_diagnostic.py",
+    "tools/versanium/prepare_diagnostic_update.py",
+    "tools/versanium/prepare_native_diagnostic.py",
+    "tools/versanium/prepare_run9.py",
+    "tools/versanium/tests/test_config_a.py",
+    "tools/versanium/tests/test_config_a_origin.py",
+    "tools/versanium/tests/test_config_a_origin_forward.py",
+    "tools/versanium/tests/test_content_origin.py",
+    "tools/versanium/tests/test_content_preparation.py",
+    "tools/versanium/tests/test_delegate_origin.py",
+    "tools/versanium/tests/test_diagnostic_update.py",
+    "tools/versanium/tests/test_native_origin.py",
+    "tools/versanium/tests/test_native_preparation.py",
+    "tools/versanium/tests/test_run9.py",
+    "tools/youtube_pip/candidate.js",
+    "tools/youtube_pip/diagnostics.patch",
+    "tools/youtube_pip/execution_scope.patch",
+    "tools/youtube_pip/tests/check_execution_scope.py",
+    "tools/youtube_pip/tests/check_fullscreen_origins.py",
+    "tools/youtube_pip/tests/check_passive_diagnostics.py",
+    "tools/youtube_pip/tests/check_pip_branches.py",
+    "tools/youtube_pip/tests/check_source_integration.py",
+    "tools/youtube_pip/tests/test_candidate.cjs"
+  ],
+  "native_compilation": "NOT_RUN",
+  "gn": "NOT_RUN",
+  "apk": "NOT_BUILT",
+  "device_test": "NOT_RUN",
+  "attribute_setter": "UNCONFIRMED",
+  "first_pause_root_cause": "UNCONFIRMED",
+  "java_policy_non_diagnostic_methods_unchanged": true,
+  "java_controller_only_two_log_field_changes": true,
+  "fresh_native_patch_check": "PASS (read-only; NOT APPLIED)",
+  "fresh_source_inventory_matches_previous": true,
+  "fresh_source_inventory_scope": "1314 file hashes + 2 inherited nonrecursive directory markers",
+  "fresh_source_applied": false,
+  "gn_args_unchanged": true
+}

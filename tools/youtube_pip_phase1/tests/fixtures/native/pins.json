@@ -1,0 +1,41 @@
+{
+  "chromium": "1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775",
+  "files": {
+    "html_media_element.cc.gz": {
+      "path": "third_party/blink/renderer/core/html/media/html_media_element.cc",
+      "sha256": "cbe10ab50ec054bd72cd04df8dfcdb84d11ae88a6ffcc073c0555c3010429bc0"
+    },
+    "html_media_element.h.gz": {
+      "path": "third_party/blink/renderer/core/html/media/html_media_element.h",
+      "sha256": "6c6fe284d5cb150545f9d649227d86c96b201138c226e3bcdb0173a2c07c0a34"
+    },
+    "html_video_element.cc.gz": {
+      "path": "third_party/blink/renderer/core/html/media/html_video_element.cc",
+      "sha256": "c99190ade522dcb959327abf510223bbd6ad137afeb7d6f4d39185ad7f5b6699"
+    },
+    "html_video_element.h.gz": {
+      "path": "third_party/blink/renderer/core/html/media/html_video_element.h",
+      "sha256": "2ee9e0465bc1fe252258e3e71792c3f2692b7affd19a6620d5e12177a592b0ac"
+    },
+    "web_media_player_impl.cc.gz": {
+      "path": "third_party/blink/renderer/platform/media/web_media_player_impl.cc",
+      "sha256": "6b650cb68e48c50f62e85f88d8892ca3f67615989628c33724a87a4a349538b7"
+    },
+    "media_web_contents_observer.cc.gz": {
+      "path": "content/browser/media/media_web_contents_observer.cc",
+      "sha256": "28ec2033b17901278ecd73f5a09ac8f1956ab49eeec1582f716ec085d01196b8"
+    },
+    "media_session_controller.cc.gz": {
+      "path": "content/browser/media/session/media_session_controller.cc",
+      "sha256": "967faa3af9bd4a6f0f48c6383ac88704e409ab1646ba2fb33f2800c03bb20d2a"
+    },
+    "media_session_impl.cc.gz": {
+      "path": "content/browser/media/session/media_session_impl.cc",
+      "sha256": "75cf754cd56de9dceea712415e74ae8a262e7e1b9a4a0782ff5b12d93dc28e33"
+    },
+    "web_contents_android.cc.gz": {
+      "path": "content/browser/web_contents/web_contents_android.cc",
+      "sha256": "b3e3aab009780b195c986aaa1042568a0724c8836dca7a974f1664051fa320ef"
+    }
+  }
+}

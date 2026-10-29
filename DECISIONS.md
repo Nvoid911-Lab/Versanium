@@ -530,3 +530,15 @@ Brave36838 also has preexisting page-support/background mechanisms deliberately
 excluded from our scope. No behavior change or instrumentation/build is selected.
 Next review a correlated producer/receiver/first-pause diagnostic proposal.
 [Complete chain and limits](docs/versanium/brave-36838-phase1/fullscreen-pip-source-trace.md).
+
+
+## 2026-10-29: Add correlated diagnostics without changing media policy
+
+Observe actual renderer permission sender/attribute, browser status storage and
+first-pause ingress with existing PauseReason/session source. Opaque frame/player
+identity maps through native RFH/main-WC IDs to existing Java sourceTab logs; no
+new JNI or script. Android logging deduplicates permission transitions, with
+exact original nine-source restoration and guarded getters. Source-only/native
+and JVM fixture validation does not establish integrated compilation/device PASS.
+Do not apply/build until next review; existing fresh Phase1 cannot be reapplied.
+[Instrumentation and remaining uncertainty](docs/versanium/brave-36838-phase1/correlated-diagnostics.md).

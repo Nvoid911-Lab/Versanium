@@ -18,6 +18,13 @@ class BundleTest(unittest.TestCase):
             data=gzip.decompress((fixture/name).read_bytes())
             self.assertEqual(hashlib.sha256(data).hexdigest(),entry['sha256'])
             p=root/entry['path'];p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
+        native=fixture/'native'
+        native_pins=json.loads((native/'pins.json').read_text())
+        self.assertEqual(native_pins['chromium'],pins['chromium'])
+        for name,entry in native_pins['files'].items():
+            data=gzip.decompress((native/name).read_bytes())
+            self.assertEqual(hashlib.sha256(data).hexdigest(),entry['sha256'])
+            p=root/entry['path'];p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
         data=gzip.decompress((fixture/'vanadium-selected.patch.gz').read_bytes())
         self.assertEqual(hashlib.sha256(data).hexdigest(),pins['selected_vanadium_sha256'])
         subprocess.run(['git','apply','--whitespace=nowarn','-'],input=data,cwd=root,check=True)

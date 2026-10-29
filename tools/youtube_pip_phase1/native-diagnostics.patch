@@ -1,0 +1,407 @@
+diff --git a/content/browser/media/media_web_contents_observer.cc b/content/browser/media/media_web_contents_observer.cc
+--- a/content/browser/media/media_web_contents_observer.cc
++++ b/content/browser/media/media_web_contents_observer.cc
+@@ -4,4 +4,8 @@
+
+ #include "content/browser/media/media_web_contents_observer.h"
++// VSPIP_DIAGNOSTIC_BEGIN
++#include "base/logging.h"
++#include "base/time/time.h"
++// VSPIP_DIAGNOSTIC_END
+
+ #include <algorithm>
+@@ -37,4 +41,32 @@
+ namespace {
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++// Missing RFH is representable; never sample document/fullscreen-player getters.
++void VersaniumLogMediaPlayer(const char* event,
++                            const MediaPlayerId& id,
++                            WebContentsImpl* contents,
++                            const char* allowed = "unknown",
++                            const char* status = "unknown",
++                            bool fullscreen_player = false) {
++  if (!contents) {
++    return;
++  }
++  auto* frame = RenderFrameHostImpl::FromID(id.frame_routing_id);
++  auto* main = contents->GetPrimaryMainFrame();
++  LOG(INFO) << "VSPIP event=" << event
++            << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++            << " source=MediaWebContentsObserver player=" << id.player_id
++            << " frame=" << (frame ? frame->GetFrameToken().ToString() : "unknown")
++            << " rfh_child=" << id.frame_routing_id.child_id.value()
++            << " rfh_route=" << id.frame_routing_id.frame_routing_id
++            << " wc_main_child=" << (main ? main->GetGlobalId().child_id.value() : -1)
++            << " wc_main_route=" << (main ? main->GetGlobalId().frame_routing_id : -1)
++            << " document=unknown allowed=" << allowed << " status=" << status
++            << " fullscreen_player=" << (fullscreen_player ? "true" : "false")
++            << " wc_visibility=" << static_cast<int>(contents->GetVisibility());
++}
++#endif
++// VSPIP_DIAGNOSTIC_END
+ AudibleMetrics* GetAudibleMetrics() {
+   static AudibleMetrics* metrics = new AudibleMetrics();
+@@ -544,4 +576,10 @@
+     player_info->SetIsPlaying();
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  VersaniumLogMediaPlayer("MEDIA_PLAYING_RECEIVED", media_player_id_,
++                          media_web_contents_observer_->web_contents_impl());
++#endif
++// VSPIP_DIAGNOSTIC_END
+   media_web_contents_observer_->OnMediaPlaying();
+   NotifyAudioStreamMonitorIfNeeded();
+@@ -554,4 +592,10 @@
+     return;
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  VersaniumLogMediaPlayer("MEDIA_PAUSED_RECEIVED", media_player_id_,
++                          media_web_contents_observer_->web_contents_impl());
++#endif
++// VSPIP_DIAGNOSTIC_END
+   player_info->SetIsStopped(stream_ended);
+
+@@ -626,4 +670,14 @@
+   CHECK(!fullscreen_player_.has_value() ||
+         picture_in_picture_allowed_in_fullscreen_.has_value());
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  const bool versanium_permission_changed =
++      !fullscreen_player_ || *fullscreen_player_ != player_id ||
++      !picture_in_picture_allowed_in_fullscreen_ ||
++      fullscreen_status == blink::WebFullscreenVideoStatus::kNotEffectivelyFullscreen ||
++      *picture_in_picture_allowed_in_fullscreen_ !=
++          (fullscreen_status == blink::WebFullscreenVideoStatus::kFullscreenAndPictureInPictureEnabled);
++#endif
++// VSPIP_DIAGNOSTIC_END
+   switch (fullscreen_status) {
+     case blink::WebFullscreenVideoStatus::kFullscreenAndPictureInPictureEnabled:
+@@ -645,4 +699,17 @@
+   }
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (versanium_permission_changed) {
++    VersaniumLogMediaPlayer(
++        "PIP_PERMISSION_RECEIVED", player_id, web_contents_impl(),
++        picture_in_picture_allowed_in_fullscreen_ ?
++            (*picture_in_picture_allowed_in_fullscreen_ ? "true" : "false") : "unknown",
++        fullscreen_status == blink::WebFullscreenVideoStatus::kFullscreenAndPictureInPictureEnabled ? "enabled" :
++            fullscreen_status == blink::WebFullscreenVideoStatus::kFullscreenAndPictureInPictureDisabled ? "disabled" : "not_fullscreen",
++        fullscreen_player_ && *fullscreen_player_ == player_id);
++  }
++#endif
++// VSPIP_DIAGNOSTIC_END
+   bool is_fullscreen =
+       (fullscreen_status !=
+@@ -766,4 +833,10 @@
+   }
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  VersaniumLogMediaPlayer("MEDIA_PLAYER_BOUND_RECEIVED", player_id,
++                          web_contents_impl());
++#endif
++// VSPIP_DIAGNOSTIC_END
+   auto remote_it = media_player_remotes_.try_emplace(player_id);
+   remote_it.first->second.Bind(std::move(player_remote));
+diff --git a/content/browser/media/session/media_session_controller.cc b/content/browser/media/session/media_session_controller.cc
+--- a/content/browser/media/session/media_session_controller.cc
++++ b/content/browser/media/session/media_session_controller.cc
+@@ -4,4 +4,9 @@
+
+ #include "content/browser/media/session/media_session_controller.h"
++// VSPIP_DIAGNOSTIC_BEGIN
++#include "base/logging.h"
++#include "base/time/time.h"
++#include "build/build_config.h"
++// VSPIP_DIAGNOSTIC_END
+
+ #include "content/browser/media/media_devices_util.h"
+@@ -51,4 +56,16 @@
+ void MediaSessionController::OnSuspend(int player_id, bool triggered_by_user) {
+   CHECK_EQ(player_id_, player_id, base::NotFatalUntil::M160);
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  auto* diagnostic_frame = RenderFrameHostImpl::FromID(id_.frame_routing_id);
++  LOG(INFO) << "VSPIP event=MEDIA_PAUSE_REQUEST source=MediaSessionController::OnSuspend"
++            << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++            << " player=" << id_.player_id
++            << " frame=" << (diagnostic_frame ? diagnostic_frame->GetFrameToken().ToString() : "unknown")
++            << " rfh_child=" << id_.frame_routing_id.child_id.value()
++            << " rfh_route=" << id_.frame_routing_id.frame_routing_id
++            << " triggered_by_user=" << triggered_by_user;
++#endif
++// VSPIP_DIAGNOSTIC_END
+   web_contents_->media_web_contents_observer()
+       ->GetMediaPlayerRemote(id_)
+diff --git a/content/browser/media/session/media_session_impl.cc b/content/browser/media/session/media_session_impl.cc
+--- a/content/browser/media/session/media_session_impl.cc
++++ b/content/browser/media/session/media_session_impl.cc
+@@ -4,4 +4,7 @@
+
+ #include "content/browser/media/session/media_session_impl.h"
++// VSPIP_DIAGNOSTIC_BEGIN
++#include "base/logging.h"
++// VSPIP_DIAGNOSTIC_END
+
+ #include <algorithm>
+@@ -998,4 +1001,17 @@
+     return;
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  auto* diagnostic_contents = web_contents();
++  auto* diagnostic_main = diagnostic_contents ? diagnostic_contents->GetPrimaryMainFrame() : nullptr;
++  LOG(INFO) << "VSPIP event=MEDIA_SESSION_SUSPEND source=MediaSessionImpl::OnSuspendInternal"
++            << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++            << " wc_main_child=" << (diagnostic_main ? diagnostic_main->GetGlobalId().child_id.value() : -1)
++            << " wc_main_route=" << (diagnostic_main ? diagnostic_main->GetGlobalId().frame_routing_id : -1)
++            << " suspend_type=" << static_cast<int>(suspend_type)
++            << " new_state=" << static_cast<int>(new_state)
++            << " content_already_paused=" << (suspend_type == SuspendType::kContent);
++#endif
++// VSPIP_DIAGNOSTIC_END
+   SetAudioFocusState(new_state);
+   suspend_type_ = suspend_type;
+diff --git a/content/browser/web_contents/web_contents_android.cc b/content/browser/web_contents/web_contents_android.cc
+--- a/content/browser/web_contents/web_contents_android.cc
++++ b/content/browser/web_contents/web_contents_android.cc
+@@ -4,4 +4,8 @@
+
+ #include "content/browser/web_contents/web_contents_android.h"
++// VSPIP_DIAGNOSTIC_BEGIN
++#include "base/time/time.h"
++#include "build/build_config.h"
++// VSPIP_DIAGNOSTIC_END
+
+ #include <stdint.h>
+@@ -474,4 +478,17 @@
+ void WebContentsAndroid::UpdateWebContentsVisibility(JNIEnv* env,
+                                                      int32_t visibility) {
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (static_cast<int>(web_contents_->GetVisibility()) != visibility) {
++  auto* diagnostic_main = web_contents_->GetPrimaryMainFrame();
++  LOG(INFO) << "VSPIP event=WEB_CONTENTS_VISIBILITY source=WebContentsAndroid"
++            << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++            << " wc_main_child=" << (diagnostic_main ? diagnostic_main->GetGlobalId().child_id.value() : -1)
++            << " wc_main_route=" << (diagnostic_main ? diagnostic_main->GetGlobalId().frame_routing_id : -1)
++            << " from=" << static_cast<int>(web_contents_->GetVisibility())
++            << " requested=" << visibility;
++  }
++#endif
++// VSPIP_DIAGNOSTIC_END
+   web_contents_->UpdateWebContentsVisibility(
+       static_cast<Visibility>(visibility));
+diff --git a/third_party/blink/renderer/core/html/media/html_media_element.cc b/third_party/blink/renderer/core/html/media/html_media_element.cc
+--- a/third_party/blink/renderer/core/html/media/html_media_element.cc
++++ b/third_party/blink/renderer/core/html/media/html_media_element.cc
+@@ -26,4 +26,9 @@
+
+ #include "third_party/blink/renderer/core/html/media/html_media_element.h"
++// VSPIP_DIAGNOSTIC_BEGIN
++#include "base/logging.h"
++#include "build/build_config.h"
++#include "third_party/blink/public/platform/web_fullscreen_video_status.h"
++// VSPIP_DIAGNOSTIC_END
+
+ #include <algorithm>
+@@ -1784,4 +1789,9 @@
+       std::move(media_player_remote), AddMediaPlayerObserverAndPassReceiver(),
+       web_media_player_->GetPlayerId());
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  VersaniumLogMediaDiagnostic("MEDIA_PLAYER_BOUND", -1);
++#endif
++// VSPIP_DIAGNOSTIC_END
+
+   if (GetLayoutObject())
+@@ -3250,5 +3260,47 @@
+ }
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++void HTMLMediaElement::VersaniumLogMediaDiagnostic(
++    const char* event,
++    int reason,
++    int fullscreen_status,
++    int disable_picture_in_picture) const {
++  const auto* frame = GetDocument().GetFrame();
++  // DocumentLoader installs navigation documents with an existing token.
++  // Avoid Token()'s lazy allocation on detached/non-navigation documents.
++  const bool has_navigation_document =
++      frame && frame->GetDocument() == &GetDocument() && GetDocument().Loader();
++  LOG(INFO) << "VSPIP event=" << event
++            << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++            << " source=" << (reason >= 0 ? "HTMLMediaElement::PauseInternal" :
++                fullscreen_status >= 0 ? "HTMLVideoElement::SetIsEffectivelyFullscreen" :
++                "HTMLMediaElement::CreateMediaPlayer") << " player="
++            << (web_media_player_ ? web_media_player_->GetPlayerId() : -1)
++            << " document=" << (has_navigation_document ? GetDocument().Token().ToString() : "unknown")
++            << " frame=" << (frame ? frame->GetLocalFrameToken().ToString() : "unknown")
++            << " is_main_frame=" << (frame ? (frame->IsMainFrame() ? "true" : "false") : "unknown")
++            << " page_hidden=" << GetDocument().hidden()
++            << " paused_before=" << paused_ << " reason=" << reason
++            << " fullscreen=" << (fullscreen_status < 0 ? "unknown" :
++                fullscreen_status == static_cast<int>(WebFullscreenVideoStatus::kNotEffectivelyFullscreen) ? "false" : "true")
++            << " disable_picture_in_picture=" << (disable_picture_in_picture < 0 ? "unknown" :
++                disable_picture_in_picture ? "true" : "false")
++            << " status=" << (fullscreen_status == static_cast<int>(WebFullscreenVideoStatus::kFullscreenAndPictureInPictureEnabled) ? "enabled" :
++                fullscreen_status == static_cast<int>(WebFullscreenVideoStatus::kFullscreenAndPictureInPictureDisabled) ? "disabled" :
++                fullscreen_status == static_cast<int>(WebFullscreenVideoStatus::kNotEffectivelyFullscreen) ? "not_fullscreen" : "unknown");
++}
++#endif
++// VSPIP_DIAGNOSTIC_END
+ void HTMLMediaElement::PauseInternal(WebMediaPlayer::PauseReason pause_reason) {
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  // Capture the first request while running; repeated already-paused calls are noise.
++  if (!paused_) {
++    VersaniumLogMediaDiagnostic("MEDIA_PAUSE_REQUEST",
++                                static_cast<int>(pause_reason));
++  }
++#endif
++// VSPIP_DIAGNOSTIC_END
+   DVLOG(3) << "pauseInternal(" << *this << ")";
+
+diff --git a/third_party/blink/renderer/core/html/media/html_media_element.h b/third_party/blink/renderer/core/html/media/html_media_element.h
+--- a/third_party/blink/renderer/core/html/media/html_media_element.h
++++ b/third_party/blink/renderer/core/html/media/html_media_element.h
+@@ -28,4 +28,7 @@
+ #define THIRD_PARTY_BLINK_RENDERER_CORE_HTML_MEDIA_HTML_MEDIA_ELEMENT_H_
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#include "build/build_config.h"
++// VSPIP_DIAGNOSTIC_END
+ #include <limits>
+ #include <memory>
+@@ -472,4 +475,13 @@
+
+  protected:
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  // Read-only correlation shared by the actual permission sender and pause ingress.
++  void VersaniumLogMediaDiagnostic(const char* event,
++                                  int reason,
++                                  int fullscreen_status = -1,
++                                  int disable_picture_in_picture = -1) const;
++#endif
++// VSPIP_DIAGNOSTIC_END
+   // Assert the correct order of the children in shadow dom when DCHECK is on.
+   static void AssertShadowRootChildren(ShadowRoot&);
+diff --git a/third_party/blink/renderer/core/html/media/html_video_element.cc b/third_party/blink/renderer/core/html/media/html_video_element.cc
+--- a/third_party/blink/renderer/core/html/media/html_video_element.cc
++++ b/third_party/blink/renderer/core/html/media/html_video_element.cc
+@@ -1168,4 +1168,18 @@
+       status != blink::WebFullscreenVideoStatus::kNotEffectivelyFullscreen;
+   if (auto* wmp = GetWebMediaPlayer()) {
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++    const int diagnostic_status = static_cast<int>(status);
++    const int diagnostic_player = wmp->GetPlayerId();
++    if (versanium_diagnostic_status_ != diagnostic_status ||
++        versanium_diagnostic_player_ != diagnostic_player) {
++      VersaniumLogMediaDiagnostic(
++          "PIP_PERMISSION_PRODUCER", -1, diagnostic_status,
++          FastHasAttribute(html_names::kDisablepictureinpictureAttr));
++      versanium_diagnostic_status_ = diagnostic_status;
++      versanium_diagnostic_player_ = diagnostic_player;
++    }
++#endif
++// VSPIP_DIAGNOSTIC_END
+     for (auto& observer : GetMediaPlayerObserverRemoteSet()) {
+       observer->OnMediaEffectivelyFullscreenChanged(status);
+diff --git a/third_party/blink/renderer/core/html/media/html_video_element.h b/third_party/blink/renderer/core/html/media/html_video_element.h
+--- a/third_party/blink/renderer/core/html/media/html_video_element.h
++++ b/third_party/blink/renderer/core/html/media/html_video_element.h
+@@ -27,4 +27,7 @@
+ #define THIRD_PARTY_BLINK_RENDERER_CORE_HTML_MEDIA_HTML_VIDEO_ELEMENT_H_
+
++// VSPIP_DIAGNOSTIC_BEGIN
++#include "build/build_config.h"
++// VSPIP_DIAGNOSTIC_END
+ #include "third_party/blink/public/platform/web_media_player.h"
+ #include "third_party/blink/renderer/core/core_export.h"
+@@ -321,4 +324,11 @@
+   // to display type and other UI features. This does not mean the DOM element
+   // is fullscreen.
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  // Logging-only deduplication, never consulted by permission/media decisions.
++  int versanium_diagnostic_status_ = -1;
++  int versanium_diagnostic_player_ = -1;
++#endif
++// VSPIP_DIAGNOSTIC_END
+   bool is_effectively_fullscreen_ : 1 = false;
+
+diff --git a/third_party/blink/renderer/platform/media/web_media_player_impl.cc b/third_party/blink/renderer/platform/media/web_media_player_impl.cc
+--- a/third_party/blink/renderer/platform/media/web_media_player_impl.cc
++++ b/third_party/blink/renderer/platform/media/web_media_player_impl.cc
+@@ -4,4 +4,8 @@
+
+ #include "third_party/blink/renderer/platform/media/web_media_player_impl.h"
++// VSPIP_DIAGNOSTIC_BEGIN
++#include "base/logging.h"
++#include "base/time/time.h"
++// VSPIP_DIAGNOSTIC_END
+
+ #include <algorithm>
+@@ -1049,4 +1053,13 @@
+   DVLOG(1) << __func__;
+   DCHECK(main_task_runner_->BelongsToCurrentThread());
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  if (!paused_) {
++    LOG(INFO) << "VSPIP event=MEDIA_PAUSE_APPLY source=WebMediaPlayerImpl::Pause"
++              << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++              << " player=" << player_id_ << " reason=" << static_cast<int>(pause_reason);
++  }
++#endif
++// VSPIP_DIAGNOSTIC_END
+
+   // We update the paused state even when casting, since we expect pause() to be
+@@ -2643,4 +2656,11 @@
+ void WebMediaPlayerImpl::OnPageHidden() {
+   DCHECK(main_task_runner_->BelongsToCurrentThread());
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  LOG(INFO) << "VSPIP event=MEDIA_PLAYER_VISIBILITY source=WebMediaPlayerImpl::OnPageHidden"
++            << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++            << " player=" << player_id_ << " page_hidden=" << IsPageHidden();
++#endif
++// VSPIP_DIAGNOSTIC_END
+
+   // Backgrounding a video requires a user gesture to resume playback.
+@@ -2680,4 +2700,11 @@
+ void WebMediaPlayerImpl::OnPageShown() {
+   DCHECK(main_task_runner_->BelongsToCurrentThread());
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  LOG(INFO) << "VSPIP event=MEDIA_PLAYER_VISIBILITY source=WebMediaPlayerImpl::OnPageShown"
++            << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++            << " player=" << player_id_ << " page_hidden=" << IsPageHidden();
++#endif
++// VSPIP_DIAGNOSTIC_END
+   background_pause_timer_.Stop();
+
+@@ -3867,4 +3894,15 @@
+
+   visibility_pause_reason_ = pause_reason;
++// VSPIP_DIAGNOSTIC_BEGIN
++#if BUILDFLAG(IS_ANDROID)
++  LOG(INFO) << "VSPIP event=MEDIA_PAUSE_REQUEST source=WebMediaPlayerImpl::PauseVideoIfNeeded"
++            << " tick_us=" << base::TimeTicks::Now().since_origin().InMicroseconds()
++            << " player=" << player_id_ << " reason=" << static_cast<int>(pause_reason)
++            << " page_hidden=" << IsPageHidden() << " frame_hidden=" << IsFrameHidden()
++            << " background_video_enabled=" << is_background_video_playback_enabled_
++            << " background_unlocked=" << allow_background_video_playback_
++            << " pause_hidden_frame=" << should_pause_when_frame_is_hidden_;
++#endif
++// VSPIP_DIAGNOSTIC_END
+   client_->PausePlayback(pause_reason);
+ }

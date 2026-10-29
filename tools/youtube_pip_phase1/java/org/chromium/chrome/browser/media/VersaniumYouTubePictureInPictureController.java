@@ -169,13 +169,13 @@ public final class VersaniumYouTubePictureInPictureController {
                 @Override
                 public void mediaStartedPlaying(int id, boolean hasAudio, boolean hasVideo) {
                     playingSignal = "started";
-                    emit("MEDIA_STARTED", "hasAudio=" + hasAudio + " hasVideo=" + hasVideo);
+                    emit("MEDIA_STARTED", "player=" + id + " hasAudio=" + hasAudio + " hasVideo=" + hasVideo);
                 }
 
                 @Override
                 public void mediaStoppedPlaying(int id) {
                     playingSignal = "stopped";
-                    emit("MEDIA_STOPPED", "aggregatePlaying=unknown");
+                    emit("MEDIA_STOPPED", "player=" + id + " aggregatePlaying=unknown");
                 }
 
                 @Override

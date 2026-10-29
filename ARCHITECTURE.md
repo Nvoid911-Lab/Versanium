@@ -1,5 +1,16 @@
 # Versanium Architecture
 
+> Current checkpoint — 2026-10-29 JST: correlated native diagnostics implemented, NOT built.
+> Producer attribute/status + browser cache + first pause ingress/policy/session paths.
+> Frame token/player -> native RFH/WC main ID -> Java sourceTab/desktop-site correlation.
+> Product permission/transport/storage/entry/pause/visibility unchanged; old CHECK guard retained.
+> JVM427 (+12), candidate6/active24, bundle5, native structural5, gate-off and parse5 PASS.
+> Attribute setter and first pause root cause UNCONFIRMED until future S23 evidence.
+> Previous PHASE1_BUILD=PASS; mobile device FAIL; desktop control PASS remain historical.
+> No fresh apply/GN/build/APK/signing/ADB/Actions/Run9/merge/release/tag operation.
+> NEXT=WAIT_FOR_CHATGPT_REVIEW, then separately reviewed diagnostic APK stage.
+> See [instrumentation, correlation and limits](docs/versanium/brave-36838-phase1/correlated-diagnostics.md).
+
 > Current checkpoint — 2026-10-29 JST: source trace completed; no product change.
 > PHASE1_BUILD=PASS (previous); MOBILE_DEVICE_TEST=FAIL; DESKTOP_CONTROL_TEST=PASS.
 > User same-device/same-APK comparison: mobile fullscreen=true/allowed=false/upstream=false;

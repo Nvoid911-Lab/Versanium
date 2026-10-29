@@ -14,6 +14,8 @@ BUNDLE = Path(__file__).resolve().parent
 def apply(root):
     root = root.resolve()
     patch = (BUNDLE / 'chromium.patch').read_bytes().replace(b'\r\n', b'\n')
+    # One preflight for Java hooks and native logging; do not partially install.
+    patch += (BUNDLE / 'native-diagnostics.patch').read_bytes().replace(b'\r\n', b'\n')
     copies = {
         root / 'chrome/android/java/src' / p.relative_to(BUNDLE / 'java'): p
         for p in (BUNDLE / 'java').rglob('*.java')

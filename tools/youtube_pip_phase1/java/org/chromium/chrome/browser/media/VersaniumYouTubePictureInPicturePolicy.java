@@ -17,6 +17,8 @@ import org.chromium.build.annotations.NullMarked;
 import org.chromium.build.annotations.Nullable;
 import org.chromium.chrome.browser.ChromeTabbedActivity;
 import org.chromium.chrome.browser.tab.Tab;
+import org.chromium.content_public.browser.GlobalRenderFrameHostId;
+import org.chromium.content_public.browser.RenderFrameHost;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.ui.base.WindowAndroid;
 
@@ -92,7 +94,12 @@ public final class VersaniumYouTubePictureInPicturePolicy {
         // Match upstream's short-circuit; a live startup WC need not have a player.
         String fullscreenPipAllowed = fullscreenVideo
                 ? Boolean.toString(wc.isPictureInPictureAllowedForFullscreenVideo()) : "unknown";
+        // Existing API only; the RFH global ID is cached Java data, not a new JNI getter.
+        RenderFrameHost frame = wc.getMainFrame();
+        GlobalRenderFrameHostId frameId = frame == null ? null : frame.getGlobalRenderFrameHostId();
         return "desktop_site=" + wc.getNavigationController().getUseDesktopUserAgent()
+                + " wc_main_child=" + (frameId == null ? -1 : frameId.childId())
+                + " wc_main_route=" + (frameId == null ? -1 : frameId.frameRoutingId())
                 + " tabUaMode=" + tab.getUserAgent() + " customUaOverride=unavailable"
                 + " wcVisibility=" + wc.getVisibility()
                 + " fullscreenVideo=" + fullscreenVideo

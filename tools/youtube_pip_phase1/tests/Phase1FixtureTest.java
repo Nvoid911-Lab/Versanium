@@ -198,6 +198,8 @@ public final class Phase1FixtureTest {
         org.chromium.content_public.browser.WebContentsObserver outgoing = h.wc.observers.get(0);
         org.chromium.content_public.browser.MediaSessionObserver media = h.wc.session.observers.get(0);
         outgoing.mediaStartedPlaying(1, true, true);
+        check(org.chromium.base.Log.lines.get(org.chromium.base.Log.lines.size() - 1)
+                .contains("player=1"), "existing media callback player ID retained in start log " + desktop);
         media.mediaSessionStateChanged(true, false);
         Tab incoming = new Tab(); incoming.id = 2;
         incoming.window = h.tab.window; incoming.wc.window = h.tab.window;
@@ -208,6 +210,10 @@ public final class Phase1FixtureTest {
         int afterSwitch = org.chromium.base.Log.lines.size();
         h.wc.visibility = 1; outgoing.onVisibilityChanged(1);
         outgoing.mediaStoppedPlaying(1); media.mediaSessionStateChanged(true, true);
+        check(org.chromium.base.Log.lines.subList(afterSwitch, org.chromium.base.Log.lines.size())
+                .stream().anyMatch(line -> line.contains("event=MEDIA_STOPPED ")
+                        && line.contains("player=1") && line.contains("retainedOutgoing=true")),
+                "outgoing stop callback player ID retained " + desktop);
         check(org.chromium.base.Log.lines.subList(afterSwitch, org.chromium.base.Log.lines.size())
                 .stream().anyMatch(line -> line.contains("event=MEDIA_SESSION ")
                         && line.contains("desktop_site=" + desktop)
@@ -286,7 +292,35 @@ public final class Phase1FixtureTest {
         check(live.observers.isEmpty() && live.session.observers.isEmpty(), "deferred diagnostic probe tears down");
     }
 
+    private static void diagnosticFrameCorrelation() {
+        Host h = new Host();
+        String fields = VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab);
+        check(fields.contains("wc_main_child=7 wc_main_route=11"), "cached frame ID bridges native WC to tab");
+        h.wc.mainFrame.id = new org.chromium.content_public.browser.GlobalRenderFrameHostId(9, 23);
+        fields = VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab);
+        check(fields.contains("wc_main_child=9 wc_main_route=23"), "fresh frame identity observed without caching stale route");
+        h.wc.mainFrame.id = null;
+        check(VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab)
+                .contains("wc_main_child=-1 wc_main_route=-1"), "unavailable cached frame ID is unknown");
+        h.wc.mainFrame = null;
+        check(VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab)
+                .contains("wc_main_child=-1 wc_main_route=-1"), "missing Java frame handled safely");
+        int reads = h.wc.mainFrameReads;
+        h.wc.destroyed = true;
+        VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab);
+        check(h.wc.mainFrameReads == reads, "destroyed WC skips frame getter");
+        h.wc.destroyed = false; h.wc.nativeReady = false;
+        VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields(h.tab);
+        check(h.wc.mainFrameReads == reads, "pre-native WC skips frame getter");
+        h.wc.nativeReady = true;
+        check(h.wc.fullscreenPipReads == 0, "frame correlation does not bypass fullscreen-only permission guard");
+        check(h.wc.session.suspends == 0 && h.wc.session.resumes == 0 && h.wc.domExits == 0
+                && !h.controller.ownsMediaRouting(), "frame observation changes no playback or ownership");
+        h.controller.onDestroy();
+    }
+
     public static void main(String[] args) {
+        diagnosticFrameCorrelation();
         diagnosticStartupLifecycle();
         passivePageDiagnostics(false); passivePageDiagnostics(true);
         for (int mode = 0; mode < 5; ++mode) recoveryLifecycle(mode);
