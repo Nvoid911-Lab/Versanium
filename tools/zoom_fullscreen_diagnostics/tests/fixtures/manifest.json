@@ -5,32 +5,32 @@
     "content/browser/web_contents/web_contents_impl.cc": {
       "fixture": "web_contents_impl.cc.gz",
       "before_sha256": "0156c1d1dcbbc51097a84cad190c44b7ac007dd2d7b6bb5f977484181ba00bb2",
-      "after_sha256": "1e64cba223fcc77cfdf24b9e1cc0fac1f6886443b68038b174be38cec26d5dc1"
+      "after_sha256": "f26ef9cc0f38c1274f879da85caaca566f871591e63870787da44a2121b6525c"
     },
     "content/browser/renderer_host/render_widget_host_impl.cc": {
       "fixture": "render_widget_host_impl.cc.gz",
       "before_sha256": "20e6b9c92046d35223b5b0e870b9f9aa67d99aa1b9b460a0a229cc80344a6ee1",
-      "after_sha256": "90e88ea4c146bca7345d1dd776bf78bcf5c5cd01153114929fdfd12da482b573"
+      "after_sha256": "0a691c636c08ac60d243281eaa922bcdbedbb629bb6e1c6f8d52132db0ebe083"
     },
     "third_party/blink/renderer/core/frame/web_frame_widget_impl.cc": {
       "fixture": "web_frame_widget_impl.cc.gz",
       "before_sha256": "fc7f2035ad48120dfbb05910f51898f2e23b6c4f8837361fc2009cc4cc768d5b",
-      "after_sha256": "bab5384dd0e438898e906931f86c58499337d58ba38d469a3b8b80763b41c327"
+      "after_sha256": "1e9a1136e92f729ca3a43c0de5608b08a3e28e75f62b76e199898909ad57bc9c"
     },
     "third_party/blink/renderer/core/frame/fullscreen_controller.cc": {
       "fixture": "fullscreen_controller.cc.gz",
       "before_sha256": "3ada8ac347ad9133f2967267095983f2972af1c6341330cc37c1ca529421301c",
-      "after_sha256": "3ea687eca64ca9153b6a117c634cd5337fcb08ea89d3724dfd8903520d74f1d1"
+      "after_sha256": "bc144783b8da921aa7d7d12c7857943cd32c83a1b002f13e62696a94bd6af7b3"
     },
     "third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc": {
       "fixture": "media_custom_controls_fullscreen_detector.cc.gz",
       "before_sha256": "b3951c9de4c4891dd3b81c1a4814166ddc3ffa6627dbbd5961955b961d12adb0",
-      "after_sha256": "22ad6212b8bf426e943e390f9ec4081d8f16d753e51a80800ec2e861aa20e4a7"
+      "after_sha256": "ddca1aa98a3839f9228a3b280cfad12bcab5e6c170e5ec02afa6d9b558dc3668"
     },
     "third_party/blink/renderer/core/paint/video_painter.cc": {
       "fixture": "video_painter.cc.gz",
       "before_sha256": "f2ac643fdf2e4c88075a62bcdf6410b04060df6f55853a3e0c0dfb4c10b18bab",
-      "after_sha256": "fb261915821b2fe7633ff1c3c5e29a941346025e566308ead5f134d4b7e97fc8"
+      "after_sha256": "e2aeaf0ab76a4e508fb743c5f75c5bd6058723611e4bf650f67e39c89d74dd4d"
     },
     "chrome/browser/chrome_content_browser_client.cc": {
       "fixture": "chrome_content_browser_client.cc.gz",

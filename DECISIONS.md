@@ -558,3 +558,15 @@ retained separately from the unconfirmed no-pending causal hypothesis. v1.25
 is not rewritten as matched device proof. Next stage is separately reviewed
 fresh-tree diagnostic build preparation, not implementation of a product fix.
 [Implementation and validation](tools/zoom_fullscreen_diagnostics/README.md).
+
+## 2026-10-30: Correct diagnostic TLS ownership without changing evidence
+
+The real Android Clang build rejected the six new static TLS arrays because
+Entry owns strings. Use the existing base NoDestructor/ThreadLocalOwnedPointer
+convention for bounded per-thread arrays with thread-exit cleanup. Do not leak
+arrays, truncate identity/payload strings, suppress warnings or change logging
+fields. Three new warning/lifetime regression tests and six isolated real Android
+Clang TU checks PASS; protected Zoom/PiP semantics remain. Fresh source stays at
+5f6f9aa pending reviewed narrow delta application. Full APK build remains FAIL;
+no link/sign/device/cause-confirmation claim.
+[Correction review and validation boundaries](docs/versanium/zoom-fullscreen-native-storage-fix.md).

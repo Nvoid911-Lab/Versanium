@@ -16,18 +16,21 @@ diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/ch
 diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/browser/renderer_host/render_widget_host_impl.cc
 --- a/content/browser/renderer_host/render_widget_host_impl.cc
 +++ b/content/browser/renderer_host/render_widget_host_impl.cc
-@@ -4,4 +4,10 @@
+@@ -4,4 +4,13 @@
 
  #include "content/browser/renderer_host/render_widget_host_impl.h"
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
 +#include "base/logging.h"
++#include "base/no_destructor.h"
++#include "base/threading/thread_local.h"
 +#include <array>
 +#include <iomanip>
++#include <memory>
 +#include <sstream>
 +// VSZOOMFS_DIAGNOSTIC_END
 
  #include <math.h>
-@@ -193,4 +199,39 @@
+@@ -193,4 +202,42 @@
 
  namespace content {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -45,7 +48,10 @@ diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/
 +void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
 +  if (!VSZoomEnabled()) return;
 +  struct Entry { std::string key; std::string last; unsigned changes = 0; };
-+  static thread_local std::array<Entry, 32> entries;
++  using Entries = std::array<Entry, 32>;
++  static base::NoDestructor<base::ThreadLocalOwnedPointer<Entries>> storage;
++  if (!storage->Get()) storage->Set(std::make_unique<Entries>());
++  auto& entries = *storage->Get();
 +  static thread_local unsigned next = 0;
 +  static thread_local uint64_t sequence = 0;
 +  const std::string key = std::string(event) + ":" + scope;
@@ -67,7 +73,7 @@ diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/
 +// VSZOOMFS_DIAGNOSTIC_END
  namespace {
 
-@@ -1156,4 +1197,17 @@
+@@ -1156,4 +1203,17 @@
    }
    visual_properties.zoom_level = delegate_->GetPendingZoomLevel(this);
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -85,7 +91,7 @@ diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/
 +// VSZOOMFS_DIAGNOSTIC_END
    visual_properties.css_zoom_factor = view_->GetCSSZoomFactor();
 
-@@ -1382,4 +1436,13 @@
+@@ -1382,4 +1442,13 @@
    // Throttle to one update at a time.
    if (visual_properties_ack_pending_) {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -99,7 +105,7 @@ diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/
 +// VSZOOMFS_DIAGNOSTIC_END
      return false;
    }
-@@ -1407,4 +1470,21 @@
+@@ -1407,4 +1476,21 @@
    if (propagate) {
      blink_widget_->UpdateVisualProperties(*visual_properties);
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -124,17 +130,18 @@ diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/
 diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser/web_contents/web_contents_impl.cc
 --- a/content/browser/web_contents/web_contents_impl.cc
 +++ b/content/browser/web_contents/web_contents_impl.cc
-@@ -4,4 +4,9 @@
+@@ -4,4 +4,10 @@
 
  #include "content/browser/web_contents/web_contents_impl.h"
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
++#include "base/threading/thread_local.h"
 +#include <array>
 +#include <iomanip>
 +#include <sstream>
 +// VSZOOMFS_DIAGNOSTIC_END
 
  #include <stddef.h>
-@@ -289,4 +294,56 @@
+@@ -289,4 +295,59 @@
 
  namespace content {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -152,7 +159,10 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
 +  if (!VSZoomEnabled()) return;
 +  struct Entry { std::string key; std::string last; unsigned changes = 0; };
-+  static thread_local std::array<Entry, 32> entries;
++  using Entries = std::array<Entry, 32>;
++  static base::NoDestructor<base::ThreadLocalOwnedPointer<Entries>> storage;
++  if (!storage->Get()) storage->Set(std::make_unique<Entries>());
++  auto& entries = *storage->Get();
 +  static thread_local unsigned next = 0;
 +  static thread_local uint64_t sequence = 0;
 +  const std::string key = std::string(event) + ":" + scope;
@@ -191,7 +201,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
 
  namespace {
-@@ -5033,4 +5090,13 @@
+@@ -5033,4 +5094,13 @@
        GetContentClient()->browser()->IsFullscreenAllowedForUnfocusedWebContents(
            this));
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -205,7 +215,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
    // Ensure the window is made active to take input focus. The window may be
    // inactive when sites request fullscreen via capability delegation, consume
-@@ -5067,4 +5133,13 @@
+@@ -5067,4 +5137,13 @@
 
  void WebContentsImpl::ExitFullscreenMode(bool will_cause_resize) {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -219,7 +229,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
    OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::ExitFullscreenMode",
                          "will_cause_resize", will_cause_resize);
-@@ -9991,4 +10066,15 @@
+@@ -9991,4 +10070,15 @@
        });
 
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -235,7 +245,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
    if (rfh) {
      // Find nearest ancestor that has independent zoom.
-@@ -10007,4 +10093,10 @@
+@@ -10007,4 +10097,10 @@
      // just return the zoom level of this WebContents, as that will most often
      // be right.
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -246,7 +256,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
      return HostZoomMap::GetZoomLevel(this);
    }
-@@ -10030,4 +10122,20 @@
+@@ -10030,4 +10126,20 @@
      NavigationEntry* pending_entry = rfh->GetController().GetPendingEntry();
      if (!pending_entry) {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -267,7 +277,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
        return HostZoomMap::GetZoomLevel(this, rfh->GetGlobalId());
      }
-@@ -10037,4 +10145,20 @@
+@@ -10037,4 +10149,20 @@
      // GetZoomLevel(WebContents*, RenderFrameHost*) in case `rfh` uses temporary
      // zoom.
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -288,7 +298,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
      return HostZoomMap::GetZoomLevel(this, rfh->GetGlobalId());
    }
-@@ -10043,4 +10167,20 @@
+@@ -10043,4 +10171,20 @@
      auto* zoom_map = HostZoomMapForRenderFrameHost(rfh);
      if (zoom_map->UsesTemporaryZoomLevel(rfh->GetGlobalId())) {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -309,7 +319,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
        return HostZoomMap::GetZoomLevel(this, rfh->GetGlobalId());
      }
-@@ -10049,9 +10189,57 @@
+@@ -10049,9 +10193,57 @@
      if (IsFullscreen() &&
          media_web_contents_observer_->GetFullscreenVideoMediaPlayerId()) {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -367,7 +377,7 @@ diff --git a/content/browser/web_contents/web_contents_impl.cc b/content/browser
 +// VSZOOMFS_DIAGNOSTIC_END
    return HostZoomMapForRenderFrameHost(rfh)
        ->GetZoomLevelForHostAndSchemeAndroid(url.GetScheme(),
-@@ -12509,4 +12697,13 @@
+@@ -12509,4 +12701,13 @@
 
  void WebContentsImpl::MediaEffectivelyFullscreenChanged(bool is_fullscreen) {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -487,21 +497,24 @@ diff --git a/content/public/android/java/src/org/chromium/content_public/browser
 diff --git a/third_party/blink/renderer/core/frame/fullscreen_controller.cc b/third_party/blink/renderer/core/frame/fullscreen_controller.cc
 --- a/third_party/blink/renderer/core/frame/fullscreen_controller.cc
 +++ b/third_party/blink/renderer/core/frame/fullscreen_controller.cc
-@@ -30,4 +30,13 @@
+@@ -30,4 +30,16 @@
 
  #include "third_party/blink/renderer/core/frame/fullscreen_controller.h"
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
 +#include "base/command_line.h"
 +#include "base/logging.h"
 +#include "base/time/time.h"
++#include "base/no_destructor.h"
++#include "base/threading/thread_local.h"
 +#include "build/build_config.h"
 +#include <array>
 +#include <iomanip>
++#include <memory>
 +#include <sstream>
 +// VSZOOMFS_DIAGNOSTIC_END
 
  #include "base/memory/ptr_util.h"
-@@ -54,4 +63,54 @@
+@@ -54,4 +66,57 @@
 
  namespace blink {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -519,7 +532,10 @@ diff --git a/third_party/blink/renderer/core/frame/fullscreen_controller.cc b/th
 +void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
 +  if (!VSZoomEnabled()) return;
 +  struct Entry { std::string key; std::string last; unsigned changes = 0; };
-+  static thread_local std::array<Entry, 32> entries;
++  using Entries = std::array<Entry, 32>;
++  static base::NoDestructor<base::ThreadLocalOwnedPointer<Entries>> storage;
++  if (!storage->Get()) storage->Set(std::make_unique<Entries>());
++  auto& entries = *storage->Get();
 +  static thread_local unsigned next = 0;
 +  static thread_local uint64_t sequence = 0;
 +  const std::string key = std::string(event) + ":" + scope;
@@ -556,7 +572,7 @@ diff --git a/third_party/blink/renderer/core/frame/fullscreen_controller.cc b/th
 +// VSZOOMFS_DIAGNOSTIC_END
 
  namespace {
-@@ -151,4 +210,16 @@
+@@ -151,4 +216,16 @@
 
    state_ = State::kFullscreen;
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -573,7 +589,7 @@ diff --git a/third_party/blink/renderer/core/frame/fullscreen_controller.cc b/th
 +// VSZOOMFS_DIAGNOSTIC_END
 
    NotifyFramesOfFullscreenEntry(true /* success */);
-@@ -185,4 +256,13 @@
+@@ -185,4 +262,13 @@
    UpdatePageScaleConstraints(true);
 
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -587,7 +603,7 @@ diff --git a/third_party/blink/renderer/core/frame/fullscreen_controller.cc b/th
 +// VSZOOMFS_DIAGNOSTIC_END
    state_ = State::kInitial;
 
-@@ -214,4 +294,13 @@
+@@ -214,4 +300,13 @@
    TRACE_EVENT("blink", __PRETTY_FUNCTION__);
    const auto& screen_info = frame.GetChromeClient().GetScreenInfo(frame);
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -604,12 +620,14 @@ diff --git a/third_party/blink/renderer/core/frame/fullscreen_controller.cc b/th
 diff --git a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc b/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
 --- a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
 +++ b/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc
-@@ -30,4 +30,13 @@
+@@ -30,4 +30,15 @@
 
  #include "third_party/blink/renderer/core/frame/web_frame_widget_impl.h"
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
 +#include "base/command_line.h"
 +#include "base/logging.h"
++#include "base/no_destructor.h"
++#include "base/threading/thread_local.h"
 +#include <array>
 +#include <iomanip>
 +#include <sstream>
@@ -618,7 +636,7 @@ diff --git a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc b/th
 +// VSZOOMFS_DIAGNOSTIC_END
 
  #include <algorithm>
-@@ -201,4 +210,54 @@
+@@ -201,4 +212,57 @@
 
  namespace blink {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -636,7 +654,10 @@ diff --git a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc b/th
 +void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
 +  if (!VSZoomEnabled()) return;
 +  struct Entry { std::string key; std::string last; unsigned changes = 0; };
-+  static thread_local std::array<Entry, 32> entries;
++  using Entries = std::array<Entry, 32>;
++  static base::NoDestructor<base::ThreadLocalOwnedPointer<Entries>> storage;
++  if (!storage->Get()) storage->Set(std::make_unique<Entries>());
++  auto& entries = *storage->Get();
 +  static thread_local unsigned next = 0;
 +  static thread_local uint64_t sequence = 0;
 +  const std::string key = std::string(event) + ":" + scope;
@@ -673,7 +694,7 @@ diff --git a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc b/th
 +// VSZOOMFS_DIAGNOSTIC_END
 
  namespace {
-@@ -1964,4 +2023,19 @@
+@@ -1964,4 +2028,19 @@
    }
 
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -693,7 +714,7 @@ diff --git a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc b/th
 +// VSZOOMFS_DIAGNOSTIC_END
    SetZoomInternal(visual_properties.zoom_level,
                    visual_properties.css_zoom_factor);
-@@ -2575,4 +2649,16 @@
+@@ -2575,4 +2654,16 @@
          // of Frame descendants.
          local_frame->SetLayoutZoomFactor(layout_zoom_factor);
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -713,23 +734,26 @@ diff --git a/third_party/blink/renderer/core/frame/web_frame_widget_impl.cc b/th
 diff --git a/third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc b/third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc
 --- a/third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc
 +++ b/third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc
-@@ -4,4 +4,15 @@
+@@ -4,4 +4,18 @@
 
  #include "third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.h"
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
 +#include "base/command_line.h"
 +#include "base/logging.h"
 +#include "base/time/time.h"
++#include "base/no_destructor.h"
++#include "base/threading/thread_local.h"
 +#include "build/build_config.h"
 +#include <array>
 +#include <iomanip>
++#include <memory>
 +#include <sstream>
 +#include "third_party/blink/renderer/core/frame/local_frame.h"
 +#include "third_party/blink/renderer/core/dom/document.h"
 +// VSZOOMFS_DIAGNOSTIC_END
 
  #include "third_party/blink/public/platform/task_type.h"
-@@ -16,4 +27,54 @@
+@@ -16,4 +30,57 @@
 
  namespace blink {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -747,7 +771,10 @@ diff --git a/third_party/blink/renderer/core/html/media/media_custom_controls_fu
 +void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
 +  if (!VSZoomEnabled()) return;
 +  struct Entry { std::string key; std::string last; unsigned changes = 0; };
-+  static thread_local std::array<Entry, 32> entries;
++  using Entries = std::array<Entry, 32>;
++  static base::NoDestructor<base::ThreadLocalOwnedPointer<Entries>> storage;
++  if (!storage->Get()) storage->Set(std::make_unique<Entries>());
++  auto& entries = *storage->Get();
 +  static thread_local unsigned next = 0;
 +  static thread_local uint64_t sequence = 0;
 +  const std::string key = std::string(event) + ":" + scope;
@@ -784,7 +811,7 @@ diff --git a/third_party/blink/renderer/core/html/media/media_custom_controls_fu
 +// VSZOOMFS_DIAGNOSTIC_END
 
  using blink::WebFullscreenVideoStatus;
-@@ -197,4 +258,25 @@
+@@ -197,4 +264,25 @@
      return;
 
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -813,16 +840,19 @@ diff --git a/third_party/blink/renderer/core/html/media/media_custom_controls_fu
 diff --git a/third_party/blink/renderer/core/paint/video_painter.cc b/third_party/blink/renderer/core/paint/video_painter.cc
 --- a/third_party/blink/renderer/core/paint/video_painter.cc
 +++ b/third_party/blink/renderer/core/paint/video_painter.cc
-@@ -4,4 +4,16 @@
+@@ -4,4 +4,19 @@
 
  #include "third_party/blink/renderer/core/paint/video_painter.h"
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
 +#include "base/command_line.h"
 +#include "base/logging.h"
 +#include "base/time/time.h"
++#include "base/no_destructor.h"
++#include "base/threading/thread_local.h"
 +#include "build/build_config.h"
 +#include <array>
 +#include <iomanip>
++#include <memory>
 +#include <sstream>
 +#include "third_party/blink/renderer/core/frame/local_frame.h"
 +#include "third_party/blink/renderer/core/fullscreen/fullscreen.h"
@@ -830,7 +860,7 @@ diff --git a/third_party/blink/renderer/core/paint/video_painter.cc b/third_part
 +// VSZOOMFS_DIAGNOSTIC_END
 
  #include "cc/layers/layer.h"
-@@ -17,4 +29,54 @@
+@@ -17,4 +32,57 @@
 
  namespace blink {
 +// VSZOOMFS_DIAGNOSTIC_BEGIN
@@ -848,7 +878,10 @@ diff --git a/third_party/blink/renderer/core/paint/video_painter.cc b/third_part
 +void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
 +  if (!VSZoomEnabled()) return;
 +  struct Entry { std::string key; std::string last; unsigned changes = 0; };
-+  static thread_local std::array<Entry, 32> entries;
++  using Entries = std::array<Entry, 32>;
++  static base::NoDestructor<base::ThreadLocalOwnedPointer<Entries>> storage;
++  if (!storage->Get()) storage->Set(std::make_unique<Entries>());
++  auto& entries = *storage->Get();
 +  static thread_local unsigned next = 0;
 +  static thread_local uint64_t sequence = 0;
 +  const std::string key = std::string(event) + ":" + scope;
@@ -885,7 +918,7 @@ diff --git a/third_party/blink/renderer/core/paint/video_painter.cc b/third_part
 +// VSZOOMFS_DIAGNOSTIC_END
 
  void VideoPainter::PaintReplaced(const PaintInfo& paint_info,
-@@ -63,4 +125,34 @@
+@@ -63,4 +131,34 @@
    PhysicalRect content_box_rect = layout_video_.PhysicalContentBoxRect();
    content_box_rect.Move(paint_offset);
 +// VSZOOMFS_DIAGNOSTIC_BEGIN

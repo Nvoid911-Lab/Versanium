@@ -1,5 +1,14 @@
 # Versanium Project Status
 
+> Diagnostic native storage correction — 2026-10-30 JST: non-trivial Entry strings
+> now use Chromium TLS ownership with thread-exit cleanup; six actual Android
+> Clang translation units PASS under unchanged warning policy. New Clang/storage
+> tests3 + existing13/675/49 and Zoom/PiP gates PASS. No evidence fields changed.
+> Full diagnostic APK build remains FAIL/not resumed; no APK/signing/device test.
+> Fresh source retains5f6f9aa; isolated validation outputs and exact next delta
+> are preserved. v1.25/device causality/fix readiness are not upgraded.
+> [Root cause, lifetime alternatives, regression and real compile scope](docs/versanium/zoom-fullscreen-native-storage-fix.md).
+
 > Zoom × fullscreen matched diagnostics — 2026-10-29 JST: implementation only.
 > Default-off VSZOOMFS overlay observes the actual no-pending return, selection,
 > transport, renderer adoption, intersection/paint geometry and stored-zoom exit snapshot.

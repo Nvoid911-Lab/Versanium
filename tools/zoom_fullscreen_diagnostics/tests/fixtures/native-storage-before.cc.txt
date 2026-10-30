@@ -1,0 +1,29 @@
+bool VSZoomEnabled() {
+  return base::CommandLine::InitializedForCurrentProcess() &&
+      base::CommandLine::ForCurrentProcess()->HasSwitch("versanium-zoom-fullscreen-diagnostics");
+}
+std::ostringstream VSZoomFields() {
+  std::ostringstream fields;
+  fields << std::setprecision(17);
+  return fields;
+}
+void VSZoomLog(const char* event, const std::string& scope, const std::string& fields) {
+  if (!VSZoomEnabled()) return;
+  struct Entry { std::string key; std::string last; unsigned changes = 0; };
+  static thread_local std::array<Entry, 32> entries;
+  static thread_local unsigned next = 0;
+  static thread_local uint64_t sequence = 0;
+  const std::string key = std::string(event) + ":" + scope;
+  Entry* entry = nullptr;
+  for (auto& item : entries) if (item.key == key) { entry = &item; break; }
+  if (!entry) { entry = &entries[next++ % entries.size()]; *entry = Entry{key, "", 0}; }
+  if (entry->last == fields || entry->changes > 64) return;
+  entry->last = fields;
+  if (entry->changes++ == 64) {
+    LOG(INFO) << "VSZOOMFS event=DIAGNOSTIC_LIMIT scope=" << scope << " dropped_event=" << event;
+    return;
+  }
+  LOG(INFO) << "VSZOOMFS event=" << event << " seq=" << ++sequence
+            << " seq_scope=module_thread tick_us="
+            << base::TimeTicks::Now().since_origin().InMicroseconds() << " " << fields;
+}
