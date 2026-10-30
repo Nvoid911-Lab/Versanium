@@ -1,0 +1,406 @@
+**最終判定：`READY_FOR_36838_IMPLEMENTATION`**
+
+Phase 1は、**Chrome層のJavaのみで実装する設計**に確定します。Braveのsession管理・dismiss抑制・fullscreen保持を抽出し、manual entry、script injector、#33522、#39765は含めません。
+
+これは実装に進める設計判定です。実装・ビルド・実機での修正成功を示すものではありません。
+
+**1. 確認した基準状態**
+
+| 項目 | 確認結果 |
+|---|---|
+| Repository | `Nvoid911-Lab/Versanium` |
+| branch | `next-test/156-zoom-transfer-pip` |
+| local HEAD／PR HEAD | `dd481665361e28baa24a4536d3056dfb3a59e76b` |
+| 作業ツリー | clean |
+| PR #5 | Draft／Open／unmerged |
+| Chromium比較対象 | `1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775` |
+| Brave比較対象 | #36838、`4ea2dc54aaf5a404064cd9ff4473ee088a95fdb2` |
+
+[PR #5](https://github.com/Nvoid911-Lab/Versanium/pull/5)と前工程の添付port mapも確認しました。
+
+以下のパスは、将来の**生成先Chromium tree**内のパスです。固定Chromiumソースを基準に、実装時はTitanium／Vanadium適用後の新規treeでanchorを確認します。saved Run9は使用しません。
+
+**2. 新規クラス・package・配置**
+
+新規production classは次の**2ファイル**とします。
+
+| ファイル | 責務 |
+|---|---|
+| `chrome/android/java/src/org/chromium/chrome/browser/media/VersaniumYouTubePictureInPictureController.java` | owner、state、generation、entry／exit transaction、observer、cleanup |
+| 同directoryの`VersaniumYouTubePictureInPicturePolicy.java` | URL eligibility、owner照合、state／reason別の判定 |
+
+packageは両方とも`org.chromium.chrome.browser.media`。targetは`//chrome/android:chrome_java`です。
+
+`YouTubePictureInPictureSessionRegistry.java`は**Phase 1では作成しません**。`MediaSessionHelper`の通知状態補正も含めません。今回必要なVIDEO・HTML・ActivityはすべてChrome層にあり、componentsとの共有registryを追加する理由がないためです。
+
+controller内に、HTMLからowner controllerを検索する小さなChrome層locatorを設けます。
+
+- `WeakHashMap<Activity, WeakReference<Controller>>`
+- UI thread限定
+- Activity一致だけで許可せず、tab・WebContents・window・generationもcontrollerで検証
+- unregisterは登録controller自身との一致を確認
+- process-globalな単一WebContents slotは設けない
+
+controllerの生存はhostが保持します。WeakReference locatorをsessionの唯一の保存先にはしません。
+
+**3. eligibilityを確定**
+
+Phase 1の対象は次に限定します。
+
+- 通常のTabbed Activity
+- HTTPS、host完全一致の`m.youtube.com`
+- pathが`/watch`、空でない`v` parameter
+- 生存中のowner Tab／WebContents
+- 既存upstreamのfullscreen動画PiP条件を満たす
+- Activityがfinishing／destroyed／config-change中ではない
+- Minimized Custom Tabs／Actor PiPではない
+
+`www.youtube.com`、Shorts、embed、独自manual entryは対象外です。最初のスマホ試験でscopeを固定し、DeXのdesktop URL対応は後続の明示的拡張にします。
+
+JavaのURL判定は、Brave native helperと同等と主張しません。**既存fullscreen入口だけを使用する**ことによってnative helperを不要にします。
+
+**4. controllerのstate machine**
+
+| state | 意味 |
+|---|---|
+| `INACTIVE` | owner sessionなし |
+| `ENTERING` | owner登録済み、framework entry確認待ち |
+| `ACTIVE` | framework true callbackを受領済み |
+| `EXITING` | 保護解除済み、owner cleanup／exit分類中 |
+
+保持するsession情報は次のとおりです。
+
+- process内で単調増加する`long generation`
+- owner Activity identity
+- owner `WindowAndroid` identity
+- owner Tab identity＋tab ID
+- owner WebContents identity
+- entry origin：explicit／framework auto
+- owner documentのnavigation epoch
+- upstream entry処理済みflag
+- cleanup開始／完了flag
+- pending task、WebContents／Tab／MediaSession observer
+- exit reasonとowner限定のmedia停止責務
+
+遅延callbackは、**controller生存・generation・WebContents identity・必要なstate**を毎回照合します。tab IDだけで再取得して操作しません。
+
+遷移は以下です。
+
+```text
+INACTIVE → ENTERING → ACTIVE → EXITING → INACTIVE
+                 ↘ rollback → INACTIVE
+
+INACTIVE → ACTIVE
+           framework auto-entryのstrict adoption
+
+ENTERING／ACTIVE → EXITING
+                   tab変更・navigation・close・破棄など
+```
+
+同じownerのduplicate entryは既存generationを返し、新しいsessionを作りません。異なるownerへの置換は、旧sessionの終了を先に完了させます。
+
+**config changeは、Phase 1ではactive sessionを復元しない方針を選びます。**
+
+旧Activityはsessionを終了し、新Activityは`INACTIVE`から開始します。保存Bundleのactive flag／tab IDから保護状態を復元しません。新Activityにframework true callbackが来た場合だけ、通常のstrict adoptionを適用します。
+
+これによりprocess death後のstale復元と、別windowへの誤rebindを防ぎます。config-changeをまたぐPiP継続はPhase 1の保証対象に含めず、安全に終了できることを試験します。
+
+**5. explicit entryのexact sequence**
+
+`VIDEO.attemptPictureInPicture()`内を次の順序にします。
+
+1. 既存`canDoPictureInPicture()`を実行。
+2. 対象Tab／WebContentsを一度capture。
+3. 既存bounds／`PictureInPictureParams`を構築。
+4. policy eligibilityとowner identityを再確認。
+5. controllerへ`beginEntry(owner)`を通知し、`ENTERING`を登録。
+6. **直後に既存framework `enterPictureInPictureMode()`を呼ぶ。**
+7. trueならcallback待ち。ここでは`ACTIVE`にしない。
+8. false／既存catch対象の例外なら、captureしたgenerationをrollback。
+9. framework true callbackで`ACTIVE`へ確定。
+
+rollbackはregistrationとobserverだけを解除し、通常fullscreenや再生状態を変更しません。
+
+framework call中にtrue callbackが先行した場合、後から来たrollbackは`ENTERING`一致条件を満たさず、新しい状態を消しません。
+
+callback未着への安全弁として、entry開始から**2秒**で状態を再確認します。framework PiP中なら確定処理へ、PiP外ならrollbackします。この値は修正の中心となるgrace periodではなく、孤立した`ENTERING`を残さないための上限です。
+
+**6. auto-entryとの統合**
+
+auto-entryはACTIVITYのtrue callbackで、explicit entryと同じsession型へ取り込みます。
+
+- 既存`ENTERING`とowner一致：同じgenerationを`ACTIVE`へ
+- 既存`ACTIVE`と一致：duplicate通知としてno-op
+- `INACTIVE`：strict eligibilityを確認して新規adopt
+- owner不一致／`EXITING`：旧sessionへ結び付けない
+
+auto-entryでは、VIDEOのauto-PiP設定更新時に**直近のeligible owner snapshot**を保持します。これはactive sessionではなく、tab／WC／window／document epoch付き候補です。
+
+callback時にfullscreen状態が遷移していても、同一documentの有効なsnapshotとframework PiP確認を使用できます。tab切替、WC交換、navigation、auto-entry無効化でsnapshotを破棄します。
+
+callback前のHTML保護は、候補があるだけでは許可しません。**frameworkが既にPiP中と報告している場合**に限り、その候補を検証して暫定`ENTERING`へ取り込みます。単なるauto-entry設定ONでfullscreenを保持し続ける実装にはしません。
+
+**7. Activity callback ordering**
+
+既存Chromiumはtrue側でpersistent-videoを設定し、false側で登録済みleave callbackを実行します。この責務は維持します。[固定Chromium VIDEO](https://github.com/chromium/chromium/blob/1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775/chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java)
+
+`ChromeActivity.onPictureInPictureModeChanged()`の順序を次に確定します。
+
+| true側 | false側 |
+|---|---|
+| 既存`super` | 既存`super` |
+| 既存Minimized Custom Tabs除外 | 既存Minimized Custom Tabs除外 |
+| 既存Actor判定・除外 | controllerの`beginFrameworkExit()` |
+| controllerでowner登録／adopt | 既存Actor exit callback |
+| 既存`VIDEO.onEnteredPictureInPictureMode()` | 既存`VIDEO.onFrameworkExitedPictureInPicture()` |
+| controllerのentry完了確認 | controllerのexit cleanup継続 |
+
+false側では先に`EXITING`へ移し、fullscreen／dismiss保護を解除してからupstreamのpersistent false callbackを通します。
+
+true側のduplicate callbackでは、owner sessionについて既存`onEnteredPictureInPictureMode()`の二重実行も防ぎます。他のPiP経路の既存動作は維持します。
+
+`onNewIntentWithNative()`にも、既存VIDEO exit呼出より前にowner sessionの終了通知を追加します。これを省くと、upstreamだけ終了して専用sessionが残ります。[固定Chromium ACTIVITY](https://github.com/chromium/chromium/blob/1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java)
+
+**8. dismiss suppressionのreason matrix**
+
+`dismissActivityIfNeeded()`では、**既存`updateAutoPictureInPictureStatusIfNeeded()`を先に実行します**。保護sessionが存在しても、実際のeligibility変更をAndroidへ通知する必要があるためです。
+
+その後、owner policyを判定します。
+
+| reason | Phase 1の扱い |
+|---|---|
+| `START` | owner一致＋`ENTERING`の有効期限内、または`ACTIVE`かつframework PiP中だけ抑制 |
+| `RESUME` | 同上。framework PiP外ならexpand候補として終了へ |
+| `LEFT_FULLSCREEN` | owner由来＋保護状態＋framework PiP中だけ抑制 |
+| `WEB_CONTENTS_LEFT_FULLSCREEN` | 同上 |
+| `NEW_TAB` | 保護解除、旧owner cleanup。新tabを裏へ送らない専用終了経路 |
+| `CLOSE` | 保護解除、owner cleanup後にupstreamへ通す |
+| `CRASH` | 同上。破棄済みWCへの操作は省略 |
+| `REPARENT` | 旧windowでsession失効後、upstreamへ通す |
+
+**reasonとActivityだけではowner判定が足りません。** VIDEOのtab／WC observerから、発火元Tab／WebContentsまたはcapture済みowner tokenをhookへ渡します。別tabのfullscreen終了をownerのtransient signalとして扱いません。
+
+`NEW_TAB`ではupstreamの`moveTaskToBack(true)`部分をそのまま実行しません。旧owner停止・fullscreen解除・既存persistent callback排出を行い、新tabをforegroundに残します。これは単純なdismiss抑制ではなく、終了処理の置換です。
+
+既存の遅延dismiss／unstash処理にも、所有sessionについてgeneration guardを追加します。旧sessionの遅延処理が次のsessionや新tabへ作用することを防ぎます。
+
+**9. HTML fullscreen preservation**
+
+`FullscreenHtmlApiHandlerBase.onHidden(tab, reason)`では、既存`onExitFullscreen(null)`の直前に判定します。
+
+保持条件はすべてANDです。
+
+- `tab == mTabInFullscreen == session.ownerTab`
+- tab ID／WC identity一致
+- handlerのActivity == owner Activity
+- window identity一致
+- ownerが生存、navigation epoch一致
+- `ENTERING`の有効期間内、または`ACTIVE`かつframework PiP中
+- tab switch／close／reparentによるhiddenではない
+
+tab切替を意味するreasonは保持せず、旧owner終了を開始します。unknown reasonも保持しません。
+
+STOPPED分岐でも、上記owner照合を`mTabInFullscreen`に対して行います。callback引数のActivityとhandler自身のActivityの一致も必要です。
+
+`DESTROYED`のlistener解除は常に通します。fullscreen falseや新しいnavigationを受けた後に、古いowner flagだけで保護しません。[固定Chromium HTML](https://github.com/chromium/chromium/blob/1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775/chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java)
+
+**10. cleanup semantics**
+
+共通入口を`beginExit(generation, reason)`に集約します。
+
+1. generation照合。
+2. `EXITING`へ遷移し、保護を即解除。
+3. entry timeout／resume予定／候補snapshotを無効化。
+4. 必要なowner media停止。
+5. owner DOM fullscreen exit要求。
+6. browser fullscreen UI解除。
+7. upstream persistent-video leave callbackを一度だけ排出。
+8. observer／locator／owner参照を解除し`INACTIVE`へ。
+
+| trigger | 処理 |
+|---|---|
+| PiP expand | fullscreenを終了、再生は維持 |
+| PiP X close | ownerを停止、fullscreen終了 |
+| tab switch／new tab | 旧owner停止・fullscreen終了、新tabをforeground維持 |
+| tab destroyed／crash | 即失効。destroyed WCへのAPI呼出なし |
+| reparent | 旧session終了。新windowへ自動移管しない |
+| navigation away | 同じWCでもsession終了 |
+| WC交換 | owner置換として終了 |
+| Activity非config destroy | owner停止を含め終了 |
+| config destroy | 同じ終了経路。active復元なし |
+
+navigationではprimary main-frameのcross-document commitを終了条件にします。同一documentでもYouTube watch URLの対象動画ID変更／対象外への遷移は終了します。
+
+DOM fullscreen exitは`ownerWebContents.exitFullscreen()`を直接要求し、その後browser fullscreenを解除します。**effective fullscreen falseだけをDOM exit完了とは扱いません。**
+
+通常exitはfullscreen observerを先に登録して、DOM exit通知または**500ms fallback**でbrowser UI cleanupへ進みます。tab切替・destroy等では新画面を阻害しないようbrowser UIを即解除します。browser側のupstream cleanupによる再度のexit要求があり得るため、保証するのは「専用cleanup transaction一回」であり、native呼出総数一回ではありません。
+
+browser UI解除時には、managerがまだ旧ownerを保持していることを確認します。新tabのfullscreenを解除しません。[Brave controllerの終了処理](https://github.com/brave/brave-core/blob/4ea2dc54aaf5a404064cd9ff4473ee088a95fdb2/android/java/org/chromium/chrome/browser/media/BraveYouTubePictureInPictureController.java)
+
+**11. expandとcloseの識別**
+
+framework false callbackだけではexpand／closeを断定しません。
+
+- false callback：まず`EXITING`
+- owner Activityのresume確認：expandとして確定
+- owner Activityのstop／finishing／destroy：closeとして停止
+- 判定待ちが残った場合：**1,000ms後**に再確認
+- foregroundへ復帰していなければowner停止
+- 判定不明時はresumeしない
+
+この期間もdismiss／HTML保護は解除済みです。遅延taskがowner Activity・generation・WCを照合し、次のsessionへ停止を持ち越しません。
+
+screen-lockによるstopもPhase 1では通常停止側へ扱います。#39765相当の例外・unlock復元は追加しません。
+
+**12. MediaSession policy**
+
+**entry時のresumeは採用しません。**
+
+通常fullscreen動画からのPiPは、既に再生している動画を引き継ぐ入口です。Braveのresume処理にはmanual entryやlock復元の背景もあり、今回の限定scopeへ無条件に持ち込むとuser pauseを上書きします。
+
+Java MediaSessionのpaused通知だけでは、pauseの原因を確実に識別できません。「entry直前に再生していた」だけを根拠に後からresumeする方式も採用しません。
+
+- 専用controllerからentry時resumeを呼ばない
+- close／tab変更では保存したowner WCのMediaSessionだけをsuspend
+- owner取得失敗時は操作を省略
+- current tab fallback禁止
+- upstream stash／unstashは維持し、owner session中はowner WCへ固定
+- upstream `onStop()`の停止責務は維持
+- `EXITING`中も必要な停止が終わるまでowner tokenを保持
+
+VIDEOの`getMediaSession()`も、所有session中はowner WCを返す経路を追加します。所有sessionが失効した直後にcurrent tabへfallbackして、新tabの音声を止めないようにします。
+
+PiPが安定してもYouTube自身のvisibility判定でpauseする場合は、Phase 1の観測結果として記録し、#33522へ分離します。
+
+**13. registry案の比較**
+
+| 案 | 判定 |
+|---|---|
+| components側process-global WC WeakReference | 不採用。window照合と失効責務が弱い |
+| components側owner付きregistry | 将来MEDIA通知補正を入れる場合の候補 |
+| Chrome層controller＋weak locator | **採用**。今回の全hookを同一層で扱える |
+
+components→Chrome依存は作りません。components Java／MediaSessionHelperはPhase 1の変更対象外です。
+
+**14. Zoom共存とJava-only判定**
+
+**Java-only：YES。新規C++／新規JNIは不要です。**
+
+必要なAPIは既存Javaにあり、Javaからの`exitFullscreen()`／MediaSession操作が既存JNIを内部利用することは、新規JNI追加とは区別します。
+
+`ChromeActivity`は共有ファイルとしてPiP hookを追加します。ただし次のZoom行は**内容・位置とも不変**にします。
+
+```java
+EnvironmentZoom.refreshAll();
+EnvironmentZoom.flushPendingWrites();
+```
+
+PiP lifecycle判定は、必要な既存VIDEO呼出の直前に独立して追加します。Zoom patch入力・Zoom専用ファイル・設定・persistence・backupは変更しません。
+
+`WebContentsImpl`のZoom fullscreen logicも変更しません。
+
+実機では次を確認します。
+
+- PiP中、fullscreen保持に伴うZoom override延長
+- expand／close後のZoom復元
+- tab切替後、新tabへのoverride漏れなし
+- スマホ／DeX独立設定と保存値不変
+
+**15. GN／build impact**
+
+production source登録先は、固定156で既存VIDEO／HTMLが登録されている次のsource listです。
+
+- `chrome/android/chrome_java_sources.gni`
+- 変数：`chrome_java_sources`
+- 利用target：`//chrome/android:chrome_java`
+- 参照経路：`chrome/android/java_sources.gni` → `chrome/android/BUILD.gn`
+
+追加sourceはcontroller／policyの2件です。`chrome/android/BUILD.gn`へのproduction target追加は不要と予測します。既存のbase／content／ui／Tab／fullscreen依存を利用し、新規components dependencyは追加しません。
+
+**source list変更を伴うため、GN regenerationは必要になる前提**です。saved graphをそのまま使えるとは扱いません。
+
+将来のvalidation順序は次です。今回は実行していません。
+
+1. 新規treeで固定pin＋Titanium／Versanium適用後anchor・Zoom不変確認。
+2. source-list／dependency確認。
+3. 別途許可されたGN regenerationと実graph監査。
+4. policy／controller／既存VIDEO・HTMLのunit tests。
+5. 実際の`chrome_java`と依存content Javaのcompile。
+6. 実NullAway／ErrorProne実行・対象source coverage確認。
+7. DEX／R8／APK統合。
+8. スマホ実機。
+9. DeX実機。
+
+components変更はないため、独立したcomponents Java変更検証は不要です。通常Java compile成功をNullAway成功とは扱いません。
+
+**16. license planとcommit plan**
+
+Braveから抽出・改変したロジックは新規専用ファイルへ隔離し、元のcopyright／MPL通知を維持します。headerには由来も記録します。
+
+```java
+// SPDX-License-Identifier: MPL-2.0
+// Adapted from Brave #36838.
+// Source revision: 4ea2dc54aaf5a404064cd9ff4473ee088a95fdb2
+```
+
+これは元headerへの追記案であり、元通知の置換ではありません。既存BSD Chromiumファイルには独自の短いforwarding／guardのみを追加し、Braveのmethod bodyを貼り付けません。小さいhookだから自動的にlicense問題がなくなるとは扱わず、由来を差分単位で確認します。
+
+配布時はMPL対象の改変ソースと取得方法を案内します。[Mozilla MPL FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/)
+
+実装は**7コミット**を推奨します。
+
+| 順序 | 内容 |
+|---|---|
+| 1 | policy・owner token・state machine・unit tests、source登録 |
+| 2 | controllerのobserver／cleanup／generation guard |
+| 3 | explicit entry登録・false／exception rollback |
+| 4 | framework enter／exit、auto adoption、new intent連携 |
+| 5 | dismiss reason matrix・旧owner media routing |
+| 6 | HTML preservation・DOM/browser cleanup・tab変更処理 |
+| 7 | 統合検証後にPhase 1を有効化 |
+
+1〜6は単一のdefault-off integration gateで新動作を無効に保ちます。suppressionだけ先に有効化しません。最終有効化前にentry・exit・cleanup・owner routingが揃っていることを必須にします。
+
+旧generator／旧apply controllerは再利用しません。
+
+**17. test plan・成功条件**
+
+unit testsは次を必須にします。
+
+- stale generation／process-death Bundleからの非復元
+- wrong WC／tab／Activity／window／document epoch拒否
+- duplicate attempt／duplicate true callback
+- framework false／exception／callback未着rollback
+- callback先行とrollback競合
+- explicitとauto-entryの同一session化
+- auto候補無効化
+- 全dismiss reason matrix
+- tab hidden／STOPPEDのowner限定保持
+- cleanup再入・cleanup once
+- DOM通知／500ms fallback競合
+- expand／close callback順序の両パターン
+- old delayed dismiss／unstashの無効化
+- new tabを裏へ送らないこと
+- user-paused動画をresumeしないこと
+- current tab fallbackがないこと
+
+実機は**スマホを先行**します。
+
+1. 対象YouTube動画をfullscreen再生。
+2. Homeから通常PiPへ。
+3. explicit／framework auto-entryをそれぞれ確認。
+4. PiPを30秒以上維持。
+5. pause／play、stash／unstash。
+6. expand／X close。
+7. launcherから新tab、tab切替、navigation。
+8. 繰り返しentry／exit、Activity再作成。
+9. 非YouTube動画・Custom Tabs・複数windowへの波及なし。
+10. Zoom保持・終了後復元。
+
+スマホ合格後にDeXを確認します。desktop URLがscope外の場合は、対象外として記録します。
+
+**Phase 1の成功条件**は、対象の通常PiPで「一瞬表示→消滅」が解消され、正規expand／close／tab変更で確実に終了し、close後にowner音声が残らず、Zoomと他windowへ影響しないことです。
+
+#33522のbackground playback、#39765のscreen-lock継続、config-changeをまたぐactive session復元は成功条件に含めません。
+
+以上の設計で **`READY_FOR_36838_IMPLEMENTATION`** と判定します。repo write、コード編集、commit、push、build、GN、Actions、APK、merge、release/tag、Production操作、PR本文変更は実施していません。saved Run9へのアクセス、旧script実行、historical evidence削除、Zoom変更もありません。

@@ -72,14 +72,21 @@ class RecoveryTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'control checkout'):
             resume.validate(self.workspace, self.workspace)
 
-    def test_existing_workspace_blocks_checkout(self):
+    def test_fresh_workspace_never_cleans_preserved_outputs(self):
         w = yaml.load((ROOT / '.github/workflows/build.yml').read_text(), Loader=yaml.BaseLoader)
         step = next(s for s in w['jobs']['build']['steps'] if s.get('name', '').startswith('Protect existing'))
         self.assertIn('Protect existing', step['name'])
-        result = subprocess.run(['bash', '-c', step['run']],
-                                env={'GITHUB_WORKSPACE': str(self.workspace)}, capture_output=True)
-        self.assertNotEqual(result.returncode, 0)
+        environment={'GITHUB_WORKSPACE':str(self.workspace),'GITHUB_RUN_ID':'123'}
+        result=subprocess.run(['bash','-c',step['run']],env=environment,capture_output=True)
+        self.assertEqual(result.returncode,0)
+        fresh=self.workspace/'versanium-next-test-123';fresh.mkdir()
+        result=subprocess.run(['bash','-c',step['run']],env=environment,capture_output=True)
+        self.assertNotEqual(result.returncode,0)
         self.assertTrue((self.output / '.siso_deps').exists())
+        wstep=w['jobs']['build']['steps'][0]
+        result=subprocess.run(['bash','-c',wstep['run']],env=dict(environment,RESUME='true',PROVIDER='ideapad',TEST_BUILD='true',GITHUB_REPOSITORY='Nvoid911-Lab/Versanium'),capture_output=True)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn(b'targets 156',result.stderr)
 
     def test_recovery_selection_and_isolated_checkout(self):
         w = yaml.load((ROOT / '.github/workflows/build.yml').read_text(), Loader=yaml.BaseLoader)

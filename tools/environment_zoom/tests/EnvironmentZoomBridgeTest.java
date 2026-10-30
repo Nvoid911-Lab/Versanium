@@ -82,6 +82,29 @@ public final class EnvironmentZoomBridgeTest {
         settle();
         check(EnvironmentZoom.save(secret,"retired.test",EnvironmentZoomPolicy.factor(90)));
         check(!EnvironmentZoom.store(restarted).hasSite(EnvironmentZoomPolicy.Environment.DEX,"retired.test"));
+        WebContents importedDisplay=tab(dex,restarted);
+        EnvironmentZoom.store(restarted).setDisplayMode(dex.displayId,"mobile");
+        EnvironmentZoom.refreshAll();
+        check(EnvironmentZoom.displayMode(dex,EnvironmentZoom.store(restarted)).equals("mobile"));
+        check(!EnvironmentZoom.isMobileDisplay(importedDisplay)); // Zoom override must not make DeX a phone.
+        settle();
+        Map<String,String> imported=new java.util.LinkedHashMap<>(EnvironmentZoom.store(restarted).snapshot());
+        imported.put("default.MOBILE",Double.toString(EnvironmentZoomPolicy.factor(110)));
+        final boolean[] importedDone={false};
+        EnvironmentZoom.importSnapshot(restarted,imported,"dex",42,ok->importedDone[0]=ok);
+        check(EnvironmentZoom.store(restarted).isReplacing());
+        EnvironmentZoom.forgetContext(restarted);
+        BrowserContextHandle recreatedDuringImport=new BrowserContextHandle();
+        EnvironmentZoomPolicy during=EnvironmentZoom.store(recreatedDuringImport);
+        check(during.isReplacing());
+        during.setSite(EnvironmentZoomPolicy.Environment.MOBILE,"must.not.write.during.import",0);
+        check(!during.hasSite(EnvironmentZoomPolicy.Environment.MOBILE,"must.not.write.during.import"));
+        settle();check(importedDone[0]&&!during.isReplacing());
+        pct(during.defaultFactor(EnvironmentZoomPolicy.Environment.MOBILE),110);
+        check(during.displayMode(42,"auto").equals("dex"));
+        Map<String,?> priorPrivateImport=file.getAll();final boolean[] privateAccepted={true};
+        EnvironmentZoom.importSnapshot(nextPrivate,imported,"auto",0,ok->privateAccepted[0]=ok);
+        check(!privateAccepted[0]);check(priorPrivateImport.equals(file.getAll()));
         System.out.println("EnvironmentZoomBridge: "+checks+" assertions passed with MOCK Android/JNI renderer");
     }
 }

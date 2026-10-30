@@ -1,0 +1,125 @@
+{
+  "state": "SIGNED_DIAGNOSTIC_APK_READY_FOR_MANUAL_DEVICE_TEST",
+  "start_controller": "9ef1c26350042cfe8369357d994fcef143a39ca2",
+  "diagnostic_commits": [
+    "50eff9ea3f51c7d3ecb352c19273d679be7829c6",
+    "0cd373ea3a086622d9c0ec72af64fa389f1c839e"
+  ],
+  "chromium_reviewed_base": "1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775",
+  "chromium_patched_head": "e76ab5fc518ef2df24519c82cec55427870f8bd4",
+  "titanium": "156.0.8078.47",
+  "vanadium": "2ae4335402eabcc6e025f3400185fe25094d8521",
+  "depot_tools": "8ce91cb0b1b3d28c8a74d84b724a3897e6d8a284",
+  "build-status": {
+    "controller": "0cd373ea3a086622d9c0ec72af64fa389f1c839e",
+    "results": {
+      "gn": {
+        "command": [
+          "gn",
+          "gen",
+          "out/Default"
+        ],
+        "log": "/home/takuma/versanium-fresh/phase1-36838/logs/phase1-diagnostic-gn.log",
+        "started_unix": 1793197756.1415396,
+        "returncode": 0,
+        "seconds": 9.35
+      },
+      "chrome_java": {
+        "command": [
+          "autoninja",
+          "-C",
+          "out/Default",
+          "-j6",
+          "chrome_java"
+        ],
+        "log": "/home/takuma/versanium-fresh/phase1-36838/logs/phase1-diagnostic-chrome_java.log",
+        "started_unix": 1793197765.4897444,
+        "returncode": 0,
+        "seconds": 32.44
+      },
+      "chrome_public_apk": {
+        "command": [
+          "autoninja",
+          "-C",
+          "out/Default",
+          "-j6",
+          "chrome_public_apk"
+        ],
+        "log": "/home/takuma/versanium-fresh/phase1-36838/logs/phase1-diagnostic-chrome_public_apk.log",
+        "started_unix": 1793197797.930588,
+        "returncode": 0,
+        "seconds": 201.04
+      }
+    },
+    "state": "APK_BUILD_PASS_UNSIGNED",
+    "gn": "/home/takuma/versanium-fresh/phase1-36838/depot_tools/gn",
+    "autoninja": "/home/takuma/versanium-fresh/phase1-36838/depot_tools/autoninja",
+    "args_sha256": "d2096bdd18bfb10c2edb46ef950864bf917351dd5c7b059921b51e8b8e335cf8",
+    "unsigned_apk": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/Default/apks/ChromePublic.apk",
+    "args_unchanged": true
+  },
+  "signed-apk-receipt": {
+    "state": "SIGNED_DIAGNOSTIC_APK_READY_FOR_MANUAL_DEVICE_TEST",
+    "diagnostic_commit": "0cd373ea3a086622d9c0ec72af64fa389f1c839e",
+    "package": "io.github.nvoid911.versanium.test",
+    "label": "Versanium",
+    "apksigner_verify": "PASS",
+    "signer_certificate_sha256": "063e982a1c533f32e74a0ddeb47a3b91bfad810de181ef292c8769e276ac8151",
+    "same_device_test_key": true,
+    "zipalign_16kb": "PASS",
+    "apk_sha256": "5b89e85e14092894c3ba6f6e5ceec85dfd5731cc95f5f969ed4703f06033928f",
+    "size_bytes": 331324571,
+    "diagnostic_apk": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/release/156.0.8078.47-arm64-v8a-phase1-diagnostic.apk",
+    "standard_apk": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/release/156.0.8078.47-arm64-v8a.apk",
+    "windows_apk": "/mnt/c/Users/Nvoid/Documents/ChatGPT/Versanium Build/Versanium-156.0.8078.47-phase1-diagnostic.apk",
+    "unsigned_apk_unchanged": true,
+    "keystore_unchanged": true,
+    "previous_apk_backup": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/release/156.0.8078.47-arm64-v8a-before-phase1-diagnostic.apk",
+    "C_free_bytes": 138137350144,
+    "verify_output": "Verifies\nVerified using v1 scheme (JAR signing): false\nVerified using v2 scheme (APK Signature Scheme v2): false\nVerified using v3 scheme (APK Signature Scheme v3): true\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\nVerified using v3.2 scheme (APK Signature Scheme v3.2): false\nVerified using v4 scheme (APK Signature Scheme v4): false\nVerified for SourceStamp: false\nNumber of signers: 1\nV3.0 Signer: certificate DN: CN=Versanium Phase1 Device Test, O=Versanium, C=JP\nV3.0 Signer: certificate SHA-256 digest: 063e982a1c533f32e74a0ddeb47a3b91bfad810de181ef292c8769e276ac8151\nV3.0 Signer: certificate SHA-1 digest: 608cd63adffd56fdc1c136fa485378fd7c62a7b7\nV3.0 Signer: certificate MD5 digest: a19100a099c788791642328847c8d3cd\nV3.0 Signer: key algorithm: RSA\nV3.0 Signer: key size (bits): 2048\nV3.0 Signer: public key SHA-256 digest: 5f46929b53e57ffb432c7bc12a794b201f5bf618b127031855cfa72dff472ae3\nV3.0 Signer: public key SHA-1 digest: 26e9001d2490ad891147acc5433e577e1da7adf7\nV3.0 Signer: public key MD5 digest: 8cff22049d28f4dc8261e11d9a9ba002\n",
+    "new_device_test": "NOT_PERFORMED"
+  },
+  "post-build-proof": {
+    "post_build_source_inventory_unchanged": true,
+    "source_inventory_entries": 1316,
+    "zoom_blob_gate": {
+      "blob_gate": "PASS",
+      "reviewed_ref": "ec620a1d69244f2e9eb405d3d21ecd9a3d0a8752",
+      "target_ref": "0cd373ea3a086622d9c0ec72af64fa389f1c839e",
+      "files_verified": 24,
+      "worktree_gate": "FAIL",
+      "dirty": true,
+      "worktree_status": [
+        " M vanadium"
+      ]
+    },
+    "retired34_absent": true,
+    "phase1_registration": "1/1",
+    "phase1_overlays_equal_controller": true,
+    "args_unchanged": true,
+    "C_free_bytes": 138136899584,
+    "controller": "0cd373ea3a086622d9c0ec72af64fa389f1c839e",
+    "keystore_copied_to_repository": false,
+    "adb_or_device_test_performed": false
+  },
+  "tests": {
+    "jvm_assertions": 400,
+    "candidate_order_cases": 6,
+    "active_owner_order_cases": 24,
+    "bundle_tests": 5,
+    "gate_off": "PASS",
+    "parse_only_java_sources": 5
+  },
+  "user_device_report": {
+    "device": "Galaxy S23",
+    "same_device_same_apk": true,
+    "mobile_site": "FAIL",
+    "desktop_site": "PASS",
+    "mobile_tab_switch": "playback stops",
+    "mobile_home": "no PiP, playback remains stopped",
+    "desktop_tab_switch": "playback continues",
+    "desktop_home": "PiP and playback work",
+    "new_apk_device_test": "NOT_PERFORMED"
+  },
+  "scope": "Java diagnostic-only; no intended product behavior change"
+}

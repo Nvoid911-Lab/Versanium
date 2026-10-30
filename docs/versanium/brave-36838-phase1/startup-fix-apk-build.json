@@ -1,0 +1,149 @@
+{
+  "start_head": "74460f1d1873073d9c0aef16a8f27ae1bb4ecc75",
+  "symbolication": {
+    "crashed_signed_apk_sha256": "5b89e85e14092894c3ba6f6e5ceec85dfd5731cc95f5f969ed4703f06033928f",
+    "crashed_apk": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/release/156.0.8078.47-arm64-v8a-phase1-diagnostic.apk",
+    "unsigned_apk_sha256": "1eb7c602c3e6726e7af0116a5159284069438276f87986d3d1ab844a904905e9",
+    "mapping_sha256": "2b1ee55126b88869b8cf7be76358bbcdc8424c84f29e42aef9690f97444613e0",
+    "preserved_mapping": "/home/takuma/versanium-fresh/phase1-36838/evidence/phase1-startup-crash-0cd373e/ChromePublic.crashed-0cd373e.apk.mapping",
+    "native_unstripped_sha256": "46f0104ff149a7f083ab65e8c84d24731e6a003c3be1b5cb7889ad6147d307a2",
+    "native_stripped_sha256": "4a0530b20ae1a4e3db23d13d49855c953102c0ceaffd580c7d1cd38b28dd952b",
+    "native_build_ids": {
+      "unstripped": "6e7fe6dec62a397532653daa08124c566f9f2546",
+      "stripped": "6e7fe6dec62a397532653daa08124c566f9f2546"
+    },
+    "native_pc": "0x3b4ff88",
+    "symbolication": "base::ImmediateCrash()\n./../../base/immediate_crash.h:184:3\nlogging::CheckFailure()\n./../../base/check.h:258:3\ncontent::MediaWebContentsObserver::IsPictureInPictureAllowedForFullscreenVideo() const\n./../../content/browser/media/media_web_contents_observer.cc:325:3\n\n",
+    "fatal_check": "CHECK(fullscreen_player_.has_value())",
+    "java_resolved": {
+      "WebContentsImpl.M1": "isPictureInPictureAllowedForFullscreenVideo",
+      "ChromeTabbedActivity.T1": "onStartWithNative",
+      "ChromeTabbedActivity.r": "finishNativeInitialization",
+      "xg2.T1": "ChromeActivity.onStartWithNative",
+      "s2i.g": "VersaniumYouTubePictureInPictureController.diagnosticActivity",
+      "v2i.c": "VersaniumYouTubePictureInPicturePolicy.diagnosticPageFields"
+    },
+    "call_path": [
+      "ChromeTabbedActivity.finishNativeInitialization",
+      "ChromeTabbedActivity.onStartWithNative",
+      "ChromeActivity.onStartWithNative:1211",
+      "Controller.diagnosticActivity:103",
+      "Policy.diagnosticPageFields:94",
+      "WebContentsImpl.isPictureInPictureAllowedForFullscreenVideo:1014",
+      "WebContentsAndroid::IsPictureInPictureAllowedForFullscreenVideo",
+      "MediaWebContentsObserver::IsPictureInPictureAllowedForFullscreenVideo:325"
+    ],
+    "offset_note": "Java +20/+76/+154 are code offsets, not source/R8 line numbers",
+    "crashpad_trampoline": "not established as cause; exact PC is fullscreen CHECK",
+    "evidence_boundary": "user supplied crash facts summary; not a full tombstone"
+  },
+  "build-status": {
+    "controller": "3ce5aac4c370346ee404a6a65e9b94399b89a16c",
+    "results": {
+      "gn": {
+        "command": [
+          "gn",
+          "gen",
+          "out/Default"
+        ],
+        "log": "/home/takuma/versanium-fresh/phase1-36838/logs/phase1-startup-fix-gn.log",
+        "started_unix": 1793248080.351892,
+        "returncode": 0,
+        "seconds": 12.73
+      },
+      "chrome_java": {
+        "command": [
+          "autoninja",
+          "-C",
+          "out/Default",
+          "-j6",
+          "chrome_java"
+        ],
+        "log": "/home/takuma/versanium-fresh/phase1-36838/logs/phase1-startup-fix-chrome_java.log",
+        "started_unix": 1793248093.0937743,
+        "returncode": 0,
+        "seconds": 18.3
+      },
+      "chrome_public_apk": {
+        "command": [
+          "autoninja",
+          "-C",
+          "out/Default",
+          "-j6",
+          "chrome_public_apk"
+        ],
+        "log": "/home/takuma/versanium-fresh/phase1-36838/logs/phase1-startup-fix-chrome_public_apk.log",
+        "started_unix": 1793248111.3905053,
+        "returncode": 0,
+        "seconds": 202.69
+      }
+    },
+    "state": "APK_BUILD_PASS_UNSIGNED",
+    "gn": "/home/takuma/versanium-fresh/phase1-36838/depot_tools/gn",
+    "autoninja": "/home/takuma/versanium-fresh/phase1-36838/depot_tools/autoninja",
+    "args_sha256": "d2096bdd18bfb10c2edb46ef950864bf917351dd5c7b059921b51e8b8e335cf8",
+    "unsigned_apk": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/Default/apks/ChromePublic.apk",
+    "args_unchanged": true
+  },
+  "signed-apk-receipt": {
+    "state": "SIGNED_STARTUP_FIX_APK_READY_FOR_MANUAL_LAUNCH_TEST",
+    "diagnostic_commit": "3ce5aac4c370346ee404a6a65e9b94399b89a16c",
+    "package": "io.github.nvoid911.versanium.test",
+    "label": "Versanium",
+    "apksigner_verify": "PASS",
+    "signer_certificate_sha256": "063e982a1c533f32e74a0ddeb47a3b91bfad810de181ef292c8769e276ac8151",
+    "same_device_test_key": true,
+    "zipalign_16kb": "PASS",
+    "apk_sha256": "6f0c6896ef33048ed53a55bddf332570a31ac31de94c9dafc54dd5babbbc6d13",
+    "size_bytes": 331324511,
+    "diagnostic_apk": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/release/156.0.8078.47-arm64-v8a-phase1-diagnostic-startup-fix.apk",
+    "standard_apk": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/release/156.0.8078.47-arm64-v8a.apk",
+    "windows_apk": "/mnt/c/Users/Nvoid/Documents/ChatGPT/Versanium Build/Versanium-156.0.8078.47-phase1-diagnostic-startup-fix.apk",
+    "unsigned_apk_unchanged": true,
+    "keystore_unchanged": true,
+    "previous_apk_backup": "/home/takuma/versanium-fresh/phase1-36838/chromium/src/out/release/156.0.8078.47-arm64-v8a-before-startup-fix.apk",
+    "C_free_bytes": 136827981824,
+    "verify_output": "Verifies\nVerified using v1 scheme (JAR signing): false\nVerified using v2 scheme (APK Signature Scheme v2): false\nVerified using v3 scheme (APK Signature Scheme v3): true\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\nVerified using v3.2 scheme (APK Signature Scheme v3.2): false\nVerified using v4 scheme (APK Signature Scheme v4): false\nVerified for SourceStamp: false\nNumber of signers: 1\nV3.0 Signer: certificate DN: CN=Versanium Phase1 Device Test, O=Versanium, C=JP\nV3.0 Signer: certificate SHA-256 digest: 063e982a1c533f32e74a0ddeb47a3b91bfad810de181ef292c8769e276ac8151\nV3.0 Signer: certificate SHA-1 digest: 608cd63adffd56fdc1c136fa485378fd7c62a7b7\nV3.0 Signer: certificate MD5 digest: a19100a099c788791642328847c8d3cd\nV3.0 Signer: key algorithm: RSA\nV3.0 Signer: key size (bits): 2048\nV3.0 Signer: public key SHA-256 digest: 5f46929b53e57ffb432c7bc12a794b201f5bf618b127031855cfa72dff472ae3\nV3.0 Signer: public key SHA-1 digest: 26e9001d2490ad891147acc5433e577e1da7adf7\nV3.0 Signer: public key MD5 digest: 8cff22049d28f4dc8261e11d9a9ba002\n",
+    "new_device_test": "NOT_PERFORMED"
+  },
+  "post-build-proof": {
+    "native_libraries_unchanged": true,
+    "post_build_source_inventory_unchanged": true,
+    "source_inventory_entries": 1316,
+    "zoom_blob_gate": {
+      "blob_gate": "PASS",
+      "reviewed_ref": "ec620a1d69244f2e9eb405d3d21ecd9a3d0a8752",
+      "target_ref": "3ce5aac4c370346ee404a6a65e9b94399b89a16c",
+      "files_verified": 24,
+      "worktree_gate": "FAIL",
+      "dirty": true,
+      "worktree_status": [
+        " M vanadium"
+      ]
+    },
+    "retired34_absent": true,
+    "phase1_registration": "1/1",
+    "phase1_overlays_equal_controller": true,
+    "args_unchanged": true,
+    "C_free_bytes": 136828383232,
+    "controller": "3ce5aac4c370346ee404a6a65e9b94399b89a16c",
+    "keystore_copied_to_repository": false,
+    "adb_or_device_test_performed": false
+  },
+  "mapping-receipt": {
+    "new_mapping_sha256": "71cf15c440ee58076c8433b2075b8e528242580988e3236acf74760ef6a04667",
+    "new_mapping_path": "/home/takuma/versanium-fresh/phase1-36838/evidence/phase1-startup-fix-3ce5aac/ChromePublic.startup-fix.apk.mapping"
+  },
+  "tests": {
+    "jvm_assertions": 415,
+    "prior_assertions": 400,
+    "added_assertions": 15,
+    "candidate_order_cases": 6,
+    "active_order_cases": 24,
+    "bundle_tests": 5,
+    "gate_off": "PASS",
+    "parse_only_sources": 5,
+    "red_before_fix": "failed at native CHECK simulation through Activity -> diagnosticPageFields",
+    "green_after_fix": "PASS"
+  }
+}

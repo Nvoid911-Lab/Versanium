@@ -67,7 +67,7 @@ sed -i 's|boolean shouldShowDeveloperMenu() {|boolean shouldShowDeveloperMenu() 
 else
 sed -i 's|DeviceFormFactor.isNonMultiDisplayContextOnTablet(context)|(true \|\| &)|' chrome/browser/devtools/android/java/src/org/chromium/chrome/browser/devtools/DevToolsWindowAndroid.java
 fi
-sed -i 's|TabUtils.isUsingDesktopUserAgent(mItemDelegate.getWebContents())|(true \|\| TabUtils.isUsingDesktopUserAgent(mItemDelegate.getWebContents()))|' chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
+sed -i '/|| (TabUtils\.isUsingDesktopUserAgent(mItemDelegate\.getWebContents())/{N;s@|| (TabUtils\.isUsingDesktopUserAgent(mItemDelegate\.getWebContents())\n[[:blank:]]*&& mParams\.getSourceType() == MenuSourceType\.LONG_PRESS));@|| mParams.getSourceType() == MenuSourceType.LONG_PRESS);@;}' chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
 
 # dev: incognito
 sed -i 's|intent.putExtra(DevToolsActivity.WEB_CONTENTS_KEY, webContents);|&intent.putExtra("org.chromium.chrome.browser.devtools.DevTools.Incognito", webContents.isIncognito());|' chrome/android/java/src/org/chromium/chrome/browser/devtools/DevToolsActivity.java
@@ -262,6 +262,12 @@ python3 "$SCRIPT_DIR/tools/apply_environment_zoom.py" || {
     exit 1
 }
 
+# Brave #36838 Phase 1: fresh fixed156 source only; never reuse saved Run9.
+python3 "$SCRIPT_DIR/tools/youtube_pip_phase1/apply.py" --root "$PWD" || exit 1
+
 python3 "$SCRIPT_DIR/tools/versanium/apply.py" --root "$PWD" || exit 1
+
+# Generated-source diagnostics only; the dedicated runtime switch defaults OFF.
+python3 "$SCRIPT_DIR/tools/zoom_fullscreen_diagnostics/apply.py" --root "$PWD" --apply || exit 1
 
 export PATCHED=1

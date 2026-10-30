@@ -1,0 +1,16 @@
+{
+  "start_head": "dd481665361e28baa24a4536d3056dfb3a59e76b",
+  "zoom_protected_files": 24,
+  "zoom_sha256_unchanged": true,
+  "patch_sh_only_new_independent_invocation": true,
+  "first_six_commits_default_off": [
+    "73a6f447108b47803e35c1b89832dcf8c340f2f0",
+    "e8551e2b4941df8663d2dd5caddc06160b95dd24",
+    "c61c11f22c758b38eeaaf57eec7942eb0adaaf09",
+    "cf7eddc4a6655e0ca8b96cadf809cd49ffc304af",
+    "7e8c01086bfa35da23f7e88170ba2f239cbbd450",
+    "7bc13ee316274130e03436fb5e5c5ad8065129b4"
+  ],
+  "python_ast": "PASS",
+  "change_scope": "PASS"
+}

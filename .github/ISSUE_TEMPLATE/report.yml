@@ -5,7 +5,7 @@ body:
     attributes:
       value: |
         Report a bug or suggest an improvement for Versanium.
-        Please check the [Versanium issue tracker](https://github.com/Nvoid911/Versanium/issues) for duplicates.
+        Please check the [Versanium issue tracker](https://github.com/Nvoid911-Lab/Versanium/issues) for duplicates.
         You do not need to determine whether a problem originates in Chromium or Titanium Browser.
   - type: checkboxes
     id: checklist

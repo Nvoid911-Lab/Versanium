@@ -1,5 +1,33 @@
 # Versanium
 
+> Current checkpoint — 2026-10-28 JST: Brave #36838 Phase 1 source implementation
+> is complete. **Phase 1 implemented but NOT compiled/built/device-verified.**
+> Next: `READY_FOR_36838_PHASE1_PREBUILD_REVIEW`. A separate Source-of-Truth gate
+> is required before GN/build. Java-only, Chrome-only, exact HTTPS mobile YouTube
+> watch/fullscreen scope; #33522/#39765 remain unimplemented; old candidates stay
+> retired. Zoom inputs and existing lifecycle statements are unchanged.
+> This supersedes the retirement-only/current-no-port notices below, which remain
+> historical. No saved Run9 access/change, GN/build/Actions/APK/merge/release/tag/
+> Production operation or PR body edit occurred.
+> See [implementation, verification and limits](docs/versanium/brave-36838-phase1/implementation.md).
+
+
+> Current policy — 2026-10-28 JST: the former Versanium YouTube PiP,
+> Diagnostics/unsafe diagnostics and Background candidates are **retired / superseded**.
+> Their generators, runtime plumbing, dedicated apply controllers and tests are removed.
+> Earlier candidate descriptions below and existing docs/versanium reports/manifests/logs
+> are historical evidence, not current functionality or executable instructions.
+> Zoom (phone/DeX, transfer, persistence, policy, backup), F11/display, branding,
+> Chromium156 pins and non-PiP features remain unchanged. Saved generated source
+> and existing APKs are untouched and still reflect their historical configuration.
+> Future PiP work is limited to Brave #36838 (YouTube PiP lifecycle/dismiss),
+> #33522 (background playback), #39765 (Chromium153+ screen-lock/onStop).
+> No Brave code is ported here. Build/GN/Actions/APK/merge/release/tag/Production
+> are prohibited in this cleanup phase; PR5 stays Draft/Open/unmerged, body unchanged.
+> See [retirement plan and integrity ledger](docs/versanium/pip-candidate-retirement-2026-10-28/plan.md).
+> Next: `READY_FOR_BRAVE_36838_33522_39765_READONLY_PORT_ANALYSIS`.
+
+
 ## Purpose
 
 Versanium is an Android browser project focused on providing a comfortable and consistent browsing experience across both smartphones and desktop-style environments.
@@ -8,28 +36,21 @@ Versanium is an Android browser project focused on providing a comfortable and c
 
 Versanium is built on top of Titanium Browser for Android and therefore inherits much of its architecture, functionality, and upstream work. The project does not attempt to replace Titanium Browser, but to explore additional improvements for specific Android usage scenarios.
 
-## Downloads and Builds
+## Project repositories and current builds
 
-Official Versanium builds produced by this project are distributed through the GitHub Releases page.
+- Primary / Source of Truth: [Nvoid911-Lab/Versanium](https://github.com/Nvoid911-Lab/Versanium).
+- Secondary / backup: [Nvoid911/Versanium](https://github.com/Nvoid911/Versanium).
+- [Current project status](https://github.com/Nvoid911-Lab/Versanium/blob/migration/versanium/PROJECT_STATUS.md) and [Versanium issue tracker](https://github.com/Nvoid911-Lab/Versanium/issues).
 
-Release APKs use the following naming format:
+Versanium is currently in Test validation. No production release is authorized. Test APKs are distributed as **Versanium-Test** artifacts of explicitly approved manual [Versanium Build runs](https://github.com/Nvoid911-Lab/Versanium/actions/workflows/build.yml), rather than promoted to production Releases.
 
-`Versanium-<version>_arm64-v8a.apk`
+The recorded successful [155-series IdeaPad recovery run](https://github.com/Nvoid911-Lab/Versanium/actions/runs/39765620887) reused its preserved source. It does not contain the new 156-series candidates under review. Device testing confirmed F11, and continued YouTube PiP/background issues on the smartphone while DeX worked.
 
-For example:
+The next review targets **156.0.8078.47**. Its expected Test filename is `Versanium-156.0.8078.47_Test.apk`; this is not a claim that the APK has already been built. Use the reviewed migration/feature revision only after explicit build authorization. Do not resume the old 155 tree as if it included new patches.
 
-`Versanium-154.0.8037.126_arm64-v8a.apk`
+Test builds target `arm64-v8a` and use `io.github.nvoid911.versanium.test`, separate from Titanium F11 Test (`io.github.nvoid911.titanium.f11test`). An existing old APK retains its original identity. Production identity remains a separate deferred decision.
 
-## Installation
-
-1. Download the latest Versanium APK from the GitHub Releases page.
-2. Open the downloaded APK on your Android device.
-3. If prompted, allow installation from the application used to open the APK.
-4. Complete the installation.
-
-Versanium currently provides builds targeting `arm64-v8a`.
-
-Before installing an update, make sure the APK comes from this project's official GitHub repository or Releases page.
+Download only the intended Test artifact from this project's successful run and check its source revision before installing. Report Versanium-specific problems in this project's issue tracker.
 
 ## Unofficial Project Notice
 

@@ -1,5 +1,75 @@
 # Versanium Project Rules
 
+> Current checkpoint — 2026-10-29 JST: correlated native diagnostics implemented, NOT built.
+> Producer attribute/status + browser cache + first pause ingress/policy/session paths.
+> Frame token/player -> native RFH/WC main ID -> Java sourceTab/desktop-site correlation.
+> Product permission/transport/storage/entry/pause/visibility unchanged; old CHECK guard retained.
+> JVM427 (+12), candidate6/active24, bundle5, native structural5, gate-off and parse5 PASS.
+> Attribute setter and first pause root cause UNCONFIRMED until future S23 evidence.
+> Previous PHASE1_BUILD=PASS; mobile device FAIL; desktop control PASS remain historical.
+> No fresh apply/GN/build/APK/signing/ADB/Actions/Run9/merge/release/tag operation.
+> NEXT=WAIT_FOR_CHATGPT_REVIEW, then separately reviewed diagnostic APK stage.
+> See [instrumentation, correlation and limits](docs/versanium/brave-36838-phase1/correlated-diagnostics.md).
+
+> Current checkpoint — 2026-10-29 JST: source trace completed; no product change.
+> PHASE1_BUILD=PASS (previous); MOBILE_DEVICE_TEST=FAIL; DESKTOP_CONTROL_TEST=PASS.
+> User same-device/same-APK comparison: mobile fullscreen=true/allowed=false/upstream=false;
+> desktop fullscreen=true/allowed=true/upstream=true/frameworkPiP=true.
+> Blink video disablepictureinpicture presence -> fullscreen status enum -> browser
+> per-player cached optional bool -> JNI -> upstream canDo -> entry is confirmed.
+> Exact page writer/timing and first tab-switch pause remain UNCONFIRMED.
+> NEXT: review producer/first-pause diagnostic plan; no instrumentation/build authorized here.
+> Brave36838 assumes complementary page support omitted by approved Phase1 scope.
+> No new GN/build/APK/Actions/Run9/device/merge/release/tag operation.
+> See [producer, consumers, Q1–Q7 and evidence limits](docs/versanium/brave-36838-phase1/fullscreen-pip-source-trace.md).
+
+> Current checkpoint — 2026-10-29 JST: symbolicated diagnostic startup fix built/signed.
+> State: `SIGNED_STARTUP_FIX_APK_READY_FOR_MANUAL_LAUNCH_TEST` (device launch unverified).
+> Compiled fix3ce5aac guards fullscreen-only JNI read; native CHECK was resolved before edits/push.
+> Fresh GN/chrome_java/APK RC0, package/alignment/same local-key verify PASS.
+> JVM415 (+15) / bundle5 / default-off / parse-only5 PASS; candidate6/active24 retained.
+> Source inventory1316, native library hashes, Zoom24, retired34, args and GNI1/1 verified.
+> Product PiP behavior unchanged. No Run9, ADB/install, Actions or merge/release/tag.
+> See [exact symbols, fix and signed artifact receipt](docs/versanium/brave-36838-phase1/startup-fix-apk-build.md).
+
+> Current checkpoint — 2026-10-28 JST: diagnostic APK built and signed for manual S23 test.
+> State: `SIGNED_DIAGNOSTIC_APK_READY_FOR_MANUAL_DEVICE_TEST`.
+> Compiled diagnostic controller0cd373e (initial logging50eff9e + mobile/desktop follow-up).
+> Fresh GN/chrome_java/chrome_public_apk RC0; Test package and same local-key verify PASS.
+> JVM400 / bundle5 / default-off / parse-only5 PASS; Zoom blob24 PASS; retired34 absent.
+> Source inventory1316 unchanged after build; args and registration1/1 preserved.
+> User's same-device/same-prior-APK report: mobile FAIL, desktop PASS. New APK untested.
+> No product behavior fix, ADB/install, saved Run9, Actions, merge/release/tag or Production.
+> See [artifact hashes, paths and complete build receipt](docs/versanium/brave-36838-phase1/diagnostic-apk-build.md).
+
+> Current checkpoint — 2026-10-28 JST: Brave #36838 Phase 1 source implementation
+> is complete. **Phase 1 implemented but NOT compiled/built/device-verified.**
+> Next: `READY_FOR_36838_PHASE1_PREBUILD_REVIEW`. A separate Source-of-Truth gate
+> is required before GN/build. Java-only, Chrome-only, exact HTTPS mobile YouTube
+> watch/fullscreen scope; #33522/#39765 remain unimplemented; old candidates stay
+> retired. Zoom inputs and existing lifecycle statements are unchanged.
+> This supersedes the retirement-only/current-no-port notices below, which remain
+> historical. No saved Run9 access/change, GN/build/Actions/APK/merge/release/tag/
+> Production operation or PR body edit occurred.
+> See [implementation, verification and limits](docs/versanium/brave-36838-phase1/implementation.md).
+
+
+> Current policy — 2026-10-28 JST: the former Versanium YouTube PiP,
+> Diagnostics/unsafe diagnostics and Background candidates are **retired / superseded**.
+> Their generators, runtime plumbing, dedicated apply controllers and tests are removed.
+> Earlier candidate descriptions below and existing docs/versanium reports/manifests/logs
+> are historical evidence, not current functionality or executable instructions.
+> Zoom (phone/DeX, transfer, persistence, policy, backup), F11/display, branding,
+> Chromium156 pins and non-PiP features remain unchanged. Saved generated source
+> and existing APKs are untouched and still reflect their historical configuration.
+> Future PiP work is limited to Brave #36838 (YouTube PiP lifecycle/dismiss),
+> #33522 (background playback), #39765 (Chromium153+ screen-lock/onStop).
+> No Brave code is ported here. Build/GN/Actions/APK/merge/release/tag/Production
+> are prohibited in this cleanup phase; PR5 stays Draft/Open/unmerged, body unchanged.
+> See [retirement plan and integrity ledger](docs/versanium/pip-candidate-retirement-2026-10-28/plan.md).
+> Next: `READY_FOR_BRAVE_36838_33522_39765_READONLY_PORT_ANALYSIS`.
+
+
 > Stable operating rules for Versanium. `PROJECT_STATUS.md` records changing state; this file records the rules that govern how state may change.
 
 Last reviewed: 2026-10-19 JST
@@ -210,3 +280,11 @@ When two sources disagree:
 ## 11. Script/instruction presentation preference
 
 When giving the user Termux or similar shell-script replacements, prefer a complete copy-paste version suitable for deleting the existing file contents in `nano` and replacing them in one operation, rather than fragmentary patches.
+
+## 12. User-specified information-source checkpoint (2026-10-24)
+
+Before every Test/normal/rebuild/resume, create or refresh and present the current information-source file. Also create a real downloadable file when asked to make/update an information-source or handoff file, including unmerged/in-progress state clearly labeled as such. Refresh material build/PR/device outcomes before the next decision. Do not require a merge or interrupt an authorized operation solely to call a snapshot settled.
+
+Record JST date, purpose/delta, repository roles, branch/SHA/PR, upstream pins, exact build path/inputs/Test identity, prior outputs, verified/unverified results, known risks and device criteria. Check current runner/WSL/memory/disk/concurrency before execution; never reuse old readings as current. After execution record actual run/attempt/head/time/runner and outcome/artifact; never invent future runs. File creation is not authorization to start a build. Preserve the user's latest execution prohibition.
+
+Use Versanium_Project_Context.md with version/history inside. Present a download link; Project Sources replacement by the user, GitHub documents and Notion synchronization are separate operations. State any unavailable/unsynchronized layer. Include references and approval scope without Secrets/keys/authentication data. This supplements section8's settled-state ordering for explicitly requested pre-build/in-progress snapshots.

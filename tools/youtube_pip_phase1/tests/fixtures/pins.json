@@ -1,0 +1,38 @@
+{
+  "chromium": "1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775",
+  "vanadium": "2ae4335402eabcc6e025f3400185fe25094d8521",
+  "files": {
+    "chrome_java_sources.gni.gz": {
+      "path": "chrome/android/chrome_java_sources.gni",
+      "sha256": "3d29e5b5d0b8e47dda747aac48edcac429a077e90cb75c142896d4cb3da68be4"
+    },
+    "ChromeActivity.java.gz": {
+      "path": "chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java",
+      "sha256": "c3a61414619d4c7e720867fc36b33e36cbebaddea6f221c81bbc1dd874fd2c0b"
+    },
+    "FullscreenHtmlApiHandlerBase.java.gz": {
+      "path": "chrome/android/java/src/org/chromium/chrome/browser/fullscreen/FullscreenHtmlApiHandlerBase.java",
+      "sha256": "f14c40e9046171345d2db39ba8c32c7317a3ebe5652cbf78e6f8e2d43e0c2926"
+    },
+    "FullscreenVideoPictureInPictureController.java.gz": {
+      "path": "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java",
+      "sha256": "02d04e36e35f98c2bc0e13b417309ee39b729781a69944ae100f9f7def6cfd92"
+    }
+  },
+  "selected_vanadium_sha256": "6113a0c21edb7231aeb80e2815b61ff2c995cfe1c34eaaff6dc82d9e4a55a3ed",
+  "scan": {
+    "revision": "2ae4335402eabcc6e025f3400185fe25094d8521",
+    "patch_count": 305,
+    "connector_read": 303,
+    "large_files_via_curl": [
+      "0001",
+      "0002"
+    ],
+    "relevant": [
+      "patches/0265-Revert-passwords-android-Move-reduce-visibility-of-s.patch"
+    ],
+    "overlay_paths": [],
+    "large_patch_sha256_0001": "a02c5451670fd22f505b48a0905623469d89fe911a51ea67b7c854f8484782f7",
+    "large_patch_sha256_0002": "cb6b56af152bf93564e10fe523596462122a361a6dc7a30a02683bfe750a811a"
+  }
+}

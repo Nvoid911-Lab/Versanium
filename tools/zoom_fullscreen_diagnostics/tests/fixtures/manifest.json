@@ -1,0 +1,51 @@
+{
+  "controller": "f7de4458deb0f96417830f75e399da2cfc0e56d9",
+  "chromium": "1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775",
+  "files": {
+    "content/browser/web_contents/web_contents_impl.cc": {
+      "fixture": "web_contents_impl.cc.gz",
+      "before_sha256": "0156c1d1dcbbc51097a84cad190c44b7ac007dd2d7b6bb5f977484181ba00bb2",
+      "after_sha256": "f26ef9cc0f38c1274f879da85caaca566f871591e63870787da44a2121b6525c"
+    },
+    "content/browser/renderer_host/render_widget_host_impl.cc": {
+      "fixture": "render_widget_host_impl.cc.gz",
+      "before_sha256": "20e6b9c92046d35223b5b0e870b9f9aa67d99aa1b9b460a0a229cc80344a6ee1",
+      "after_sha256": "0a691c636c08ac60d243281eaa922bcdbedbb629bb6e1c6f8d52132db0ebe083"
+    },
+    "third_party/blink/renderer/core/frame/web_frame_widget_impl.cc": {
+      "fixture": "web_frame_widget_impl.cc.gz",
+      "before_sha256": "fc7f2035ad48120dfbb05910f51898f2e23b6c4f8837361fc2009cc4cc768d5b",
+      "after_sha256": "1e9a1136e92f729ca3a43c0de5608b08a3e28e75f62b76e199898909ad57bc9c"
+    },
+    "third_party/blink/renderer/core/frame/fullscreen_controller.cc": {
+      "fixture": "fullscreen_controller.cc.gz",
+      "before_sha256": "3ada8ac347ad9133f2967267095983f2972af1c6341330cc37c1ca529421301c",
+      "after_sha256": "bc144783b8da921aa7d7d12c7857943cd32c83a1b002f13e62696a94bd6af7b3"
+    },
+    "third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc": {
+      "fixture": "media_custom_controls_fullscreen_detector.cc.gz",
+      "before_sha256": "b3951c9de4c4891dd3b81c1a4814166ddc3ffa6627dbbd5961955b961d12adb0",
+      "after_sha256": "ddca1aa98a3839f9228a3b280cfad12bcab5e6c170e5ec02afa6d9b558dc3668"
+    },
+    "third_party/blink/renderer/core/paint/video_painter.cc": {
+      "fixture": "video_painter.cc.gz",
+      "before_sha256": "f2ac643fdf2e4c88075a62bcdf6410b04060df6f55853a3e0c0dfb4c10b18bab",
+      "after_sha256": "e2aeaf0ab76a4e508fb743c5f75c5bd6058723611e4bf650f67e39c89d74dd4d"
+    },
+    "chrome/browser/chrome_content_browser_client.cc": {
+      "fixture": "chrome_content_browser_client.cc.gz",
+      "before_sha256": "b984120584340a7ef39f60c700fddb761e0a0c6a1ccb038229d16e892a33ad0e",
+      "after_sha256": "3b0691bfe0826e250b833b6ab0ec719998f211ed058ca2ab9ab2b79391aa9fb1"
+    },
+    "content/public/android/java/src/org/chromium/content_public/browser/EnvironmentZoom.java": {
+      "fixture": "EnvironmentZoom.java.gz",
+      "before_sha256": "ba8ea5c809ec73525caaae2e9e3c00db198471d2102382b349ad95402f6afaf0",
+      "after_sha256": "6adf9e44c6b40aad1f3cefc92e0e9cd642a526bc0b6266b9c8734ee0da42b168"
+    }
+  },
+  "java_inverse": {
+    "old": "        return binding.policy.resolve(binding.lastEnvironment, host)\n                + Math.log(binding.lastFont) / Math.log(1.2);",
+    "new": "        double raw = binding.policy.resolve(binding.lastEnvironment, host);\n        double result = raw + Math.log(binding.lastFont) / Math.log(1.2);\n        if (vsZoomDiagnosticsEnabled()) vsZoomState(contents, host, binding, raw, result);\n        return result;",
+    "helper": "\n    // VSZOOMFS_DIAGNOSTIC_BEGIN\n    public static boolean vsZoomDiagnosticsEnabled() {\n        return org.chromium.base.CommandLine.isInitialized()\n                && org.chromium.base.CommandLine.getInstance().hasSwitch(\"versanium-zoom-fullscreen-diagnostics\");\n    }\n    private static final class VSZoomSample {\n        double raw, adjusted, before;\n        String slot = \"\", beforeSlot = \"\", last = \"\";\n        int tab = -1, samples;\n        boolean beforeValid, restorePending, limitReported;\n    }\n    private static final class VSZoomStore {\n        static final WeakHashMap<WebContents, VSZoomSample> samples = new WeakHashMap<>();\n    }\n    private static VSZoomSample vsZoomSample(WebContents wc) {\n        return VSZoomStore.samples.computeIfAbsent(wc, ignored -> new VSZoomSample());\n    }\n    private static void vsZoomEmit(WebContents wc, VSZoomSample sample, String event, String values) {\n        if (!vsZoomDiagnosticsEnabled() || wc == null || wc.isDestroyed()) return;\n        String key = event + \" \" + values;\n        if (key.equals(sample.last)) return;\n        if (sample.samples >= 128) {\n            if (!sample.limitReported) {\n                sample.limitReported = true;\n                Log.i(\"VersaniumZoomFS\", \"VSZOOMFS event=DIAGNOSTIC_LIMIT wc_java=%d\", System.identityHashCode(wc));\n            }\n            return;\n        }\n        sample.last = key; sample.samples++;\n        RenderFrameHost frame = wc.getMainFrame();\n        GlobalRenderFrameHostId id = frame == null ? null : frame.getGlobalRenderFrameHostId();\n        Log.i(\"VersaniumZoomFS\", \"VSZOOMFS event=%s seq_wc=%d tab=%d wc_java=%d wc_main_child=%d wc_main_route=%d %s\",\n                event, sample.samples, sample.tab, System.identityHashCode(wc), id == null ? -1 : id.childId(),\n                id == null ? -1 : id.frameRoutingId(), values);\n    }\n    private static void vsZoomState(WebContents wc, String host, Binding binding, double raw, double adjusted) {\n        VSZoomSample sample = vsZoomSample(wc);\n        sample.raw = raw; sample.adjusted = adjusted;\n        sample.slot = binding.lastEnvironment.name() + \":\" + host; // Internal comparison only; never logged.\n        vsZoomEmit(wc, sample, \"ZOOM_STATE\", \"resolved_user_exp=\" + raw + \" stored_exp=\" + raw\n                + \" adjusted_exp=\" + adjusted + \" font_factor=\" + binding.lastFont\n                + \" zoom_environment=\" + binding.lastEnvironment.name());\n        if (sample.restorePending) {\n            vsZoomEmit(wc, sample, \"ZOOM_RESTORE\", \"restore_action=none stored_zoom_unchanged=\"\n                    + (sample.beforeValid && sample.beforeSlot.equals(sample.slot)\n                        ? Boolean.toString(Double.doubleToRawLongBits(sample.before) == Double.doubleToRawLongBits(raw)) : \"unknown\")\n                    + \" stored_exp=\" + raw + \" before_exp=\" + sample.before);\n            sample.restorePending = false;\n        }\n    }\n    @SuppressWarnings(\"deprecation\") // Read-only Display.getRealSize for existing Android APIs.\n    public static void vsZoomFullscreen(WebContents wc, int tabId, boolean entered) {\n        if (!vsZoomDiagnosticsEnabled() || wc == null || wc.isDestroyed()) return;\n        VSZoomSample sample = vsZoomSample(wc); sample.tab = tabId;\n        if (entered) {\n            sample.beforeValid = !sample.slot.isEmpty(); sample.before = sample.raw;\n            sample.beforeSlot = sample.slot;\n        } else { sample.restorePending = true; }\n        Activity owner = activity(wc);\n        String geometry = \"window_px=unknown display_px=unknown\";\n        if (owner != null && !owner.isDestroyed() && !owner.isFinishing()\n                && owner.getWindow() != null && owner.getWindow().getDecorView() != null) {\n            android.view.View decor = owner.getWindow().getDecorView();\n            geometry = \"window_px_w=\" + decor.getWidth() + \" window_px_h=\" + decor.getHeight()\n                    + \" display_id=\" + displayId(owner);\n            android.hardware.display.DisplayManager manager = (android.hardware.display.DisplayManager)\n                    owner.getSystemService(Context.DISPLAY_SERVICE);\n            android.view.Display display = manager == null ? null : manager.getDisplay(displayId(owner));\n            if (display != null) {\n                android.graphics.Point size = new android.graphics.Point(); display.getRealSize(size);\n                geometry += \" display_px_w=\" + size.x + \" display_px_h=\" + size.y;\n            }\n        }\n        vsZoomEmit(wc, sample, entered ? \"FULLSCREEN_ENTER\" : \"FULLSCREEN_EXIT\",\n                \"source=java_observer stored_exp=\" + sample.raw + \" stored_value_stage=last_calculation before_valid=\" + sample.beforeValid + \" \" + geometry);\n    }\n    // VSZOOMFS_DIAGNOSTIC_END\n"
+  }
+}

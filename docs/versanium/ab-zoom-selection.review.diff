@@ -1,0 +1,70 @@
+diff --git a/tmp/ab-common-reviewed/A/content/browser/host_zoom_map_impl.cc b/tmp/ab-common-reviewed/B/content/browser/host_zoom_map_impl.cc
+index 7988ce4..dd809f6 100644
+--- a/tmp/ab-common-reviewed/A/content/browser/host_zoom_map_impl.cc
++++ b/tmp/ab-common-reviewed/B/content/browser/host_zoom_map_impl.cc
+@@ -451,7 +451,8 @@ double HostZoomMapImpl::GetZoomLevelForWebContents(
+ #if BUILDFLAG(IS_ANDROID)
+   // Read the committed RFH URL, not a Java pending URL or a profile-global value.
+   auto* environment_rfh = RenderFrameHost::FromID(rfh_id);
+-  if (environment_rfh && !environment_rfh->GetParentOrOuterDocument()) {
++  if (!UsesTemporaryZoomLevel(rfh_id) && environment_rfh &&
++      !environment_rfh->GetParentOrOuterDocument()) {
+     JNIEnv* env = base::android::AttachCurrentThread();
+     double level = Java_HostZoomMapImpl_getEnvironmentZoomLevel(
+         env, web_contents_impl->GetJavaWebContents(),
+@@ -481,7 +482,8 @@ void HostZoomMapImpl::SetZoomLevelForWebContents(
+
+ #if BUILDFLAG(IS_ANDROID)
+   auto* environment_rfh = RenderFrameHost::FromID(rfh_id);
+-  if (environment_rfh && !environment_rfh->GetParentOrOuterDocument() &&
++  if (!UsesTemporaryZoomLevel(rfh_id) && environment_rfh &&
++      !environment_rfh->GetParentOrOuterDocument() &&
+       Java_HostZoomMapImpl_saveEnvironmentZoomLevel(
+           base::android::AttachCurrentThread(), web_contents_impl->GetJavaWebContents(),
+           net::GetHostOrSpecFromURL(GetURLForRenderFrameHost(rfh_id)), level)) {
+@@ -652,6 +654,12 @@ static void JNI_HostZoomMapImpl_SetZoomLevel(
+   GlobalRenderFrameHostId rfh_id =
+       web_contents->GetPrimaryMainFrame()->GetGlobalId();
+
++  auto* temporary_map = static_cast<HostZoomMapImpl*>(
++      HostZoomMap::GetForWebContents(web_contents));
++  if (temporary_map->UsesTemporaryZoomLevel(rfh_id)) {
++    temporary_map->SetTemporaryZoomLevel(rfh_id, adjusted_zoom_level);
++    return; // Transient renderer adjustment must never enter persistent stores.
++  }
+   if (Java_HostZoomMapImpl_saveEnvironmentZoomLevel(
+           env, web_contents->GetJavaWebContents(),
+           net::GetHostOrSpecFromURL(HostZoomMap::GetURLForWebContents(web_contents)),
+diff --git a/tmp/ab-common-reviewed/A/content/browser/web_contents/web_contents_impl.cc b/tmp/ab-common-reviewed/B/content/browser/web_contents/web_contents_impl.cc
+index 919942a..6c860f6 100644
+--- a/tmp/ab-common-reviewed/A/content/browser/web_contents/web_contents_impl.cc
++++ b/tmp/ab-common-reviewed/B/content/browser/web_contents/web_contents_impl.cc
+@@ -10040,6 +10040,16 @@ double WebContentsImpl::GetPendingZoomLevel(RenderWidgetHostImpl* rwh) {
+   }
+ #if BUILDFLAG(IS_ANDROID)
+   if (!rfh->GetParentOrOuterDocument()) {
++    auto* zoom_map = HostZoomMapForRenderFrameHost(rfh);
++    if (zoom_map->UsesTemporaryZoomLevel(rfh->GetGlobalId())) {
++      return HostZoomMap::GetZoomLevel(this, rfh->GetGlobalId());
++    }
++    // Rendering-only video fullscreen override. Never use a persisted setter.
++    // F11/browser fullscreen without an effective video player does not qualify.
++    if (IsFullscreen() &&
++        media_web_contents_observer_->GetFullscreenVideoMediaPlayerId()) {
++      return 0.0;
++    }
+     double environment_level = HostZoomMap::GetEnvironmentZoomLevel(this, url);
+     if (std::isfinite(environment_level)) return environment_level;
+   }
+@@ -12498,6 +12508,11 @@ void WebContentsImpl::MediaResized(const gfx::Size& size,
+ }
+
+ void WebContentsImpl::MediaEffectivelyFullscreenChanged(bool is_fullscreen) {
++#if BUILDFLAG(IS_ANDROID)
++  // Observer has already updated/reset the fullscreen player. Re-evaluate the
++  // rendering override on both entry and exit, without touching stored values.
++  UpdateZoom();
++#endif
+   OPTIONAL_TRACE_EVENT1("content",
+                         "WebContentsImpl::MediaEffectivelyFullscreenChanged",
+                         "is_fullscreen", is_fullscreen);

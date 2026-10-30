@@ -1,0 +1,129 @@
+{
+  "reviewed_base": "1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775",
+  "patched_head": "e76ab5fc518ef2df24519c82cec55427870f8bd4",
+  "source_files": {
+    "third_party/blink/renderer/core/html/media/media_custom_controls_fullscreen_detector.cc": {
+      "reviewed_base_sha256": "b3951c9de4c4891dd3b81c1a4814166ddc3ffa6627dbbd5961955b961d12adb0",
+      "working_sha256": "b3951c9de4c4891dd3b81c1a4814166ddc3ffa6627dbbd5961955b961d12adb0",
+      "identical_to_reviewed_base": true
+    },
+    "third_party/blink/renderer/core/html/media/html_video_element.cc": {
+      "reviewed_base_sha256": "c99190ade522dcb959327abf510223bbd6ad137afeb7d6f4d39185ad7f5b6699",
+      "working_sha256": "c99190ade522dcb959327abf510223bbd6ad137afeb7d6f4d39185ad7f5b6699",
+      "identical_to_reviewed_base": true
+    },
+    "third_party/blink/renderer/core/html/media/html_media_element.cc": {
+      "reviewed_base_sha256": "cbe10ab50ec054bd72cd04df8dfcdb84d11ae88a6ffcc073c0555c3010429bc0",
+      "working_sha256": "cbe10ab50ec054bd72cd04df8dfcdb84d11ae88a6ffcc073c0555c3010429bc0",
+      "identical_to_reviewed_base": true
+    },
+    "media/mojo/mojom/media_player.mojom": {
+      "reviewed_base_sha256": "31627f3cbc7dec555e55298ef9d505a7238437277f590cee8262c4fd3fe0cc57",
+      "working_sha256": "31627f3cbc7dec555e55298ef9d505a7238437277f590cee8262c4fd3fe0cc57",
+      "identical_to_reviewed_base": true
+    },
+    "content/browser/media/media_web_contents_observer.cc": {
+      "reviewed_base_sha256": "28ec2033b17901278ecd73f5a09ac8f1956ab49eeec1582f716ec085d01196b8",
+      "working_sha256": "28ec2033b17901278ecd73f5a09ac8f1956ab49eeec1582f716ec085d01196b8",
+      "identical_to_reviewed_base": true
+    },
+    "content/browser/media/media_web_contents_observer.h": {
+      "reviewed_base_sha256": "45d5177521fd4a581f435d9f10d80a3641d7a28606568e4d02b289ca42b0e76c",
+      "working_sha256": "45d5177521fd4a581f435d9f10d80a3641d7a28606568e4d02b289ca42b0e76c",
+      "identical_to_reviewed_base": true
+    },
+    "content/browser/web_contents/web_contents_impl.cc": {
+      "reviewed_base_sha256": "e551b400ae68665f06ce6f00807728763192866024be92e1507370d0db0a4199",
+      "working_sha256": "0156c1d1dcbbc51097a84cad190c44b7ac007dd2d7b6bb5f977484181ba00bb2",
+      "identical_to_reviewed_base": false
+    },
+    "content/browser/web_contents/web_contents_android.cc": {
+      "reviewed_base_sha256": "b3e3aab009780b195c986aaa1042568a0724c8836dca7a974f1664051fa320ef",
+      "working_sha256": "b3e3aab009780b195c986aaa1042568a0724c8836dca7a974f1664051fa320ef",
+      "identical_to_reviewed_base": true
+    },
+    "content/public/android/java/src/org/chromium/content/browser/webcontents/WebContentsImpl.java": {
+      "reviewed_base_sha256": "9b185f395290c0a1770f7ab0015d99084395f411ac6797d6439b2a03aebc2ebd",
+      "working_sha256": "9b185f395290c0a1770f7ab0015d99084395f411ac6797d6439b2a03aebc2ebd",
+      "identical_to_reviewed_base": true
+    },
+    "content/renderer/media/renderer_web_media_player_delegate.cc": {
+      "reviewed_base_sha256": "8f9cfe02405ab5040bf0ea16422de338bbe17be1e49aaa5d7dca7c44fe4c4d09",
+      "working_sha256": "8f9cfe02405ab5040bf0ea16422de338bbe17be1e49aaa5d7dca7c44fe4c4d09",
+      "identical_to_reviewed_base": true
+    },
+    "third_party/blink/renderer/platform/media/web_media_player_impl.cc": {
+      "reviewed_base_sha256": "6b650cb68e48c50f62e85f88d8892ca3f67615989628c33724a87a4a349538b7",
+      "working_sha256": "6b650cb68e48c50f62e85f88d8892ca3f67615989628c33724a87a4a349538b7",
+      "identical_to_reviewed_base": true
+    },
+    "content/browser/media/session/media_session_impl.cc": {
+      "reviewed_base_sha256": "75cf754cd56de9dceea712415e74ae8a262e7e1b9a4a0782ff5b12d93dc28e33",
+      "working_sha256": "75cf754cd56de9dceea712415e74ae8a262e7e1b9a4a0782ff5b12d93dc28e33",
+      "identical_to_reviewed_base": true
+    },
+    "content/browser/media/session/media_session_controller.cc": {
+      "reviewed_base_sha256": "967faa3af9bd4a6f0f48c6383ac88704e409ab1646ba2fb33f2800c03bb20d2a",
+      "working_sha256": "967faa3af9bd4a6f0f48c6383ac88704e409ab1646ba2fb33f2800c03bb20d2a",
+      "identical_to_reviewed_base": true
+    },
+    "chrome/android/java/src/org/chromium/chrome/browser/media/FullscreenVideoPictureInPictureController.java": {
+      "reviewed_base_sha256": "02d04e36e35f98c2bc0e13b417309ee39b729781a69944ae100f9f7def6cfd92",
+      "working_sha256": "d114aef77a4202ae0f6fa5fe60b1821c6f5e127dfa76e2ae4fcd011046366be1",
+      "identical_to_reviewed_base": false
+    },
+    "chrome/android/java/src/org/chromium/chrome/browser/tab/TabImpl.java": {
+      "reviewed_base_sha256": "8ce925791c9715ff5865ffe314b8fdffc75e6d33cfcdae3d9f9ac8979c373c3b",
+      "working_sha256": "4686ebc4cc77d604041b7b106fe8753a3fe7e9e44508564044a5f2215135e7b1",
+      "identical_to_reviewed_base": false
+    },
+    "chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelSelectorImpl.java": {
+      "reviewed_base_sha256": "37fc0e331ab793c1f121a79103f999b097d6642e959fce1fbbfcbde27464b4b8",
+      "working_sha256": "37fc0e331ab793c1f121a79103f999b097d6642e959fce1fbbfcbde27464b4b8",
+      "identical_to_reviewed_base": true
+    }
+  },
+  "prior_source_inventory_count": 1316,
+  "prior_source_inventory_differences": [],
+  "inventory_scope_note": "1314 file hashes; two inherited directory markers do not hash nested contents.",
+  "gn_args_sha256": "d2096bdd18bfb10c2edb46ef950864bf917351dd5c7b059921b51e8b8e335cf8",
+  "start_controller": "6dd327cfd4daae77272a0e970e760229980a228a",
+  "product_changed": false,
+  "zoom_blob_gate": "PASS:24",
+  "retired_paths_absent": [
+    "tools/apply_content_fullscreen_origin.py",
+    "tools/apply_fullscreen_delegate_origin.py",
+    "tools/apply_fullscreen_native_origin.py",
+    "tools/apply_fullscreen_origin.py",
+    "tools/apply_youtube_candidates.py",
+    "tools/versanium/audit_native_graph.py",
+    "tools/versanium/check_ab_selection.py",
+    "tools/versanium/flag_metadata_pipeline.py",
+    "tools/versanium/prepare_config_a.py",
+    "tools/versanium/prepare_config_a_origin.py",
+    "tools/versanium/prepare_config_a_origin_forward.py",
+    "tools/versanium/prepare_content_diagnostic.py",
+    "tools/versanium/prepare_diagnostic_update.py",
+    "tools/versanium/prepare_native_diagnostic.py",
+    "tools/versanium/prepare_run9.py",
+    "tools/versanium/tests/test_config_a.py",
+    "tools/versanium/tests/test_config_a_origin.py",
+    "tools/versanium/tests/test_config_a_origin_forward.py",
+    "tools/versanium/tests/test_content_origin.py",
+    "tools/versanium/tests/test_content_preparation.py",
+    "tools/versanium/tests/test_delegate_origin.py",
+    "tools/versanium/tests/test_diagnostic_update.py",
+    "tools/versanium/tests/test_native_origin.py",
+    "tools/versanium/tests/test_native_preparation.py",
+    "tools/versanium/tests/test_run9.py",
+    "tools/youtube_pip/candidate.js",
+    "tools/youtube_pip/diagnostics.patch",
+    "tools/youtube_pip/execution_scope.patch",
+    "tools/youtube_pip/tests/check_execution_scope.py",
+    "tools/youtube_pip/tests/check_fullscreen_origins.py",
+    "tools/youtube_pip/tests/check_passive_diagnostics.py",
+    "tools/youtube_pip/tests/check_pip_branches.py",
+    "tools/youtube_pip/tests/check_source_integration.py",
+    "tools/youtube_pip/tests/test_candidate.cjs"
+  ]
+}

@@ -74,6 +74,8 @@ PY
 gclient runhooks || { echo "ERROR: gclient runhooks failed; stopping before patch.sh."; exit 1; }
 ./build/install-build-deps.sh --no-prompt
 
+# Freeze the tool coordinator after dependency hooks, before GN/compilation/provenance.
+export DEPOT_TOOLS_UPDATE=0
 source $SCRIPT_DIR/patch.sh
 cp $SCRIPT_DIR/args.gn out/Default/args.gn
 if [ "$F11_TEST_BUILD" = "1" ]; then
@@ -89,13 +91,22 @@ if [ "$F11_TEST_BUILD" = "1" ]; then
 fi
 python3 build/util/lastchange.py -o build/util/LASTCHANGE || { echo "ERROR: failed to generate Chromium LASTCHANGE metadata."; exit 1; }
 gn gen out/Default || { echo "ERROR: gn gen failed; stopping before compilation/signing."; exit 1; }
+python3 "$SCRIPT_DIR/tools/versanium/write_build_provenance.py" --repository "$SCRIPT_DIR" --source "$PWD" --output "$SCRIPT_DIR/build-provenance.json" || exit 1
 mkdir -p out/tmp out/release
+compiler_jobs=()
+if [ -n "${VERSANIUM_BUILD_JOBS:-}" ]; then
+    if [[ ! "$VERSANIUM_BUILD_JOBS" =~ ^[1-9][0-9]?$ ]] || [ "$VERSANIUM_BUILD_JOBS" -gt 64 ]; then
+        echo 'Invalid reviewed compiler job limit.' >&2
+        exit 1
+    fi
+    compiler_jobs=(-j "$VERSANIUM_BUILD_JOBS")
+fi
 
 if [ "$F11_TEST_BUILD" = "1" ]; then
     # Check the patched activity before spending time compiling the full APK.
-    autoninja -C out/Default chrome_java || { echo "ERROR: Chromium Java compilation failed; stopping before APK compilation/signing."; exit 1; }
+    autoninja -C out/Default "${compiler_jobs[@]}" chrome_java || { echo "ERROR: Chromium Java compilation failed; stopping before APK compilation/signing."; exit 1; }
     # Build only the arm64 APK for the F11 feature test.
-    autoninja -C out/Default chrome_public_apk || { echo "ERROR: Chromium APK build failed; stopping before signing."; exit 1; }
+    autoninja -C out/Default "${compiler_jobs[@]}" chrome_public_apk || { echo "ERROR: Chromium APK build failed; stopping before signing."; exit 1; }
     APK=$(find out/Default/apks -name 'Chrome*.apk' -print -quit)
     if [ -z "$APK" ]; then echo "ERROR: Chromium APK was not generated."; exit 1; fi
     mv "$APK" out/tmp/$VERSION-arm64-v8a.apk
