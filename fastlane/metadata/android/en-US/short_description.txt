@@ -1,1 +1,1 @@
-Private, secure, open-source Chromium-based browser with support for extensions
+Comfortable Android browsing across smartphones and desktop-style environments.
