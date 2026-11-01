@@ -20,7 +20,7 @@ WebRTC IP Policy is available in Settings under Privacy and security. If the def
 
 Browser pages are available through chrome://chrome-urls; experimental settings through chrome://flags.
 
-Published Versanium releases target arm64-v8a. Experimental test APKs are distributed as Actions artifacts, not formal releases.
+Versanium is currently under Test validation. No production release is authorized. Current experimental Test APKs target arm64-v8a and may be distributed as Actions artifacts from explicitly reviewed project revisions; they are not formal production releases.
 
 Versanium is not maintained, endorsed, or supported by the upstream Titanium Browser developers. It does not replace Titanium Browser.
 
